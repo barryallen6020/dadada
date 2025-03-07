@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -68,6 +69,10 @@ const AdminLoginForm: React.FC = () => {
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleBack = () => {
+    navigate('/');
   };
 
   return (
@@ -148,6 +153,18 @@ const AdminLoginForm: React.FC = () => {
           )}
           <span className="absolute inset-0 opacity-0 group-hover:opacity-10 bg-white transition-opacity duration-200" />
         </Button>
+        
+        <div className="flex justify-center">
+          <Button 
+            type="button" 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleBack}
+            className="text-muted-foreground hover:text-foreground mt-2"
+          >
+            Back to Home
+          </Button>
+        </div>
       </form>
     </motion.div>
   );

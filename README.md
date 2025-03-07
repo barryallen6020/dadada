@@ -1,69 +1,153 @@
-# Welcome to your Lovable project
 
-## Project info
+# Echobox - Anonymous Messaging Platform
 
-**URL**: https://lovable.dev/projects/a5760add-215c-4f0c-8d08-b8d5c88daa26
+![Echobox Logo](public/og-image.png)
 
-## How can I edit this code?
+## Overview
 
-There are several ways of editing your application.
+Echobox is a modern and secure anonymous messaging platform built with React, TypeScript, and Tailwind CSS. It provides an elegant, user-friendly interface for anonymous messaging with support for text, images, voice notes, and documents.
 
-**Use Lovable**
+## Features
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/a5760add-215c-4f0c-8d08-b8d5c88daa26) and start prompting.
+### General
+- Dark/light theme toggle
+- Responsive design (mobile-first approach)
+- Smooth animations and transitions
+- Glass morphism UI elements
+- Gradient accents
 
-Changes made via Lovable will be committed automatically to this repo.
+### For Users
+- **Anonymous Message Submission**
+  - No authentication required
+  - Support for multiple message formats:
+    - Text (max 1000 characters)
+    - Images (PNG, JPG, WEBP, max 5MB)
+    - Voice notes (MP3, max 2 minutes)
+    - Documents (PDF, DOC, max 10MB)
+  - Real-time input validation
+  - Voice recording directly in the platform
+  - Form auto-cleanup after submission
 
-**Use your preferred IDE**
+### For Admins
+- **Secure Admin Portal**
+  - Authentication with hardcoded credentials (Username: Admin, Password: IamAdmin$)
+  - Session management
+  - Rate limiting for login attempts
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **Message Dashboard**
+  - Grid/List view toggle
+  - Message filtering by type, date range, read/unread status
+  - Infinite scroll pagination
+  - Quick actions (mark as read, export to WhatsApp, screenshot capture, delete)
+  - Message preview with modal expansion
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Tech Stack
 
-Follow these steps:
+- **Frontend Framework**: React with TypeScript
+- **Styling**: Tailwind CSS + shadcn/ui components
+- **Animations**: Framer Motion
+- **Form Handling**: React Hook Form + Zod validation
+- **UI Components**: shadcn/ui (built on Radix UI)
+- **Routing**: React Router
+- **Icons**: Lucide React
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## Security Features
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+- Rate limiting
+- Input sanitization
+- File type validation
+- XSS protection
+- CSRF protection
+- Secure file storage (backend implementation required)
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Getting Started
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+### Prerequisites
+
+- Node.js (v16 or higher)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository
+```bash
+git clone https://github.com/Psybah/echobox.git
+cd echobox
 ```
 
-**Edit a file directly in GitHub**
+2. Install dependencies
+```bash
+npm install
+# or
+yarn
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+3. Start the development server
+```bash
+npm run dev
+# or
+yarn dev
+```
 
-**Use GitHub Codespaces**
+4. The application will be available at `http://localhost:5173`
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Admin Access
 
-## What technologies are used for this project?
+To access the admin dashboard:
+1. Navigate to `/admin`
+2. Use the following credentials:
+   - Username: `Admin`
+   - Password: `IamAdmin$`
 
-This project is built with .
+## Connecting to Backend
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+The frontend is designed to be easily connected to any backend implementation. To connect to your existing backend:
 
-## How can I deploy this project?
+1. Configure API endpoints in a centralized service
+2. Implement authentication logic in the `useAdmin` hook
+3. Update form submission handlers to use your API endpoints
+4. Implement file upload functionality with your backend storage solution
 
-Simply open [Lovable](https://lovable.dev/projects/a5760add-215c-4f0c-8d08-b8d5c88daa26) and click on Share -> Publish.
+## Performance Optimizations
 
-## I want to use a custom domain - is that possible?
+- Image optimization
+- Lazy loading of components
+- Code splitting
+- API route optimization (when connected to backend)
+- Caching strategy
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+## Project Structure
+
+```
+src/
+├── components/           # Reusable UI components
+│   ├── admin/            # Admin-specific components
+│   ├── auth/             # Authentication components
+│   ├── file-upload/      # File upload components
+│   ├── layout/           # Layout components (header, footer, etc.)
+│   ├── message/          # Message-related components
+│   └── ui/               # shadcn/ui components
+├── hooks/                # Custom React hooks
+├── lib/                  # Utility functions and helpers
+├── pages/                # Page components
+└── App.tsx               # Main application component with routing
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgements
+
+- [shadcn/ui](https://ui.shadcn.com/) for the beautiful UI components
+- [Tailwind CSS](https://tailwindcss.com/) for styling
+- [Framer Motion](https://www.framer.com/motion/) for animations
+- [Lucide Icons](https://lucide.dev/) for icons
+
+---
+
+Made with ❤️ by [Cybersmith](https://github.com/Psybah/)
