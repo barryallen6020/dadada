@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Image as ImageIcon, Mic, FileText, X } from 'lucide-react';
+import { Send, Image as ImageIcon, Mic, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,6 +11,8 @@ import { VoiceRecorder } from '@/components/ui/voice-recorder';
 import FileUploadArea from '@/components/file-upload/FileUploadArea';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
+import { sendMessage } from '@/services/apiService';
 
 const MessageFormSchema = z.object({
   text: z.string().max(1000, 'Message cannot exceed 1000 characters').optional(),
@@ -30,7 +31,7 @@ const MessageForm: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [formReset, setFormReset] = useState(false);
-  const { toast } = useToast();
+  const { toast: hookToast } = useToast();
 
   const {
     register,
@@ -57,6 +58,20 @@ const MessageForm: React.FC = () => {
   }, [formReset, reset]);
 
   const onFileSelect = (file: File) => {
+    // Validate file size (1MB limit for documents)
+    const fileSizeInMB = file.size / (1024 * 1024);
+    const isDocument = !file.type.startsWith('image/');
+    
+    if (isDocument && fileSizeInMB > 1) {
+      toast.error(`Document size exceeds 1MB limit. Your file is ${fileSizeInMB.toFixed(2)}MB`);
+      return;
+    }
+    
+    if (!isDocument && fileSizeInMB > 5) {
+      toast.error(`Image size exceeds 5MB limit. Your file is ${fileSizeInMB.toFixed(2)}MB`);
+      return;
+    }
+    
     setSelectedFile(file);
     if (file.type.startsWith('image/')) {
       setActiveTab('image');
@@ -72,49 +87,45 @@ const MessageForm: React.FC = () => {
   const onSubmit: SubmitHandler<MessageFormValues> = async (data) => {
     setIsSubmitting(true);
     
-    // Create form data for submission
-    const formData = new FormData();
-    
-    if (activeTab === 'text' && data.text) {
-      formData.append('text', data.text);
-      formData.append('type', 'text');
-    } else if (activeTab === 'image' && selectedFile) {
-      formData.append('file', selectedFile);
-      formData.append('type', 'image');
-    } else if (activeTab === 'voice' && audioBlob) {
-      formData.append('audio', audioBlob);
-      formData.append('type', 'voice');
-    } else if (activeTab === 'document' && selectedFile) {
-      formData.append('file', selectedFile);
-      formData.append('type', 'document');
-    } else {
-      toast({
-        title: "No content to send",
-        description: "Please provide content before submitting",
-        variant: "destructive",
-      });
-      setIsSubmitting(false);
-      return;
-    }
-    
     try {
-      // Mock API call - replace with actual API endpoint when backend is ready
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      let success = false;
       
-      toast({
-        title: "Message sent successfully",
-        description: "Your anonymous message has been delivered",
-      });
+      if (activeTab === 'text' && data.text) {
+        success = await sendMessage({
+          type: 'text',
+          text: data.text
+        });
+      } else if (activeTab === 'image' && selectedFile) {
+        success = await sendMessage({
+          type: 'image',
+          image: selectedFile,
+          text: data.text
+        });
+      } else if (activeTab === 'voice' && audioBlob) {
+        success = await sendMessage({
+          type: 'audio',
+          audio: audioBlob
+        });
+      } else if (activeTab === 'document' && selectedFile) {
+        success = await sendMessage({
+          type: 'document',
+          document: selectedFile,
+          text: data.text
+        });
+      } else {
+        toast.error("Please provide content before submitting");
+        setIsSubmitting(false);
+        return;
+      }
       
-      setFormReset(true);
-      setActiveTab('text');
+      if (success) {
+        toast.success("Message sent successfully");
+        setFormReset(true);
+        setActiveTab('text');
+      }
     } catch (error) {
-      toast({
-        title: "Failed to send message",
-        description: "Please try again later",
-        variant: "destructive",
-      });
       console.error("Error sending message:", error);
+      toast.error("Failed to send message");
     } finally {
       setIsSubmitting(false);
     }
@@ -231,7 +242,7 @@ const MessageForm: React.FC = () => {
                 <FileUploadArea
                   onFileSelect={onFileSelect}
                   acceptedFileTypes="document"
-                  maxSizeMB={10}
+                  maxSizeMB={1} // Updated from 10MB to 1MB per backend requirement
                   selectedFile={selectedFile}
                   onClearFile={() => setSelectedFile(null)}
                 />

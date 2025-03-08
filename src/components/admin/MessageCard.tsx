@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { 
@@ -16,8 +15,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { markMessageAsRead, getMediaUrl } from '@/services/apiService';
+import { toast } from 'sonner';
 
-export type MessageType = 'text' | 'document' | 'image' | 'voice';
+export type MessageType = 'text' | 'document' | 'image' | 'voice' | 'audio';
 
 export interface Message {
   id: string;
@@ -38,36 +39,37 @@ interface MessageCardProps {
 
 const MessageCard: React.FC<MessageCardProps> = ({ message, onMarkRead, onDelete }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const { toast } = useToast();
+  const { toast: hookToast } = useToast();
 
-  const handleMarkAsRead = (e: React.MouseEvent) => {
+  const handleMarkAsRead = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    onMarkRead(message.id);
-    toast({
-      description: "Message marked as read",
-    });
+    
+    try {
+      const success = await markMessageAsRead(message.id);
+      if (success) {
+        onMarkRead(message.id);
+        toast.success("Message marked as read");
+      }
+    } catch (error) {
+      console.error("Error marking message as read:", error);
+      toast.error("Failed to mark message as read");
+    }
   };
 
   const handleExportToWhatsApp = (e: React.MouseEvent) => {
     e.stopPropagation();
-    toast({
-      description: "Exported to WhatsApp",
-    });
+    toast.success("Exported to WhatsApp");
   };
 
   const handleScreenshot = (e: React.MouseEvent) => {
     e.stopPropagation();
-    toast({
-      description: "Screenshot captured",
-    });
+    toast.success("Screenshot captured");
   };
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     onDelete(message.id);
-    toast({
-      description: "Message deleted",
-    });
+    toast.success("Message deleted");
   };
 
   const getTypeIcon = () => {
@@ -79,6 +81,7 @@ const MessageCard: React.FC<MessageCardProps> = ({ message, onMarkRead, onDelete
       case 'image':
         return <Image className="h-4 w-4 text-green-400" />;
       case 'voice':
+      case 'audio':
         return <Mic className="h-4 w-4 text-amber-400" />;
       default:
         return <MessageSquare className="h-4 w-4" />;
@@ -99,6 +102,11 @@ const MessageCard: React.FC<MessageCardProps> = ({ message, onMarkRead, onDelete
       "glass relative rounded-lg p-4 transition-all duration-200 hover:bg-white/10 cursor-pointer",
       !message.isRead && "border-l-2 border-l-echo-purple",
     );
+  };
+
+  // Get proper media URL for files from the API
+  const getMediaFileUrl = (id: string) => {
+    return message.fileUrl || getMediaUrl(id);
   };
 
   return (
@@ -200,14 +208,14 @@ const MessageCard: React.FC<MessageCardProps> = ({ message, onMarkRead, onDelete
                 <p className="whitespace-pre-wrap">{message.content}</p>
               ) : message.type === 'image' ? (
                 <img 
-                  src={message.fileUrl} 
+                  src={getMediaFileUrl(message.id)} 
                   alt="Message attachment" 
                   className="max-w-full rounded-md"
                 />
-              ) : message.type === 'voice' ? (
+              ) : message.type === 'voice' || message.type === 'audio' ? (
                 <div className="audio-player">
                   <audio controls className="w-full">
-                    <source src={message.fileUrl} type="audio/mp3" />
+                    <source src={getMediaFileUrl(message.id)} type="audio/mp3" />
                     Your browser does not support the audio element.
                   </audio>
                 </div>
@@ -219,7 +227,7 @@ const MessageCard: React.FC<MessageCardProps> = ({ message, onMarkRead, onDelete
                     {(message.fileSize && (message.fileSize / 1024 / 1024).toFixed(2)) || '?'} MB
                   </p>
                   <Button className="mt-4" size="sm" asChild>
-                    <a href={message.fileUrl} download={message.fileName} target="_blank" rel="noopener noreferrer">
+                    <a href={getMediaFileUrl(message.id)} download={message.fileName} target="_blank" rel="noopener noreferrer">
                       <Download className="mr-2 h-4 w-4" />
                       Download
                     </a>

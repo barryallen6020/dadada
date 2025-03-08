@@ -53,7 +53,7 @@ const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     }
 
     if (!isValidSize) {
-      setError(`File size exceeds ${maxSizeMB}MB limit.`);
+      setError(`File size exceeds ${maxSizeMB}MB limit. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB.`);
       return false;
     }
 
@@ -165,8 +165,8 @@ const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                 {acceptedFileTypes === 'image'
                   ? 'JPEG, PNG, or WEBP (max. 5MB)'
                   : acceptedFileTypes === 'document'
-                  ? 'PDF or DOC (max. 10MB)'
-                  : 'Images or documents (max. 10MB)'}
+                  ? 'PDF or DOC (max. 1MB)' // Updated to 1MB
+                  : 'Images or documents (max. 5MB)'}
               </p>
               {error && <p className="text-xs text-destructive">{error}</p>}
             </div>

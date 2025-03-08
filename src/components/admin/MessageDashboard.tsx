@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, Filter, LayoutGrid, List as ListIcon, 
-  Calendar, SlidersHorizontal, MessageSquare, Image, 
+  SlidersHorizontal, MessageSquare, Image, 
   FileText, Mic, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -20,46 +20,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import MessageCard, { Message, MessageType } from './MessageCard';
 import { cn } from '@/lib/utils';
-
-// Mock data generator
-const generateMockMessages = (count: number): Message[] => {
-  const types: MessageType[] = ['text', 'image', 'voice', 'document'];
-  const messages: Message[] = [];
-  
-  for (let i = 0; i < count; i++) {
-    const type = types[Math.floor(Math.random() * types.length)];
-    const daysAgo = Math.floor(Math.random() * 14); // 0-14 days ago
-    
-    const message: Message = {
-      id: `msg-${i}`,
-      type,
-      content: type === 'text' 
-        ? `This is a sample message content. It's a ${type} message that was sent anonymously. ${Math.random() > 0.5 ? 'It contains some additional text to make it longer and test the preview functionality.' : ''}`
-        : '',
-      createdAt: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000),
-      isRead: Math.random() > 0.3, // 30% unread
-    };
-    
-    if (type !== 'text') {
-      message.fileName = `${type}_file_${i}.${type === 'image' ? 'jpg' : type === 'document' ? 'pdf' : 'mp3'}`;
-      message.fileSize = Math.floor(Math.random() * (type === 'image' ? 5 : 10) * 1024 * 1024); // 0-5MB for images, 0-10MB for others
-      message.fileUrl = `/placeholder.svg`; // Placeholder URL
-    }
-    
-    messages.push(message);
-  }
-  
-  return messages;
-};
+import { fetchMessages } from '@/services/apiService';
+import { toast } from 'sonner';
 
 // Sort options
 type SortOption = 'newest' | 'oldest' | 'unread';
@@ -77,14 +42,19 @@ const MessageDashboard: React.FC = () => {
 
   const ITEMS_PER_PAGE = 10;
 
-  // Load mock data
+  // Load real data from API
   useEffect(() => {
     const loadData = async () => {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const mockData = generateMockMessages(50);
-      setMessages(mockData);
-      setIsLoading(false);
+      try {
+        setIsLoading(true);
+        const data = await fetchMessages();
+        setMessages(data);
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+        toast.error('Failed to load messages');
+      } finally {
+        setIsLoading(false);
+      }
     };
     
     loadData();
@@ -96,7 +66,13 @@ const MessageDashboard: React.FC = () => {
     
     // Apply type filter
     if (selectedTypeFilter !== 'all') {
-      filtered = filtered.filter(msg => msg.type === selectedTypeFilter);
+      filtered = filtered.filter(msg => {
+        // Handle both 'voice' and 'audio' types as the same for filtering
+        if (selectedTypeFilter === 'voice') {
+          return msg.type === 'voice' || msg.type === 'audio';
+        }
+        return msg.type === selectedTypeFilter;
+      });
     }
     
     // Apply unread filter
@@ -107,7 +83,7 @@ const MessageDashboard: React.FC = () => {
     // Apply search query
     if (searchQuery) {
       filtered = filtered.filter(msg => 
-        msg.content.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        msg.content?.toLowerCase().includes(searchQuery.toLowerCase()) || 
         (msg.fileName && msg.fileName.toLowerCase().includes(searchQuery.toLowerCase()))
       );
     }
@@ -115,15 +91,15 @@ const MessageDashboard: React.FC = () => {
     // Apply sorting
     switch(sortOption) {
       case 'newest':
-        filtered.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
       case 'oldest':
-        filtered.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+        filtered.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
         break;
       case 'unread':
         filtered.sort((a, b) => {
           if (a.isRead === b.isRead) {
-            return b.createdAt.getTime() - a.createdAt.getTime();
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
           }
           return a.isRead ? 1 : -1;
         });
@@ -175,11 +151,31 @@ const MessageDashboard: React.FC = () => {
 
   const getTypeCount = (type: MessageType | 'all') => {
     if (type === 'all') return messages.length;
+    
+    if (type === 'voice') {
+      return messages.filter(msg => msg.type === 'voice' || msg.type === 'audio').length;
+    }
+    
     return messages.filter(msg => msg.type === type).length;
   };
 
   const getUnreadCount = () => {
     return messages.filter(msg => !msg.isRead).length;
+  };
+
+  // Refresh data
+  const handleRefresh = async () => {
+    try {
+      setIsLoading(true);
+      const data = await fetchMessages();
+      setMessages(data);
+      toast.success('Messages refreshed');
+    } catch (error) {
+      console.error('Error refreshing messages:', error);
+      toast.error('Failed to refresh messages');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Skeletons for loading state
@@ -202,6 +198,16 @@ const MessageDashboard: React.FC = () => {
         <h1 className="text-2xl font-bold text-gradient">Message Dashboard</h1>
         
         <div className="flex items-center gap-2 self-end">
+          <Button
+            onClick={handleRefresh}
+            variant="outline"
+            size="sm"
+            className="h-9"
+            disabled={isLoading}
+          >
+            <SlidersHorizontal className="h-4 w-4 mr-1" />
+            Refresh
+          </Button>
           <Button
             variant={viewMode === 'list' ? "default" : "outline"}
             size="icon"
