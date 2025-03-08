@@ -23,11 +23,34 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import MessageCard, { Message, MessageType } from './MessageCard';
 import { cn } from '@/lib/utils';
-import { fetchMessages } from '@/services/apiService';
+import { fetchMessages, MessageResponse } from '@/services/apiService';
 import { toast } from 'sonner';
 
 // Sort options
 type SortOption = 'newest' | 'oldest' | 'unread';
+
+// Helper function to map API response to Message type
+const mapResponseToMessage = (response: MessageResponse): Message => {
+  // Ensure the type from API matches one of our MessageType values
+  // Default to 'text' if it's an unrecognized type
+  const validType = (type: string): MessageType => {
+    if (type === 'text' || type === 'image' || type === 'document' || type === 'voice' || type === 'audio') {
+      return type as MessageType;
+    }
+    return 'text'; // Default fallback
+  };
+
+  return {
+    id: response.id,
+    type: validType(response.type),
+    content: response.content,
+    createdAt: new Date(response.createdAt),
+    isRead: response.isRead,
+    fileUrl: response.fileUrl,
+    fileName: response.fileName,
+    fileSize: response.fileSize
+  };
+};
 
 const MessageDashboard: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -48,7 +71,9 @@ const MessageDashboard: React.FC = () => {
       try {
         setIsLoading(true);
         const data = await fetchMessages();
-        setMessages(data);
+        // Map API response to Message type
+        const mappedData = data.map(mapResponseToMessage);
+        setMessages(mappedData);
       } catch (error) {
         console.error('Error fetching messages:', error);
         toast.error('Failed to load messages');
@@ -168,7 +193,9 @@ const MessageDashboard: React.FC = () => {
     try {
       setIsLoading(true);
       const data = await fetchMessages();
-      setMessages(data);
+      // Map API response to Message type
+      const mappedData = data.map(mapResponseToMessage);
+      setMessages(mappedData);
       toast.success('Messages refreshed');
     } catch (error) {
       console.error('Error refreshing messages:', error);

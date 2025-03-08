@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 
 // API base URL from the backend docs
@@ -35,11 +34,7 @@ export const fetchMessages = async (): Promise<MessageResponse[]> => {
       throw new Error(errorData.message || 'Failed to fetch messages');
     }
     
-    const messages = await response.json();
-    return messages.map((message: any) => ({
-      ...message,
-      createdAt: new Date(message.createdAt),
-    }));
+    return await response.json();
   } catch (error) {
     console.error('Error fetching messages:', error);
     toast.error('Failed to fetch messages');
