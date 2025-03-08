@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 
 // API base URL from the backend docs
@@ -27,7 +28,12 @@ export interface MessageResponse {
  */
 export const fetchMessages = async (): Promise<MessageResponse[]> => {
   try {
-    const response = await fetch(`${API_URL}/get-messages`);
+    const response = await fetch(`${API_URL}/get-messages`, {
+      mode: 'cors', // Explicitly set CORS mode
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
     
     if (!response.ok) {
       const errorData = await response.json();
@@ -47,7 +53,12 @@ export const fetchMessages = async (): Promise<MessageResponse[]> => {
  */
 export const markMessageAsRead = async (id: string): Promise<boolean> => {
   try {
-    const response = await fetch(`${API_URL}/read-message/${id}`);
+    const response = await fetch(`${API_URL}/read-message/${id}`, {
+      mode: 'cors', // Explicitly set CORS mode
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
     
     if (!response.ok) {
       const errorData = await response.json();
@@ -86,9 +97,20 @@ export const sendMessage = async (payload: MessagePayload): Promise<boolean> => 
       formData.append('audio', payload.audio);
     }
     
-    const response = await fetch(`${API_URL}/add-message`, {
+    // Use a proxy service to bypass CORS
+    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+    const targetUrl = `${API_URL}/add-message`;
+    
+    console.log('Sending message with payload:', Object.fromEntries(formData.entries()));
+    
+    const response = await fetch(targetUrl, {
       method: 'POST',
       body: formData,
+      mode: 'cors', // Try with standard CORS first
+      headers: {
+        // Don't set Content-Type header when using FormData, the browser will set it automatically with the boundary
+        'Origin': window.location.origin,
+      },
     });
     
     if (!response.ok) {
@@ -99,7 +121,19 @@ export const sendMessage = async (payload: MessagePayload): Promise<boolean> => 
     return true;
   } catch (error) {
     console.error('Error sending message:', error);
-    toast.error('Failed to send message');
+    
+    // If we're dealing with a CORS error, inform the user
+    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+      toast.error('Network error: CORS restriction. Try using a CORS proxy or contact the API administrator.');
+      
+      // You might want to save the draft message for later submission
+      const messageData = JSON.stringify(payload);
+      localStorage.setItem('draftMessage', messageData);
+      toast.info('Your message has been saved as a draft.');
+    } else {
+      toast.error('Failed to send message');
+    }
+    
     return false;
   }
 };

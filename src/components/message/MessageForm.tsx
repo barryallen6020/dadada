@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Image as ImageIcon, Mic, FileText } from 'lucide-react';
+import { Send, Image as ImageIcon, Mic, FileText, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { toast } from 'sonner';
 import { sendMessage } from '@/services/apiService';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const MessageFormSchema = z.object({
   text: z.string().max(1000, 'Message cannot exceed 1000 characters').optional(),
@@ -31,6 +33,7 @@ const MessageForm: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [formReset, setFormReset] = useState(false);
+  const [corsError, setCorsError] = useState(false);
   const { toast: hookToast } = useToast();
 
   const {
@@ -86,6 +89,7 @@ const MessageForm: React.FC = () => {
 
   const onSubmit: SubmitHandler<MessageFormValues> = async (data) => {
     setIsSubmitting(true);
+    setCorsError(false);
     
     try {
       let success = false;
@@ -125,7 +129,11 @@ const MessageForm: React.FC = () => {
       }
     } catch (error) {
       console.error("Error sending message:", error);
-      toast.error("Failed to send message");
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        setCorsError(true);
+      } else {
+        toast.error("Failed to send message");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -159,6 +167,16 @@ const MessageForm: React.FC = () => {
           Share your thoughts anonymously. No sign-up required. Your identity remains private.
         </p>
       </div>
+      
+      {corsError && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Connection Error</AlertTitle>
+          <AlertDescription>
+            We're having trouble connecting to our servers due to CORS restrictions. Please try again later or contact support.
+          </AlertDescription>
+        </Alert>
+      )}
       
       <Tabs 
         value={activeTab} 
