@@ -18,6 +18,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const MessageFormSchema = z.object({
   text: z.string().max(1000, 'Message cannot exceed 1000 characters').optional(),
+  caption: z.string().max(200, 'Caption cannot exceed 200 characters').optional(),
 });
 
 type MessageFormValues = z.infer<typeof MessageFormSchema> & {
@@ -46,14 +47,16 @@ const MessageForm: React.FC = () => {
     resolver: zodResolver(MessageFormSchema),
     defaultValues: {
       text: '',
+      caption: '',
     },
   });
 
   const textValue = watch('text');
+  const captionValue = watch('caption');
 
   useEffect(() => {
     if (formReset) {
-      reset({ text: '' });
+      reset({ text: '', caption: '' });
       setSelectedFile(null);
       setAudioBlob(null);
       setFormReset(false);
@@ -103,7 +106,7 @@ const MessageForm: React.FC = () => {
         success = await sendMessage({
           type: 'image',
           image: selectedFile,
-          text: data.text
+          text: data.caption // Use caption for image uploads
         });
       } else if (activeTab === 'voice' && audioBlob) {
         success = await sendMessage({
@@ -114,7 +117,7 @@ const MessageForm: React.FC = () => {
         success = await sendMessage({
           type: 'document',
           document: selectedFile,
-          text: data.text
+          text: data.caption // Use caption for document uploads
         });
       } else {
         toast.error("Please provide content before submitting");
@@ -151,7 +154,8 @@ const MessageForm: React.FC = () => {
     },
   };
   
-  const charCount = textValue?.length || 0;
+  const textCharCount = textValue?.length || 0;
+  const captionCharCount = captionValue?.length || 0;
   
   return (
     <motion.form 
@@ -225,10 +229,10 @@ const MessageForm: React.FC = () => {
                 <div className="flex justify-end">
                   <span className={cn(
                     "text-xs",
-                    charCount > 900 ? "text-amber-400" : "text-muted-foreground",
-                    charCount > 1000 && "text-destructive"
+                    textCharCount > 900 ? "text-amber-400" : "text-muted-foreground",
+                    textCharCount > 1000 && "text-destructive"
                   )}>
-                    {charCount}/1000
+                    {textCharCount}/1000
                   </span>
                 </div>
                 {errors.text && (
@@ -238,7 +242,7 @@ const MessageForm: React.FC = () => {
             </TabsContent>
             
             <TabsContent value="image" className="mt-0">
-              <div className="space-y-2">
+              <div className="space-y-5">
                 <FileUploadArea
                   onFileSelect={onFileSelect}
                   acceptedFileTypes="image"
@@ -246,6 +250,34 @@ const MessageForm: React.FC = () => {
                   selectedFile={selectedFile}
                   onClearFile={() => setSelectedFile(null)}
                 />
+                
+                {selectedFile && (
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-medium text-foreground">Add a caption (optional)</h3>
+                    <div className="input-gradient-border">
+                      <Textarea
+                        placeholder="Add a caption to your image..."
+                        className={cn(
+                          "min-h-20 resize-none bg-transparent no-focus-ring",
+                          errors.caption && "border-destructive"
+                        )}
+                        {...register("caption")}
+                      />
+                    </div>
+                    <div className="flex justify-end">
+                      <span className={cn(
+                        "text-xs",
+                        captionCharCount > 150 ? "text-amber-400" : "text-muted-foreground",
+                        captionCharCount > 200 && "text-destructive"
+                      )}>
+                        {captionCharCount}/200
+                      </span>
+                    </div>
+                    {errors.caption && (
+                      <p className="text-destructive text-sm">{errors.caption.message}</p>
+                    )}
+                  </div>
+                )}
               </div>
             </TabsContent>
             
@@ -256,14 +288,42 @@ const MessageForm: React.FC = () => {
             </TabsContent>
             
             <TabsContent value="document" className="mt-0">
-              <div className="space-y-2">
+              <div className="space-y-5">
                 <FileUploadArea
                   onFileSelect={onFileSelect}
                   acceptedFileTypes="document"
-                  maxSizeMB={1} // Updated from 10MB to 1MB per backend requirement
+                  maxSizeMB={1}
                   selectedFile={selectedFile}
                   onClearFile={() => setSelectedFile(null)}
                 />
+                
+                {selectedFile && (
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-medium text-foreground">Add a caption (optional)</h3>
+                    <div className="input-gradient-border">
+                      <Textarea
+                        placeholder="Add a description to your document..."
+                        className={cn(
+                          "min-h-20 resize-none bg-transparent no-focus-ring",
+                          errors.caption && "border-destructive"
+                        )}
+                        {...register("caption")}
+                      />
+                    </div>
+                    <div className="flex justify-end">
+                      <span className={cn(
+                        "text-xs",
+                        captionCharCount > 150 ? "text-amber-400" : "text-muted-foreground",
+                        captionCharCount > 200 && "text-destructive"
+                      )}>
+                        {captionCharCount}/200
+                      </span>
+                    </div>
+                    {errors.caption && (
+                      <p className="text-destructive text-sm">{errors.caption.message}</p>
+                    )}
+                  </div>
+                )}
               </div>
             </TabsContent>
           </motion.div>
