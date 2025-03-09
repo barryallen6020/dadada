@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 
 // API base URL from the backend docs
@@ -40,7 +39,10 @@ export const fetchMessages = async (): Promise<MessageResponse[]> => {
       throw new Error(errorData.message || 'Failed to fetch messages');
     }
     
-    return await response.json();
+    const messages = await response.json();
+    
+    // Skip the first message if it exists as it's malformed per backend dev's note
+    return messages.length > 0 ? messages.slice(1) : messages;
   } catch (error) {
     console.error('Error fetching messages:', error);
     toast.error('Failed to fetch messages');
@@ -97,41 +99,44 @@ export const sendMessage = async (payload: MessagePayload): Promise<boolean> => 
       formData.append('audio', payload.audio);
     }
     
-    // Use a proxy service to bypass CORS
-    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-    const targetUrl = `${API_URL}/add-message`;
-    
     console.log('Sending message with payload:', Object.fromEntries(formData.entries()));
     
-    const response = await fetch(targetUrl, {
+    const response = await fetch(`${API_URL}/add-message`, {
       method: 'POST',
       body: formData,
-      mode: 'cors', // Try with standard CORS first
-      headers: {
-        // Don't set Content-Type header when using FormData, the browser will set it automatically with the boundary
-        'Origin': window.location.origin,
-      },
+      mode: 'cors',
+      // Don't set Content-Type header when using FormData, the browser will set it automatically with the boundary
     });
     
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to send message');
+    // For CORS preflight issues, we might still get a response but not be able to read it
+    // Check if response exists before trying to process it
+    if (response) {
+      if (!response.ok) {
+        if (response.status === 0) {
+          // This is likely a CORS error
+          throw new Error('CORS error: Unable to connect to the API');
+        }
+        
+        try {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to send message');
+        } catch (parseError) {
+          throw new Error(`Failed to send message: ${response.statusText}`);
+        }
+      }
+      
+      return true;
+    } else {
+      throw new Error('No response received from server');
     }
-    
-    return true;
   } catch (error) {
     console.error('Error sending message:', error);
     
     // If we're dealing with a CORS error, inform the user
     if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-      toast.error('Network error: CORS restriction. Try using a CORS proxy or contact the API administrator.');
-      
-      // You might want to save the draft message for later submission
-      const messageData = JSON.stringify(payload);
-      localStorage.setItem('draftMessage', messageData);
-      toast.info('Your message has been saved as a draft.');
+      toast.error('Network error: The API server may be unavailable or CORS is still being configured. Please try again later.');
     } else {
-      toast.error('Failed to send message');
+      toast.error(`Failed to send message: ${error.message}`);
     }
     
     return false;

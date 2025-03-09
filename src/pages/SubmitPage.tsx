@@ -11,10 +11,10 @@ const SubmitPage: React.FC = () => {
       <div className="container mx-auto max-w-2xl py-12 px-4">
         <Alert className="mb-6">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Development Preview</AlertTitle>
+          <AlertTitle>API Integration in Progress</AlertTitle>
           <AlertDescription>
-            This is a development preview. The backend API may have CORS restrictions that prevent 
-            direct connections from this preview environment. In a production environment, this would be configured properly.
+            Backend CORS configuration is currently being updated. Message submission may not work until the changes are propagated.
+            The backend team is working on making the API accessible from all origins.
           </AlertDescription>
         </Alert>
         
@@ -25,3 +25,4 @@ const SubmitPage: React.FC = () => {
 };
 
 export default SubmitPage;
+
