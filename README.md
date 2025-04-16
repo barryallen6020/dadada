@@ -94,15 +94,14 @@ The editor includes the following tools:
 
 1. **Drawing Tools**:
    - **Line Tool**: Added specifically for outlining the hub perimeter. Use this tool to create the outer walls and inner room dividers.
-   - **Rectangle Tool**: Create rectangular shapes for tables, rooms, or other rectangular elements.
-   - **Square Tool**: Create perfect squares with equal width and height.
+   - **Square Tool**: Create square shapes for tables, rooms, or other elements.
    - **Circle Tool**: Add circular tables or other rounded elements.
    - **Text Tool**: Add labels to different areas of the floor plan.
 
 2. **Seat Management**:
    - **Add Seats**: Drag and drop seats onto tables.
    - **Seat Status**: Seats can be set as available (green) or unavailable (red).
-   - **Seat Numbering**: Each seat is automatically numbered. The text position will be improved to centralize the number in the circle representation.
+   - **Seat Numbering**: Each seat is automatically numbered, centered in the circle representation.
 
 3. **Editing Tools**:
    - **Select Tool**: Select and modify existing objects.
@@ -125,14 +124,15 @@ The editor includes the following tools:
    - Select the Line tool
    - Click on the canvas to create the starting point
    - Click again to create line segments that form the outer perimeter
-   - Close the shape by connecting back to the starting point
+   - Complete your shape by adding all required points
+   - Click "Finish Line" when done with a continuous boundary
 
 2. **Add internal walls and partitions**:
    - Continue using the Line tool to create room dividers
-   - Use Rectangle tool for straight walls
+   - Create separate rooms and areas within your workspace
 
 3. **Add furniture**:
-   - Place tables using Rectangle/Square/Circle tools
+   - Place tables using Square/Circle tools
    - Position them according to your actual workspace layout
 
 4. **Add seats**:
@@ -149,30 +149,52 @@ The editor includes the following tools:
    - Click "Save" to store the floor plan
    - The floor plan will be associated with the workspace
 
-### Backend Integration
+### Backend Integration (For Development Team)
 
-The floor plan functionality integrates with the backend through the following endpoints:
+The floor plan functionality integrates with the backend through the following architecture and APIs. This section serves as a guideline for backend developers implementing the integration.
 
-#### API Endpoints
+#### Recommended Backend Architecture
 
-1. **Workspace Management**:
+1. **Data Storage Strategy**:
+   - Store floor plan data as structured JSON in your database, either using PostgreSQL JSONB fields or a similar approach
+   - Create separate tables for workspaces and seats to optimize query performance
+   - Consider versioning floor plans to maintain history and allow rollbacks
+
+2. **API Endpoints Implementation**:
+
+   a. **Workspace Management**:
    - `POST /api/workspaces`: Create a new workspace with floor plan data
    - `PUT /api/workspaces/{id}`: Update an existing workspace and its floor plan
    - `GET /api/workspaces/{id}`: Retrieve workspace details including floor plan
    - `DELETE /api/workspaces/{id}`: Delete a workspace and its floor plan
 
-2. **Floor Plan Specific Endpoints**:
+   b. **Floor Plan Specific Endpoints**:
    - `POST /api/workspaces/{id}/floor-plan`: Create or update the floor plan for a workspace
    - `GET /api/workspaces/{id}/floor-plan`: Retrieve the floor plan data for a workspace
 
-3. **Seat Management**:
+   c. **Seat Management**:
    - `GET /api/workspaces/{id}/seats`: List all seats in a workspace
    - `PUT /api/workspaces/{id}/seats/{seatId}`: Update seat properties (availability, category, price)
    - `GET /api/workspaces/{id}/seats/availability?date={date}`: Check seat availability for a specific date
 
+3. **Real-time Updates**:
+   - Implement WebSockets or Server-Sent Events for real-time updates of seat availability
+   - Update booking statuses in real-time to prevent double bookings
+   - Broadcast seat status changes to all connected clients
+
+4. **Performance Considerations**:
+   - Cache floor plan data to reduce database load
+   - Optimize JSON structure for faster rendering
+   - Consider splitting large floor plans into zones for better performance
+
+5. **Security Implementation**:
+   - Apply proper authorization checks on all endpoints
+   - Implement Row Level Security if using Supabase
+   - Sanitize and validate all input data
+
 #### Data Schema
 
-The floor plan data is stored in the following format:
+The floor plan data should be stored in the following format:
 
 ```typescript
 interface FloorPlan {
@@ -213,7 +235,7 @@ interface FloorPlanObject {
 
 #### Database Structure
 
-The floor plan data is stored in the following database tables:
+We recommend implementing the following database tables:
 
 1. `workspaces`: Contains general workspace information
    - `id` (primary key)
@@ -249,6 +271,23 @@ The floor plan data is stored in the following database tables:
    - `end_time`
    - `status` (confirmed, cancelled, etc.)
 
+#### Implementation Tips for Backend Developers
+
+1. **Supabase Integration**:
+   - Use Postgres JSONB type for storing complex floor plan data
+   - Set up RLS policies to control access to workspace data
+   - Consider using Supabase Functions for complex business logic
+
+2. **Optimized Queries**:
+   - Index the `seat_bookings.booking_date` field for faster availability lookups
+   - Use JOIN operations to fetch related data efficiently
+   - Consider materialized views for frequently accessed data
+
+3. **Testing Approach**:
+   - Create automated tests for booking logic to ensure no double bookings occur
+   - Test concurrent booking scenarios
+   - Validate seat availability calculations
+
 #### Real-time Features
 
 The floor plan booking interface uses real-time updates to show seat availability:
@@ -263,9 +302,10 @@ The floor plan booking interface uses real-time updates to show seat availabilit
 
 ### Future Improvements
 
-1. **Line Tool Enhancement**: Improved line tool for drawing hub outlines and walls
+1. **Enhanced Line Tool**: Improved polygon creation with automatic closing option
 2. **Seat Number Positioning**: Better centralization of seat numbers within circles
 3. **3D View Option**: Toggle between 2D and 3D views of the workspace
 4. **Mobile-Friendly Editor**: Responsive design for tablet use
 5. **Templates**: Predefined floor plan templates for quick setup
 6. **Import/Export**: Support for importing floor plans from CAD software
+

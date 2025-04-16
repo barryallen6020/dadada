@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import { fabric } from "fabric";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Square,
   Circle,
-  RectangleHorizontal,
   Eraser,
   Hand,
   ChevronDown,
@@ -25,9 +23,13 @@ import {
   Grid,
   Move,
   Type,
-  Check
+  Check,
+  HelpCircle,
+  Minus
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface WorkspaceFloorMapEditorProps {
   initialData?: any;
@@ -57,6 +59,9 @@ const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = ({ initi
   const [selectedObject, setSelectedObject] = useState<fabric.Object | null>(null);
   const [canUndo, setCanUndo] = useState<boolean>(false);
   const [canRedo, setCanRedo] = useState<boolean>(false);
+  const [showTutorial, setShowTutorial] = useState<boolean>(false);
+  const [isDrawingLine, setIsDrawingLine] = useState<boolean>(false);
+  const [linePoints, setLinePoints] = useState<{x: number, y: number}[]>([]);
 
   // Initialize Fabric.js canvas
   useEffect(() => {
@@ -90,6 +95,9 @@ const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = ({ initi
     canvas.on("selection:created", handleSelectionCreated);
     canvas.on("selection:updated", handleSelectionCreated);
     canvas.on("selection:cleared", handleSelectionCleared);
+    canvas.on("mouse:down", handleMouseDown);
+    canvas.on("mouse:move", handleMouseMove);
+    canvas.on("mouse:up", handleMouseUp);
 
     // Set up history
     initHistory();
@@ -105,6 +113,91 @@ const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = ({ initi
     if (!fabricCanvasRef.current) return;
     drawGrid();
   }, [gridSize, showGrid]);
+
+  // Drawing line related handlers
+  const handleMouseDown = (options: any) => {
+    if (activeTool !== "line" || !fabricCanvasRef.current) return;
+    
+    const canvas = fabricCanvasRef.current;
+    const pointer = canvas.getPointer(options.e);
+    
+    if (!isDrawingLine) {
+      setIsDrawingLine(true);
+      setLinePoints([{ x: pointer.x, y: pointer.y }]);
+      
+      // Start the polyline with just the first point
+      const line = new fabric.Line(
+        [pointer.x, pointer.y, pointer.x, pointer.y],
+        {
+          strokeWidth: 2,
+          stroke: '#000',
+          selectable: false
+        }
+      );
+      
+      canvas.add(line);
+      canvas.requestRenderAll();
+    } else {
+      // Add a new point
+      const lastPoint = linePoints[linePoints.length - 1];
+      
+      // Create a line from the last point to the current point
+      const line = new fabric.Line(
+        [lastPoint.x, lastPoint.y, pointer.x, pointer.y],
+        {
+          strokeWidth: 2,
+          stroke: '#000'
+        }
+      );
+      
+      canvas.add(line);
+      setLinePoints([...linePoints, { x: pointer.x, y: pointer.y }]);
+      canvas.requestRenderAll();
+    }
+  };
+  
+  const handleMouseMove = (options: any) => {
+    if (!isDrawingLine || !fabricCanvasRef.current) return;
+    
+    // We could implement a preview line here if needed
+  };
+  
+  const handleMouseUp = (options: any) => {
+    // Line drawing continues until the user clicks "finish line" or selects another tool
+  };
+  
+  const finishLine = () => {
+    if (!isDrawingLine || linePoints.length < 2 || !fabricCanvasRef.current) return;
+    
+    const canvas = fabricCanvasRef.current;
+    
+    // Create a polyline with all points
+    const pathData = linePoints.map((point, i) => 
+      (i === 0 ? 'M' : 'L') + point.x + ' ' + point.y
+    ).join(' ');
+    
+    const polyline = new fabric.Path(pathData, {
+      fill: '',
+      stroke: '#000',
+      strokeWidth: 2,
+      data: { type: 'wall' }
+    });
+    
+    // Remove the temporary lines
+    canvas.getObjects('line').forEach(obj => {
+      if (!obj.data || !obj.data.type) {
+        canvas.remove(obj);
+      }
+    });
+    
+    canvas.add(polyline);
+    canvas.requestRenderAll();
+    
+    // Reset drawing state
+    setIsDrawingLine(false);
+    setLinePoints([]);
+    saveState();
+  };
 
   // Draw grid lines
   const drawGrid = () => {
@@ -226,6 +319,11 @@ const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = ({ initi
     
     const canvas = fabricCanvasRef.current;
     if (!canvas) return;
+
+    // If we were drawing a line, finish it when switching tools
+    if (isDrawingLine && tool !== "line") {
+      finishLine();
+    }
 
     // Disable drawing mode for all tools except drawing
     canvas.isDrawingMode = tool === "draw";
@@ -558,6 +656,42 @@ const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = ({ initi
     e.target.value = '';
   };
 
+  // Tutorial content
+  const tutorialSteps = [
+    {
+      title: "Getting Started with the Floor Map Editor",
+      content: "Welcome to the Floor Map Editor! This tutorial will guide you through creating an interactive floor plan for your workspace."
+    },
+    {
+      title: "Step 1: Outline Your Hub",
+      content: "Start by outlining the perimeter of your hub. Select the Line tool and click on the canvas to create points for your outline. Click multiple times to create a polygon shape that represents your workspace boundaries."
+    },
+    {
+      title: "Step 2: Add Internal Walls and Partitions",
+      content: "Use the Line tool again to create internal walls and room dividers. This will help define separate areas within your workspace."
+    },
+    {
+      title: "Step 3: Add Tables and Furniture",
+      content: "Use the Square, Rectangle, and Circle tools to add tables and other furniture. Position them according to your actual workspace layout."
+    },
+    {
+      title: "Step 4: Add Seats",
+      content: "Click the 'Add Seat' button and place seats on or around tables. These will be the bookable positions in your workspace."
+    },
+    {
+      title: "Step 5: Configure Seat Categories",
+      content: "Go to the 'Seat Categories' tab to create different types of seats with varying prices. Then select seats and assign them to these categories."
+    },
+    {
+      title: "Step 6: Adjust Grid Settings",
+      content: "In the 'Settings' tab, you can adjust the grid size and toggle snap-to-grid functionality to help with precise placement."
+    },
+    {
+      title: "Step 7: Save Your Work",
+      content: "Use the Save/Load dropdown to export your floor map or save it to the workspace. Your floor map will then be available for users to book seats."
+    }
+  ];
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-4 items-center justify-between">
@@ -592,6 +726,16 @@ const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = ({ initi
               </Button>
               <Button
                 type="button"
+                variant={activeTool === "line" ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleToolClick("line")}
+                title="Line Tool"
+              >
+                <Minus className="h-4 w-4 mr-1" />
+                Line
+              </Button>
+              <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => addShape("square")}
@@ -599,16 +743,6 @@ const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = ({ initi
               >
                 <Square className="h-4 w-4 mr-1" />
                 Square
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => addShape("rect")}
-                title="Add Rectangle"
-              >
-                <RectangleHorizontal className="h-4 w-4 mr-1" />
-                Rectangle
               </Button>
               <Button
                 type="button"
@@ -651,7 +785,40 @@ const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = ({ initi
                 <Eraser className="h-4 w-4 mr-1" />
                 Eraser
               </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowTutorial(true)}
+                className="bg-yellow-100 hover:bg-yellow-200"
+                title="Show Tutorial"
+              >
+                <HelpCircle className="h-4 w-4 mr-1" />
+                Tutorial
+              </Button>
             </div>
+            
+            {/* Line tool actions - only shown when line tool is active */}
+            {activeTool === "line" && (
+              <div className="flex items-center gap-2 bg-blue-50 p-2 rounded-md">
+                <span className="text-sm text-blue-700 flex-grow">
+                  {isDrawingLine 
+                    ? `Drawing line: ${linePoints.length} points (click to add more points)` 
+                    : "Click on canvas to start drawing a line"}
+                </span>
+                {isDrawingLine && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={finishLine}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <Check className="h-4 w-4 mr-1" />
+                    Finish Line
+                  </Button>
+                )}
+              </div>
+            )}
             
             <div className="flex flex-wrap gap-2">
               <Button
@@ -809,241 +976,4 @@ const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = ({ initi
                       id="category-name"
                       placeholder="e.g., Executive"
                       value={newCategory.name}
-                      onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <Label htmlFor="category-color">Color</Label>
-                    <div className="flex space-x-2">
-                      <div 
-                        className="w-8 h-8 border rounded-md" 
-                        style={{ backgroundColor: newCategory.color }}
-                      />
-                      <Input
-                        id="category-color"
-                        type="color"
-                        value={newCategory.color}
-                        onChange={(e) => setNewCategory({...newCategory, color: e.target.value})}
-                        className="w-full"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <Label htmlFor="category-price">Additional Price (₦)</Label>
-                    <Input
-                      id="category-price"
-                      type="number"
-                      placeholder="0"
-                      value={newCategory.price.toString()}
-                      onChange={(e) => setNewCategory({...newCategory, price: parseInt(e.target.value) || 0})}
-                    />
-                  </div>
-                  
-                  <Button
-                    type="button"
-                    onClick={addCategory}
-                    size="sm"
-                    className="w-full"
-                  >
-                    Add Category
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="settings" className="space-y-4 mt-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="grid-size">Grid Size</Label>
-                    <span className="text-sm text-gray-500">{gridSize}px</span>
-                  </div>
-                  <Slider
-                    id="grid-size"
-                    min={5}
-                    max={50}
-                    step={5}
-                    value={[gridSize]}
-                    onValueChange={(value) => setGridSize(value[0])}
-                  />
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="snap-grid"
-                    checked={snapToGrid}
-                    onCheckedChange={setSnapToGrid}
-                  />
-                  <Label htmlFor="snap-grid">Snap to Grid</Label>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="show-grid"
-                    checked={showGrid}
-                    onCheckedChange={setShowGrid}
-                  />
-                  <Label htmlFor="show-grid">Show Grid</Label>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Canvas Size</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1">
-                      <Label htmlFor="canvas-width" className="text-xs">Width (px)</Label>
-                      <Input
-                        id="canvas-width"
-                        type="number"
-                        value={fabricCanvasRef.current?.width || 800}
-                        onChange={(e) => {
-                          const width = parseInt(e.target.value) || 800;
-                          if (fabricCanvasRef.current) {
-                            fabricCanvasRef.current.setWidth(width);
-                            drawGrid();
-                          }
-                        }}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="canvas-height" className="text-xs">Height (px)</Label>
-                      <Input
-                        id="canvas-height"
-                        type="number"
-                        value={fabricCanvasRef.current?.height || 600}
-                        onChange={(e) => {
-                          const height = parseInt(e.target.value) || 600;
-                          if (fabricCanvasRef.current) {
-                            fabricCanvasRef.current.setHeight(height);
-                            drawGrid();
-                          }
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="canvas-bg">Canvas Background</Label>
-                  <Input
-                    id="canvas-bg"
-                    type="color"
-                    value="#f8f9fa"
-                    onChange={(e) => {
-                      if (fabricCanvasRef.current) {
-                        fabricCanvasRef.current.setBackgroundColor(e.target.value, () => {
-                          fabricCanvasRef.current?.renderAll();
-                        });
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
-      
-      <div className="border rounded-md p-1 bg-gray-50">
-        <div className="relative border bg-white">
-          <canvas ref={canvasRef} className="w-full max-w-full" />
-          
-          {/* Canvas overlay with info text */}
-          {!fabricCanvasRef.current && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80">
-              <p className="text-gray-500">Loading canvas...</p>
-            </div>
-          )}
-        </div>
-      </div>
-      
-      {/* Property panel for selected object */}
-      {selectedObject && (
-        <div className="border rounded-md p-4 bg-gray-50">
-          <h3 className="text-sm font-medium mb-2">Selected Object Properties</h3>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <Label htmlFor="object-left" className="text-xs">X Position</Label>
-              <Input
-                id="object-left"
-                type="number"
-                value={Math.round(selectedObject.left || 0)}
-                onChange={(e) => {
-                  selectedObject.set({ left: parseInt(e.target.value) || 0 });
-                  fabricCanvasRef.current?.renderAll();
-                }}
-              />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="object-top" className="text-xs">Y Position</Label>
-              <Input
-                id="object-top"
-                type="number"
-                value={Math.round(selectedObject.top || 0)}
-                onChange={(e) => {
-                  selectedObject.set({ top: parseInt(e.target.value) || 0 });
-                  fabricCanvasRef.current?.renderAll();
-                }}
-              />
-            </div>
-            
-            {/* Special properties for seat objects */}
-            {selectedObject.data?.type === "seat" && (
-              <div className="col-span-2 space-y-2">
-                <Label htmlFor="seat-category" className="text-xs">Seat Category</Label>
-                <Select
-                  value={selectedObject.data.categoryId || "standard"}
-                  onValueChange={(value) => {
-                    const category = seatCategories.find(c => c.id === value);
-                    if (category && selectedObject instanceof fabric.Group) {
-                      // Update the seat color based on the category
-                      const seat = selectedObject.getObjects()[0];
-                      if (seat instanceof fabric.Circle) {
-                        seat.set({ fill: category.color });
-                      }
-                      
-                      // Update the seat data
-                      selectedObject.data = {
-                        ...selectedObject.data,
-                        categoryId: category.id,
-                        categoryName: category.name,
-                        price: category.price
-                      };
-                      
-                      fabricCanvasRef.current?.renderAll();
-                      saveState();
-                    }
-                  }}
-                >
-                  <SelectTrigger id="seat-category">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {seatCategories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        <div className="flex items-center">
-                          <div 
-                            className="w-3 h-3 rounded-full mr-2" 
-                            style={{ backgroundColor: category.color }}
-                          />
-                          {category.name} (₦{category.price})
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default WorkspaceFloorMapEditor;
+                      onChange={(e) => setNewCategory({...newCategory, name: e.
