@@ -253,10 +253,13 @@ const BookingPage = () => {
                   </div>
                   
                   <div>
-                    <TabsList>
-                      <TabsTrigger value="list" onClick={() => setView("list")}>List</TabsTrigger>
-                      <TabsTrigger value="map" onClick={() => setView("map")}>Map</TabsTrigger>
-                    </TabsList>
+                    {/* FIX: Wrap TabsList in Tabs component */}
+                    <Tabs value={view} onValueChange={setView}>
+                      <TabsList>
+                        <TabsTrigger value="list">List</TabsTrigger>
+                        <TabsTrigger value="map">Map</TabsTrigger>
+                      </TabsList>
+                    </Tabs>
                   </div>
                 </div>
               </CardHeader>
