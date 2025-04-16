@@ -24,7 +24,8 @@ import {
   Redo,
   Grid,
   Move,
-  Type
+  Type,
+  Check
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
