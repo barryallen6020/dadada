@@ -1,0 +1,2 @@
+
+export { WorkspaceFloorMapEditor } from './WorkspaceFloorMapEditor';
