@@ -2,8 +2,9 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Progress } from "@/components/ui/progress";
 
 interface TutorialStep {
   title: string;
@@ -27,6 +28,8 @@ export const TutorialDialog: React.FC<TutorialDialogProps> = ({
   const goToNextStep = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
+    } else {
+      onOpenChange(false);
     }
   };
 
@@ -36,16 +39,29 @@ export const TutorialDialog: React.FC<TutorialDialogProps> = ({
     }
   };
 
+  const progressPercentage = ((currentStep + 1) / steps.length) * 100;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl">
-        <DialogHeader>
+        <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle>{steps[currentStep].title}</DialogTitle>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => onOpenChange(false)}
+            className="h-8 w-8 rounded-full"
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </DialogHeader>
+        
+        <Progress value={progressPercentage} className="h-1 w-full mb-4" />
+        
         <ScrollArea className="h-[400px] rounded-md border p-4">
-          <div className="space-y-4">
+          <div className="space-y-6">
             {steps[currentStep].image && (
-              <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
+              <div className="relative w-full h-64 bg-gray-50 rounded-lg overflow-hidden shadow-inner">
                 <img 
                   src={steps[currentStep].image} 
                   alt={steps[currentStep].title}
@@ -53,7 +69,7 @@ export const TutorialDialog: React.FC<TutorialDialogProps> = ({
                 />
               </div>
             )}
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-muted-foreground leading-relaxed">
               {steps[currentStep].content}
             </div>
           </div>
@@ -72,13 +88,12 @@ export const TutorialDialog: React.FC<TutorialDialogProps> = ({
             {currentStep + 1} of {steps.length}
           </span>
           <Button
-            variant="outline"
+            variant={currentStep === steps.length - 1 ? "default" : "outline"}
             size="sm"
             onClick={goToNextStep}
-            disabled={currentStep === steps.length - 1}
           >
-            Next
-            <ChevronRight className="ml-1 h-4 w-4" />
+            {currentStep === steps.length - 1 ? "Finish" : "Next"}
+            {currentStep !== steps.length - 1 && <ChevronRight className="ml-1 h-4 w-4" />}
           </Button>
         </div>
       </DialogContent>

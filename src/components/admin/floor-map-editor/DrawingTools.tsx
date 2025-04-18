@@ -21,6 +21,8 @@ import {
   Minus
 } from "lucide-react";
 import { SeatCategory } from './hooks/useSeatCategories';
+import { CategoryPreview } from './CategoryPreview';
+import { FloorControls } from './FloorControls';
 
 interface DrawingToolsProps {
   activeTool: string;
@@ -43,6 +45,13 @@ interface DrawingToolsProps {
   clearCanvas: () => void;
   exportFloorMap: () => void;
   importFloorMap: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  // Multi-floor props
+  floors: any[];
+  activeFloor: string;
+  addFloor: () => void;
+  switchFloor: (floorId: string) => void;
+  deleteFloor: (floorId: string) => void;
+  renameFloor: (floorId: string, newName: string) => void;
 }
 
 export const DrawingTools: React.FC<DrawingToolsProps> = ({
@@ -65,10 +74,29 @@ export const DrawingTools: React.FC<DrawingToolsProps> = ({
   deleteSelected,
   clearCanvas,
   exportFloorMap,
-  importFloorMap
+  importFloorMap,
+  // Multi-floor props
+  floors,
+  activeFloor,
+  addFloor,
+  switchFloor,
+  deleteFloor,
+  renameFloor
 }) => {
   return (
     <>
+      {/* Floor Controls */}
+      <div className="mb-3 border-b pb-3">
+        <FloorControls
+          floors={floors}
+          activeFloor={activeFloor}
+          onAddFloor={addFloor}
+          onSwitchFloor={switchFloor}
+          onDeleteFloor={deleteFloor}
+          onRenameFloor={renameFloor}
+        />
+      </div>
+      
       <div className="flex flex-wrap gap-2">
         <Button
           type="button"
@@ -169,9 +197,19 @@ export const DrawingTools: React.FC<DrawingToolsProps> = ({
         </Button>
       </div>
       
+      {/* Category Preview */}
+      {seatCategories.length > 0 && (
+        <div className="mt-3">
+          <CategoryPreview 
+            seatCategories={seatCategories} 
+            selectedSeatCategory={selectedSeatCategory} 
+          />
+        </div>
+      )}
+      
       {/* Line tool actions - only shown when line tool is active */}
       {activeTool === "line" && (
-        <div className="flex items-center gap-2 bg-blue-50 p-2 rounded-md">
+        <div className="flex items-center gap-2 bg-blue-50 p-2 mt-3 rounded-md">
           <span className="text-sm text-blue-700 flex-grow">
             {isDrawingLine 
               ? `Drawing line: ${linePoints.length} points (click to add more points)` 
@@ -191,7 +229,7 @@ export const DrawingTools: React.FC<DrawingToolsProps> = ({
         </div>
       )}
       
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 mt-3">
         <Button
           type="button"
           variant="outline"

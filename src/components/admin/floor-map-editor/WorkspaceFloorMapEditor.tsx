@@ -37,6 +37,8 @@ export const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = (
     linePoints,
     canUndo,
     canRedo,
+    floors,
+    activeFloor,
     handleToolClick,
     addShape,
     addSeat,
@@ -48,7 +50,11 @@ export const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = (
     exportFloorMap,
     importFloorMap,
     finishLine,
-    drawGrid
+    drawGrid,
+    addFloor,
+    switchFloor,
+    deleteFloor,
+    renameFloor
   } = useCanvas({
     canvasRef,
     initialData,
@@ -65,6 +71,23 @@ export const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = (
     addCategory,
     deleteCategory
   } = useSeatCategories({ toast });
+
+  // Sync seatCategories with canvas when they change
+  useEffect(() => {
+    if (fabricCanvasRef.current) {
+      fabricCanvasRef.current.seatCategories = seatCategories;
+      fabricCanvasRef.current.selectedSeatCategory = selectedSeatCategory;
+    }
+  }, [seatCategories, selectedSeatCategory]);
+
+  // Show tutorial on first load
+  useEffect(() => {
+    const hasSeenTutorial = localStorage.getItem('hasSeenFloorMapTutorial');
+    if (!hasSeenTutorial) {
+      setShowTutorial(true);
+      localStorage.setItem('hasSeenFloorMapTutorial', 'true');
+    }
+  }, []);
 
   // Update grid when grid settings change
   useEffect(() => {
@@ -104,6 +127,12 @@ export const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = (
               clearCanvas={clearCanvas}
               exportFloorMap={exportFloorMap}
               importFloorMap={importFloorMap}
+              floors={floors}
+              activeFloor={activeFloor}
+              addFloor={addFloor}
+              switchFloor={switchFloor}
+              deleteFloor={deleteFloor}
+              renameFloor={renameFloor}
             />
           </TabsContent>
           
@@ -132,7 +161,7 @@ export const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = (
         </Tabs>
       </div>
       
-      <div className="border border-gray-200 rounded-md p-2">
+      <div className="border border-gray-200 rounded-md p-2 bg-white">
         <canvas ref={canvasRef} className="w-full" />
       </div>
       
