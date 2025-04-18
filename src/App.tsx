@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/common/ScrollToTop";
 import { OrganizationProvider } from "./contexts/OrganizationContext";
@@ -27,7 +26,7 @@ import AdminBookings from "./pages/admin/AdminBookings";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminSettings from "./pages/admin/AdminSettings";
 import HubManagement from "./pages/admin/HubManagement";
-import WorkspaceCreation from "./pages/admin/WorkspaceCreation"; // Add import
+import WorkspaceCreation from "./pages/admin/WorkspaceCreation";
 import HubCheckIn from "./pages/admin/HubCheckIn";
 import OrganizationSettings from "./pages/admin/OrganizationSettings";
 
@@ -69,6 +68,7 @@ function App() {
           
           {/* Authenticated member routes */}
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/book/:workspaceId" element={<BookingPage />} />
           <Route path="/book" element={<BookingPage />} />
           <Route path="/bookings" element={<MyBookings />} />
           <Route path="/profile" element={<Profile />} />
@@ -80,7 +80,7 @@ function App() {
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="/admin/hubs" element={<HubManagement />} />
-          <Route path="/admin/workspace/create" element={<WorkspaceCreation />} /> {/* Add new route */}
+          <Route path="/admin/workspace/create" element={<WorkspaceCreation />} />
           <Route path="/admin/check-in" element={<HubCheckIn />} />
           <Route path="/admin/organization" element={<OrganizationSettings />} />
           

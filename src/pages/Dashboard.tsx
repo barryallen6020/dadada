@@ -1,31 +1,48 @@
-
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import WorkspaceCard from "@/components/dashboard/WorkspaceCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, SlidersHorizontal, MapPin, Building2, UserCheck } from "lucide-react";
+import { Calendar, SlidersHorizontal, MapPin, Building2, UserCheck, Star } from "lucide-react";
 import { workspaces } from "@/data/workspaces";
 import FilterModal from "@/components/dashboard/FilterModal";
 import CheckInStatus from "@/components/dashboard/CheckInStatus";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useOrganization } from "@/contexts/OrganizationContext";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [ratings, setRatings] = useState<Record<string, number>>({});
+  const [activeTab, setActiveTab] = useState("all");
   
   const { currentOrganization } = useOrganization();
   
-  const userStr = localStorage.getItem("user");
-  const defaultUser = {name: "Guest User", email: "guest@example.com"};
-  const user = userStr ? JSON.parse(userStr) : defaultUser;
+  useEffect(() => {
+    const savedFavorites = localStorage.getItem("favoriteHubs");
+    if (savedFavorites) {
+      setFavorites(JSON.parse(savedFavorites));
+    }
+    
+    const savedRatings = localStorage.getItem("hubRatings");
+    if (savedRatings) {
+      setRatings(JSON.parse(savedRatings));
+    }
+  }, []);
 
-  // Filter workspaces based on the selected organization
-  const organizationWorkspaces = workspaces.filter(workspace => 
-    workspace.enabled !== false && workspace.organizationId === currentOrganization.id
-  );
+  const organizationWorkspaces = workspaces
+    .filter(workspace => workspace.enabled !== false && workspace.organizationId === currentOrganization.id)
+    .map(workspace => ({
+      ...workspace,
+      isFavorite: favorites.includes(workspace.id),
+      rating: ratings[workspace.id]
+    }));
   
   const filteredWorkspaces = organizationWorkspaces.filter(
     (workspace) =>
@@ -33,13 +50,48 @@ const Dashboard = () => {
       workspace.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
       workspace.location.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const favoriteWorkspaces = filteredWorkspaces.filter(
+    workspace => favorites.includes(workspace.id)
+  );
   
-  const handleApplyFilters = (filters) => {
-    console.log("Filters applied:", filters);
+  const handleToggleFavorite = (workspaceId: string) => {
+    const newFavorites = favorites.includes(workspaceId)
+      ? favorites.filter(id => id !== workspaceId)
+      : [...favorites, workspaceId];
+    
+    setFavorites(newFavorites);
+    localStorage.setItem("favoriteHubs", JSON.stringify(newFavorites));
+    
+    toast({
+      title: favorites.includes(workspaceId) ? "Removed from favorites" : "Added to favorites",
+      description: favorites.includes(workspaceId) 
+        ? "The hub has been removed from your favorites" 
+        : "The hub has been added to your favorites",
+    });
   };
+  
+  const handleRate = (workspaceId: string, rating: number) => {
+    const newRatings = { ...ratings, [workspaceId]: rating };
+    setRatings(newRatings);
+    localStorage.setItem("hubRatings", JSON.stringify(newRatings));
+    
+    toast({
+      title: "Rating updated",
+      description: `You've rated this hub ${rating} stars`,
+    });
+  };
+
+  const userStr = localStorage.getItem("user");
+  const defaultUser = {name: "Guest User", email: "guest@example.com"};
+  const user = userStr ? JSON.parse(userStr) : defaultUser;
 
   const userName = user?.name ? user.name.split(' ')[0] : 'Guest';
   const userEmail = user?.email || '';
+
+  const handleApplyFilters = (filters) => {
+    console.log("Filters applied:", filters);
+  };
 
   return (
     <DashboardLayout>
@@ -109,6 +161,13 @@ const Dashboard = () => {
           </Card>
         </div>
         
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-6">
+          <TabsList>
+            <TabsTrigger value="all">All Hubs</TabsTrigger>
+            <TabsTrigger value="favorites">Favorites</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        
         <div className="mb-6 relative w-full">
           <div className="relative w-full">
             <Input
@@ -129,11 +188,13 @@ const Dashboard = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredWorkspaces.map((workspace) => (
+          {(activeTab === "all" ? filteredWorkspaces : favoriteWorkspaces).map((workspace) => (
             <WorkspaceCard
               key={workspace.id}
               workspace={workspace}
-              onBook={() => window.location.href = `/book/${workspace.id}`}
+              onBook={() => navigate(`/book/${workspace.id}`)}
+              onToggleFavorite={handleToggleFavorite}
+              onRate={handleRate}
             />
           ))}
         </div>

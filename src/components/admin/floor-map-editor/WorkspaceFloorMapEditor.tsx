@@ -1,6 +1,4 @@
-
-import React, { useEffect, useRef, useState } from "react";
-import { fabric } from "fabric";
+import React, { useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { DrawingTools } from "./DrawingTools";
 import { SeatCategories } from "./SeatCategories";
@@ -16,13 +14,16 @@ interface WorkspaceFloorMapEditorProps {
   onChange: (data: any) => void;
 }
 
-export const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = ({ initialData, onChange }) => {
+export const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = ({ 
+  initialData, 
+  onChange 
+}) => {
   const { toast } = useToast();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [activeTab, setActiveTab] = useState<string>("draw");
-  const [showTutorial, setShowTutorial] = useState<boolean>(false);
+  const [showTutorial, setShowTutorial] = React.useState<boolean>(false);
+  const [activeTab, setActiveTab] = React.useState<string>("draw");
   
-  const {
+  const { 
     fabricCanvasRef,
     gridSize,
     setGridSize,
@@ -72,28 +73,13 @@ export const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = (
     deleteCategory
   } = useSeatCategories({ toast });
 
-  // Sync seatCategories with canvas when they change
-  useEffect(() => {
-    if (fabricCanvasRef.current) {
-      fabricCanvasRef.current.seatCategories = seatCategories;
-      fabricCanvasRef.current.selectedSeatCategory = selectedSeatCategory;
-    }
-  }, [seatCategories, selectedSeatCategory]);
-
-  // Show tutorial on first load
-  useEffect(() => {
+  React.useEffect(() => {
     const hasSeenTutorial = localStorage.getItem('hasSeenFloorMapTutorial');
     if (!hasSeenTutorial) {
       setShowTutorial(true);
       localStorage.setItem('hasSeenFloorMapTutorial', 'true');
     }
   }, []);
-
-  // Update grid when grid settings change
-  useEffect(() => {
-    if (!fabricCanvasRef.current) return;
-    drawGrid();
-  }, [gridSize, showGrid]);
 
   return (
     <div className="space-y-4">
