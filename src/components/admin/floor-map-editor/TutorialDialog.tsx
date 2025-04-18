@@ -2,12 +2,13 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface TutorialStep {
   title: string;
   content: string;
+  image?: string;
 }
 
 interface TutorialDialogProps {
@@ -37,23 +38,24 @@ export const TutorialDialog: React.FC<TutorialDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle className="flex justify-between items-center">
-            <span>{steps[currentStep].title}</span>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onOpenChange(false)}
-              className="h-6 w-6"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </DialogTitle>
+          <DialogTitle>{steps[currentStep].title}</DialogTitle>
         </DialogHeader>
-        <ScrollArea className="h-60 rounded-md border p-4">
-          <div className="text-sm text-muted-foreground">
-            {steps[currentStep].content}
+        <ScrollArea className="h-[400px] rounded-md border p-4">
+          <div className="space-y-4">
+            {steps[currentStep].image && (
+              <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
+                <img 
+                  src={steps[currentStep].image} 
+                  alt={steps[currentStep].title}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            )}
+            <div className="text-sm text-muted-foreground">
+              {steps[currentStep].content}
+            </div>
           </div>
         </ScrollArea>
         <div className="flex justify-between mt-2">

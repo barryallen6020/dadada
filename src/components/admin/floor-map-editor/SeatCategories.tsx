@@ -3,8 +3,14 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Check, Circle, Trash2 } from "lucide-react";
-import { SeatCategory } from './hooks/useSeatCategories';
+import { Check, Circle, Eye, Trash2 } from "lucide-react";
+
+interface SeatCategory {
+  id: string;
+  name: string;
+  color: string;
+  price: number;
+}
 
 interface SeatCategoriesProps {
   seatCategories: SeatCategory[];
@@ -15,11 +21,7 @@ interface SeatCategoriesProps {
     color: string;
     price: number;
   };
-  setNewCategory: (category: {
-    name: string;
-    color: string;
-    price: number;
-  }) => void;
+  setNewCategory: (category: { name: string; color: string; price: number }) => void;
   addCategory: () => void;
   deleteCategory: (id: string) => void;
 }
@@ -33,6 +35,8 @@ export const SeatCategories: React.FC<SeatCategoriesProps> = ({
   addCategory,
   deleteCategory
 }) => {
+  const [previewCategory, setPreviewCategory] = React.useState<string | null>(null);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
@@ -44,6 +48,8 @@ export const SeatCategories: React.FC<SeatCategoriesProps> = ({
               className={`flex items-center justify-between p-2 rounded-md ${
                 selectedSeatCategory === category.id ? "bg-gray-100" : ""
               }`}
+              onMouseEnter={() => setPreviewCategory(category.id)}
+              onMouseLeave={() => setPreviewCategory(null)}
             >
               <div className="flex items-center space-x-2">
                 <div 
@@ -82,8 +88,45 @@ export const SeatCategories: React.FC<SeatCategoriesProps> = ({
           ))}
         </div>
       </div>
-      
+
+      {/* Preview section */}
       <div>
+        <h3 className="text-sm font-medium mb-2">Category Preview</h3>
+        <div className="border rounded-md p-4 h-60 flex items-center justify-center bg-gray-50">
+          {previewCategory ? (
+            <div className="text-center space-y-2">
+              <div 
+                className="w-20 h-20 rounded-full mx-auto" 
+                style={{ 
+                  backgroundColor: seatCategories.find(c => c.id === previewCategory)?.color,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  border: '2px solid black'
+                }}
+              >
+                1
+              </div>
+              <p className="text-sm font-medium">
+                {seatCategories.find(c => c.id === previewCategory)?.name}
+              </p>
+              <p className="text-xs text-gray-500">
+                ₦{seatCategories.find(c => c.id === previewCategory)?.price}
+              </p>
+            </div>
+          ) : (
+            <div className="text-center text-gray-400">
+              <Eye className="h-8 w-8 mx-auto mb-2" />
+              <p>Hover over a category to preview</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Add New Category section */}
+      <div className="md:col-span-2">
         <h3 className="text-sm font-medium mb-2">Add New Category</h3>
         <div className="space-y-3 border rounded-md p-3">
           <div className="space-y-1">

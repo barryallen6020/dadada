@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { fabric } from 'fabric';
 
@@ -16,7 +15,6 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
 
-  // Initialize Fabric.js canvas
   useEffect(() => {
     if (!canvasRef.current || fabricCanvasRef.current) return;
 
@@ -29,10 +27,8 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
     
     fabricCanvasRef.current = canvas;
 
-    // Draw grid
     drawGrid();
 
-    // Load initial data if provided
     if (initialData) {
       try {
         canvas.loadFromJSON(initialData, canvas.renderAll.bind(canvas));
@@ -41,7 +37,6 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
       }
     }
 
-    // Event listeners
     canvas.on("object:modified", saveState);
     canvas.on("object:added", saveState);
     canvas.on("object:removed", saveState);
@@ -52,7 +47,6 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
     canvas.on("mouse:move", handleMouseMove);
     canvas.on("mouse:up", handleMouseUp);
 
-    // Set up history
     initHistory();
 
     return () => {
@@ -61,12 +55,10 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
     };
   }, []);
 
-  // Object movement handler with grid snapping
   useEffect(() => {
     const canvas = fabricCanvasRef.current;
     if (!canvas) return;
     
-    // Add event listener for object movement
     const handleObjectMoving = (e: any) => {
       if (snapToGrid && e.target) {
         snapObjectToGrid(e.target);
@@ -80,7 +72,6 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
     };
   }, [snapToGrid, gridSize]);
 
-  // Drawing line related handlers
   const handleMouseDown = (options: any) => {
     if (activeTool !== "line" || !fabricCanvasRef.current) return;
     
@@ -91,7 +82,6 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
       setIsDrawingLine(true);
       setLinePoints([{ x: pointer.x, y: pointer.y }]);
       
-      // Start the polyline with just the first point
       const line = new fabric.Line(
         [pointer.x, pointer.y, pointer.x, pointer.y],
         {
@@ -102,12 +92,10 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
       );
       
       canvas.add(line);
-      canvas.requestRenderAll();
+      canvas.renderAll();
     } else {
-      // Add a new point
       const lastPoint = linePoints[linePoints.length - 1];
       
-      // Create a line from the last point to the current point
       const line = new fabric.Line(
         [lastPoint.x, lastPoint.y, pointer.x, pointer.y],
         {
@@ -118,18 +106,15 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
       
       canvas.add(line);
       setLinePoints([...linePoints, { x: pointer.x, y: pointer.y }]);
-      canvas.requestRenderAll();
+      canvas.renderAll();
     }
   };
-  
+
   const handleMouseMove = (options: any) => {
     if (!isDrawingLine || !fabricCanvasRef.current) return;
-    
-    // We could implement a preview line here if needed
   };
-  
+
   const handleMouseUp = (options: any) => {
-    // Line drawing continues until the user clicks "finish line" or selects another tool
   };
 
   const finishLine = () => {
@@ -137,7 +122,6 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
     
     const canvas = fabricCanvasRef.current;
     
-    // Create a polyline with all points
     const pathData = linePoints.map((point, i) => 
       (i === 0 ? 'M' : 'L') + point.x + ' ' + point.y
     ).join(' ');
@@ -149,7 +133,6 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
       data: { type: 'wall' }
     });
     
-    // Remove the temporary lines
     canvas.getObjects('line').forEach(obj => {
       if (!obj.data || !obj.data.type) {
         canvas.remove(obj);
@@ -157,20 +140,17 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
     });
     
     canvas.add(polyline);
-    canvas.requestRenderAll();
+    canvas.renderAll();
     
-    // Reset drawing state
     setIsDrawingLine(false);
     setLinePoints([]);
     saveState();
   };
 
-  // Draw grid lines
   const drawGrid = () => {
     const canvas = fabricCanvasRef.current;
     if (!canvas) return;
 
-    // Clear existing grid
     canvas.getObjects().forEach(obj => {
       if (obj.data && obj.data.type === "grid") {
         canvas.remove(obj);
@@ -185,7 +165,6 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
     const width = canvas.width || 800;
     const height = canvas.height || 600;
 
-    // Draw vertical grid lines
     for (let i = 0; i <= width; i += gridSize) {
       const line = new fabric.Line([i, 0, i, height], {
         stroke: "#e5e5e5",
@@ -197,7 +176,6 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
       line.sendToBack();
     }
 
-    // Draw horizontal grid lines
     for (let i = 0; i <= height; i += gridSize) {
       const line = new fabric.Line([0, i, width, i], {
         stroke: "#e5e5e5",
@@ -212,7 +190,6 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
     canvas.renderAll();
   };
 
-  // History management
   const initHistory = () => {
     if (!fabricCanvasRef.current) return;
     
@@ -229,7 +206,6 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
     const canvas = fabricCanvasRef.current;
     const json = JSON.stringify(canvas.toJSON(['data']));
     
-    // Save to history
     const newHistory = history.slice(0, historyIndex + 1);
     newHistory.push(json);
     
@@ -238,7 +214,6 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
     setCanUndo(newHistory.length > 1);
     setCanRedo(false);
     
-    // Notify parent component of change
     onChange(json);
   };
 
@@ -266,7 +241,6 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
     setCanRedo(newIndex < history.length - 1);
   };
 
-  // Selection handlers
   const handleSelectionCreated = (options: any) => {
     const selection = options.selected?.[0] || options.target;
     setSelectedObject(selection);
@@ -276,22 +250,18 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
     setSelectedObject(null);
   };
 
-  // Tool handlers
   const handleToolClick = (tool: string) => {
     setActiveTool(tool);
     
     const canvas = fabricCanvasRef.current;
     if (!canvas) return;
 
-    // If we were drawing a line, finish it when switching tools
     if (isDrawingLine && tool !== "line") {
       finishLine();
     }
 
-    // Disable drawing mode for all tools except drawing
     canvas.isDrawingMode = tool === "draw";
     
-    // Enable/disable selection based on the tool
     const selectable = tool === "select" || tool === "hand";
     canvas.selection = selectable;
     canvas.getObjects().forEach(obj => {
@@ -299,7 +269,6 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
     });
   };
 
-  // Snap to grid functionality
   const snapObjectToGrid = (obj: fabric.Object) => {
     if (!snapToGrid || !obj) return;
     
@@ -349,11 +318,9 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
         return;
     }
     
-    // Add the object to canvas
     canvas.add(object);
     canvas.setActiveObject(object);
     
-    // Apply snap to grid if enabled
     if (snapToGrid) {
       snapObjectToGrid(object);
     }
@@ -367,21 +334,22 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
     
     const seatCategories = canvas.seatCategories || [];
     const selectedSeatCategory = canvas.selectedSeatCategory || "standard";
-    const category = seatCategories.find((c: any) => c.id === selectedSeatCategory) || { 
-      id: "standard", 
-      name: "Standard", 
-      color: "#10B981", 
-      price: 0 
-    };
+    const category = seatCategories.find(c => c.id === selectedSeatCategory) || seatCategories[0];
     
-    // Create a seat marker (circle)
+    const seatCount = canvas.getObjects().filter(obj => obj.data && obj.data.type === "seat").length + 1;
+    const centerX = 150;
+    const centerY = 150;
+    const radius = 15;
+    
     const seat = new fabric.Circle({
-      left: 150,
-      top: 150,
-      radius: 15,
+      left: centerX,
+      top: centerY,
+      radius: radius,
       fill: category.color,
       stroke: "#000",
       strokeWidth: 1,
+      originX: 'center',
+      originY: 'center',
       data: {
         type: "seat",
         available: true,
@@ -391,27 +359,23 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
       }
     });
     
-    // Add a label with the seat number
-    const seatCount = canvas.getObjects().filter((obj: any) => obj.data && obj.data.type === "seat").length + 1;
     const text = new fabric.Text(seatCount.toString(), {
       fontSize: 12,
       fill: '#fff',
       fontWeight: 'bold',
-      left: 150 + 15/2,
-      top: 150 + 15/2,
       originX: 'center',
       originY: 'center',
-      selectable: false,
+      left: centerX,
+      top: centerY,
       data: { 
         type: "seat-label",
         seatNumber: seatCount
       }
     });
     
-    // Group the seat and label together
     const group = new fabric.Group([seat, text], {
-      left: 150,
-      top: 150,
+      left: centerX,
+      top: centerY,
       data: {
         type: "seat", 
         available: true,
@@ -425,7 +389,6 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
     canvas.add(group);
     canvas.setActiveObject(group);
     
-    // Apply snap to grid if enabled
     if (snapToGrid) {
       snapObjectToGrid(group);
     }
@@ -464,7 +427,6 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
     const canvas = fabricCanvasRef.current;
     if (!canvas) return;
     
-    // Remove all objects except grid
     canvas.getObjects().forEach(obj => {
       if (!obj.data || obj.data.type !== "grid") {
         canvas.remove(obj);
@@ -480,7 +442,6 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
     });
   };
 
-  // Import/Export functionality
   const exportFloorMap = () => {
     const canvas = fabricCanvasRef.current;
     if (!canvas) return;
@@ -530,7 +491,6 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: any) => {
     
     reader.readAsText(file);
     
-    // Reset the input value so the same file can be uploaded again if needed
     e.target.value = '';
   };
 

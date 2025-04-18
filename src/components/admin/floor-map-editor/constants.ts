@@ -1,8 +1,8 @@
-
 export const TUTORIAL_STEPS = [
   {
     title: "Getting Started with the Floor Map Editor",
-    content: "Welcome to the Floor Map Editor! This tutorial will guide you through creating an interactive floor plan for your workspace."
+    content: "Welcome to the Floor Map Editor! This tutorial will guide you through creating an interactive floor plan for your workspace.",
+    image: "/tutorial/welcome.png"
   },
   {
     title: "Step 1: Outline Your Hub",
