@@ -1,6 +1,8 @@
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/common/ScrollToTop";
+import { OrganizationProvider } from "./contexts/OrganizationContext";
+import { Toaster } from "@/components/ui/sonner";
 
 // Pages
 import Index from "./pages/Index";
@@ -42,12 +44,6 @@ import TermsOfService from "./pages/legal/TermsOfService";
 import PrivacyPolicy from "./pages/legal/PrivacyPolicy";
 import RefundPolicy from "./pages/legal/RefundPolicy";
 import CookiePolicy from "./pages/legal/CookiePolicy";
-
-// Context providers
-import { OrganizationProvider } from "./contexts/OrganizationContext";
-
-// Toast provider
-import { Toaster } from "@/components/ui/sonner";
 
 function App() {
   return (

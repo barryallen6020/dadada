@@ -24,7 +24,7 @@ interface OrganizationContextType {
 
 const OrganizationContext = createContext<OrganizationContextType | undefined>(undefined);
 
-export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const OrganizationProvider = ({ children }: { children: React.ReactNode }) => {
   // Load the saved organization from localStorage, or use the first one as default
   const [currentOrganization, setCurrentOrganization] = useState<Organization>(() => {
     const savedOrgId = localStorage.getItem('currentOrganizationId');

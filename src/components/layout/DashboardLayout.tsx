@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Calendar, LayoutDashboard, Settings, LogOut, Menu, X, ChevronRight, User, Building2, BarChart3, AlertCircle, SlidersHorizontal } from "lucide-react";
@@ -9,13 +10,13 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { useIsMobile } from "@/hooks/use-mobile";
 import AdminSidebar from "./AdminSidebar";
 import OrganizationSwitcher from "@/components/dashboard/OrganizationSwitcher";
-import { OrganizationProvider, useOrganization } from "@/contexts/OrganizationContext";
+import { useOrganization } from "@/contexts/OrganizationContext";
+
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
-const DashboardContent: React.FC<{
-  children: React.ReactNode;
-}> = ({
+
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   children
 }) => {
   const location = useLocation();
@@ -25,9 +26,8 @@ const DashboardContent: React.FC<{
   } = useToast();
   const isMobile = useIsMobile();
   const [isNavOpen, setIsNavOpen] = useState(!isMobile);
-  const {
-    currentOrganization
-  } = useOrganization();
+  
+  const { currentOrganization } = useOrganization();
 
   // Get user from localStorage with a fallback to prevent null errors
   const userStr = localStorage.getItem("user");
@@ -39,6 +39,7 @@ const DashboardContent: React.FC<{
   const user = userStr ? JSON.parse(userStr) : defaultUser;
   const isAdmin = user?.role === "admin";
   const isAdminRoute = location.pathname.startsWith("/admin");
+  
   useEffect(() => {
     if (isMobile) {
       setIsNavOpen(false);
@@ -46,9 +47,11 @@ const DashboardContent: React.FC<{
       setIsNavOpen(true);
     }
   }, [isMobile]);
+  
   const toggleNav = () => {
     setIsNavOpen(!isNavOpen);
   };
+  
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("user");
@@ -58,6 +61,7 @@ const DashboardContent: React.FC<{
     });
     navigate("/");
   };
+  
   const menuItems = [{
     title: "Dashboard",
     icon: <LayoutDashboard className="h-5 w-5" />,
@@ -83,7 +87,9 @@ const DashboardContent: React.FC<{
 
   // Safely generate user initials or use fallback
   const userInitials = user?.name ? user.name.split(" ").map((n: string) => n[0]).join("").toUpperCase() : "U";
-  return <div className="min-h-screen bg-deskhive-skyblue flex">
+  
+  return (
+    <div className="min-h-screen bg-deskhive-skyblue flex">
       {/* Render different sidebar based on route */}
       {isAdminRoute ? <AdminSidebar isOpen={isNavOpen} toggleSidebar={toggleNav} user={user} /> : <aside className={`${isNavOpen ? "translate-x-0" : "-translate-x-full"} fixed inset-y-0 left-0 z-50 w-64 glass-nav rounded-tr-xl rounded-br-xl transition-transform duration-300 ease-in-out overflow-hidden shadow-lg`}>
           <div className="h-full flex flex-col">
@@ -107,8 +113,6 @@ const DashboardContent: React.FC<{
                     </Link>
                   </li>)}
               </ul>
-              
-              
             </nav>
             
             <div className="p-4 border-t border-white/20">
@@ -191,13 +195,8 @@ const DashboardContent: React.FC<{
           </div>
         </main>
       </div>
-    </div>;
+    </div>
+  );
 };
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({
-  children
-}) => {
-  return <OrganizationProvider>
-      <DashboardContent>{children}</DashboardContent>
-    </OrganizationProvider>;
-};
+
 export default DashboardLayout;
