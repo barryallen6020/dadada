@@ -1,3 +1,4 @@
+
 import React, { useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { DrawingTools } from "./DrawingTools";
@@ -5,8 +6,7 @@ import { SeatCategories } from "./SeatCategories";
 import { EditorSettings } from "./EditorSettings";
 import { TutorialDialog } from "./TutorialDialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useCanvas } from "./hooks/useCanvas";
-import { useSeatCategories } from "./hooks/useSeatCategories";
+import { useCanvasEnhanced } from "./hooks/useCanvasEnhanced";
 import { TUTORIAL_STEPS } from "./constants";
 
 interface WorkspaceFloorMapEditorProps {
@@ -24,7 +24,6 @@ export const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = (
   const [activeTab, setActiveTab] = React.useState<string>("draw");
   
   const { 
-    fabricCanvasRef,
     gridSize,
     setGridSize,
     snapToGrid,
@@ -32,7 +31,6 @@ export const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = (
     showGrid,
     setShowGrid,
     activeTool,
-    setActiveTool,
     selectedObject,
     isDrawingLine,
     linePoints,
@@ -56,7 +54,7 @@ export const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = (
     switchFloor,
     deleteFloor,
     renameFloor
-  } = useCanvas({
+  } = useCanvasEnhanced({
     canvasRef,
     initialData,
     onChange,
@@ -161,3 +159,6 @@ export const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = (
     </div>
   );
 };
+
+// Import at the top
+import { useSeatCategories } from "./hooks/useSeatCategories";
