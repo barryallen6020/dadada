@@ -1,4 +1,3 @@
-
 import { useRef, useEffect } from 'react';
 import { fabric } from 'fabric';
 import { v4 as uuidv4 } from 'uuid';
@@ -7,13 +6,6 @@ import { useDrawingTools } from './useDrawingTools';
 import { useFloorManagement, FloorData } from './useFloorManagement';
 import { useHistory } from './useHistory';
 import { useMouseHandlers } from './useMouseHandlers';
-
-export interface FloorData {
-  id: string;
-  name: string;
-  canvasJson: string;
-  level: number;
-}
 
 export interface UseCanvasProps {
   canvasRef: React.RefObject<HTMLCanvasElement>;
@@ -95,6 +87,7 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: UseCanvas
     linePoints,
     tempLine,
     handleToolClick,
+    setActiveTool,
     setSelectedObject,
     setIsDrawingLine,
     setLinePoints,
@@ -306,6 +299,7 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: UseCanvas
     snapToGrid,
     setSnapToGrid,
     activeTool,
+    setActiveTool,
     showGrid,
     setShowGrid,
     selectedObject,
