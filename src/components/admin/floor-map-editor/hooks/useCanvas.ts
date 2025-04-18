@@ -1,3 +1,4 @@
+
 import { useRef, useEffect } from 'react';
 import { fabric } from 'fabric';
 import { v4 as uuidv4 } from 'uuid';
@@ -31,6 +32,25 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: UseCanvas
     isGridObject
   } = useGrid({ fabricCanvasRef });
 
+  // Initialize history hook
+  const {
+    history,
+    historyIndex,
+    canUndo,
+    canRedo,
+    initHistory,
+    saveState,
+    undo,
+    redo
+  } = useHistory({
+    fabricCanvasRef,
+    ensureGridIsOnBottom,
+    floors: [], // We'll update this from floorManagement
+    activeFloor: "", // We'll update this from floorManagement
+    setFloors: () => {}, // We'll update this from floorManagement
+    onChange
+  });
+
   // Initialize floor management hook
   const {
     floors,
@@ -45,49 +65,29 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: UseCanvas
     fabricCanvasRef,
     onChange,
     ensureGridIsOnBottom,
-    initHistory: () => {}, // Will be properly set after useHistory is initialized
-    saveState: () => {}    // Will be properly set after useHistory is initialized
-  });
-
-  // Initialize history hook
-  const {
-    history,
-    historyIndex,
-    canUndo,
-    canRedo,
     initHistory,
-    saveState,
-    undo,
-    redo
-  } = useHistory({
-    fabricCanvasRef,
-    ensureGridIsOnBottom,
-    floors,
-    activeFloor,
-    setFloors,
-    onChange
+    saveState
   });
 
-  // Update floor management functions with actual history functions
+  // Update history hook with floor management data
   useEffect(() => {
-    useFloorManagement({
-      fabricCanvasRef,
-      onChange,
-      ensureGridIsOnBottom,
-      initHistory,
-      saveState
-    });
-  }, [initHistory, saveState]);
+    if (history) {
+      // Update the history hook with the current floors and activeFloor
+      history.floors = floors;
+      history.activeFloor = activeFloor;
+      history.setFloors = setFloors;
+    }
+  }, [floors, activeFloor, history]);
 
   // Initialize drawing tools hook
   const {
     activeTool,
+    setActiveTool,
     selectedObject,
     isDrawingLine,
     linePoints,
     tempLine,
     handleToolClick,
-    setActiveTool,
     setSelectedObject,
     setIsDrawingLine,
     setLinePoints,

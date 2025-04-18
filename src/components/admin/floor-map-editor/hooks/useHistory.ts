@@ -24,6 +24,13 @@ export const useHistory = ({
   const [canUndo, setCanUndo] = useState<boolean>(false);
   const [canRedo, setCanRedo] = useState<boolean>(false);
 
+  // Create a history object that can be updated from outside
+  const historyObject = {
+    floors,
+    activeFloor,
+    setFloors
+  };
+
   const initHistory = () => {
     if (!fabricCanvasRef.current) return;
     
@@ -49,16 +56,16 @@ export const useHistory = ({
     setCanRedo(false);
     
     // Update the current floor's canvas data
-    if (activeFloor) {
-      const updatedFloors = floors.map(floor => {
-        if (floor.id === activeFloor) {
+    if (historyObject.activeFloor) {
+      const updatedFloors = historyObject.floors.map(floor => {
+        if (floor.id === historyObject.activeFloor) {
           return { ...floor, canvasJson: json };
         }
         return floor;
       });
       
-      setFloors(updatedFloors);
-      onChange({ floors: updatedFloors, activeFloor });
+      historyObject.setFloors(updatedFloors);
+      onChange({ floors: updatedFloors, activeFloor: historyObject.activeFloor });
     }
   };
 
@@ -95,7 +102,7 @@ export const useHistory = ({
   };
 
   return {
-    history,
+    history: historyObject,
     historyIndex,
     canUndo,
     canRedo,
