@@ -22,7 +22,7 @@ import {
   Check,
   X
 } from "lucide-react";
-import { FloorData } from './hooks/useCanvas';
+import { FloorData } from './hooks/useFloorManagement';
 
 interface FloorControlsProps {
   floors: FloorData[];

@@ -1,11 +1,19 @@
 
 import { useRef, useEffect } from 'react';
 import { fabric } from 'fabric';
+import { v4 as uuidv4 } from 'uuid';
 import { useGrid } from './useGrid';
 import { useDrawingTools } from './useDrawingTools';
-import { useFloorManagement } from './useFloorManagement';
+import { useFloorManagement, FloorData } from './useFloorManagement';
 import { useHistory } from './useHistory';
 import { useMouseHandlers } from './useMouseHandlers';
+
+export interface FloorData {
+  id: string;
+  name: string;
+  canvasJson: string;
+  level: number;
+}
 
 export interface UseCanvasProps {
   canvasRef: React.RefObject<HTMLCanvasElement>;
@@ -31,6 +39,24 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: UseCanvas
     isGridObject
   } = useGrid({ fabricCanvasRef });
 
+  // Initialize floor management hook
+  const {
+    floors,
+    setFloors,
+    activeFloor,
+    setActiveFloor,
+    addFloor,
+    switchFloor,
+    deleteFloor,
+    renameFloor
+  } = useFloorManagement({
+    fabricCanvasRef,
+    onChange,
+    ensureGridIsOnBottom,
+    initHistory: () => {}, // Will be properly set after useHistory is initialized
+    saveState: () => {}    // Will be properly set after useHistory is initialized
+  });
+
   // Initialize history hook
   const {
     history,
@@ -50,23 +76,16 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: UseCanvas
     onChange
   });
 
-  // Initialize floor management hook
-  const {
-    floors,
-    setFloors,
-    activeFloor,
-    setActiveFloor,
-    addFloor,
-    switchFloor,
-    deleteFloor,
-    renameFloor
-  } = useFloorManagement({
-    fabricCanvasRef,
-    onChange,
-    ensureGridIsOnBottom,
-    initHistory,
-    saveState
-  });
+  // Update floor management functions with actual history functions
+  useEffect(() => {
+    useFloorManagement({
+      fabricCanvasRef,
+      onChange,
+      ensureGridIsOnBottom,
+      initHistory,
+      saveState
+    });
+  }, [initHistory, saveState]);
 
   // Initialize drawing tools hook
   const {
@@ -113,6 +132,71 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: UseCanvas
     isGridObject,
     saveState
   });
+
+  // Export and import functions
+  const exportFloorMap = () => {
+    if (!fabricCanvasRef.current) return;
+    
+    const canvas = fabricCanvasRef.current;
+    const json = JSON.stringify({
+      floors: floors,
+      activeFloor: activeFloor,
+      currentCanvas: canvas.toJSON(['data'])
+    });
+    
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'floor-map.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const importFloorMap = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !fabricCanvasRef.current) return;
+    
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    
+    reader.onload = (event) => {
+      if (!event.target || !fabricCanvasRef.current) return;
+      
+      try {
+        const data = JSON.parse(event.target.result as string);
+        setFloors(data.floors || []);
+        
+        if (data.activeFloor) {
+          setActiveFloor(data.activeFloor);
+          const floor = data.floors.find((f: FloorData) => f.id === data.activeFloor);
+          
+          if (floor && floor.canvasJson) {
+            fabricCanvasRef.current.loadFromJSON(floor.canvasJson, () => {
+              fabricCanvasRef.current?.renderAll();
+              ensureGridIsOnBottom();
+            });
+          }
+        }
+        
+        toast({
+          title: "Import Successful",
+          description: "Floor map has been imported successfully.",
+        });
+      } catch (error) {
+        console.error("Error importing floor map:", error);
+        toast({
+          title: "Import Failed",
+          description: "Failed to import floor map. The file may be corrupted.",
+          variant: "destructive",
+        });
+      }
+    };
+    
+    reader.readAsText(file);
+  };
 
   // Initialize Canvas
   useEffect(() => {
@@ -239,6 +323,8 @@ export const useCanvas = ({ canvasRef, initialData, onChange, toast }: UseCanvas
     clearCanvas,
     undo,
     redo,
+    exportFloorMap,
+    importFloorMap,
     finishLine,
     drawGrid,
     addFloor,
