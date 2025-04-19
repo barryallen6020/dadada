@@ -1,56 +1,17 @@
 
-import { toast } from "sonner";
+import { UserSignupData, UserSignupOrgData, AuthResponse, ForgotPasswordResponse } from "@/types/auth";
 
-// API base URL
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://api.deskhive.app";
-
-// Types for user data
-export interface UserSignupData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-}
-
-export interface UserSignupOrgData extends UserSignupData {
-  orgName: string;
-  orgDomain: string;
-}
-
-export interface UserLoginData {
-  email: string;
-  password: string;
-}
-
-export interface AuthResponse {
-  message: string;
-  user: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    role: string;
-  };
-  token: string;
-  refreshToken: string;
-}
-
-export interface RefreshTokenData {
-  refreshToken: string;
-}
 
 // Helper function to handle API errors
 const handleError = (error: any) => {
   console.error("API Error:", error);
   const message = error.response?.data?.message || "An unexpected error occurred";
-  toast.error(message);
   return { success: false, message };
 };
 
-// Authentication service functions
 export const authService = {
-  // User signup
-  async signup(userData: UserSignupData) {
+  async signup(userData: UserSignupData): Promise<AuthResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/user/signup`, {
         method: "POST",
@@ -66,14 +27,13 @@ export const authService = {
         throw new Error(data.message || "Failed to sign up");
       }
       
-      return { success: true, data };
+      return { success: true, ...data };
     } catch (error) {
       return handleError(error);
     }
   },
   
-  // User signup with organization
-  async signupWithOrg(userData: UserSignupOrgData) {
+  async signupWithOrg(userData: UserSignupOrgData): Promise<AuthResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/user/signup-org`, {
         method: "POST",
@@ -89,19 +49,15 @@ export const authService = {
         throw new Error(data.message || "Failed to sign up with organization");
       }
       
-      return { success: true, data };
+      return { success: true, ...data };
     } catch (error) {
       return handleError(error);
     }
   },
   
-  // Check if email exists
-  async checkEmailExists(email: string) {
+  async checkEmailExists(email: string): Promise<{ success: boolean; exists: boolean }> {
     try {
-      const response = await fetch(`${API_BASE_URL}/user/email-exists/${email}`, {
-        method: "GET",
-      });
-      
+      const response = await fetch(`${API_BASE_URL}/user/email-exists/${email}`);
       const data = await response.json();
       return { success: true, exists: data.exists };
     } catch (error) {
@@ -109,8 +65,7 @@ export const authService = {
     }
   },
   
-  // Verify user account
-  async verifyUser(email: string, isVerified: boolean) {
+  async verifyUser(email: string, isVerified: boolean): Promise<AuthResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/user/verify-user`, {
         method: "POST",
@@ -126,21 +81,20 @@ export const authService = {
         throw new Error(data.message || "Failed to verify user");
       }
       
-      return { success: true, data };
+      return { success: true, ...data };
     } catch (error) {
       return handleError(error);
     }
   },
   
-  // User login
-  async login(loginData: UserLoginData) {
+  async login(credentials: { email: string; password: string }): Promise<AuthResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/auth`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(loginData),
+        body: JSON.stringify(credentials),
       });
       
       const data = await response.json();
@@ -155,65 +109,18 @@ export const authService = {
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("isLoggedIn", "true");
       
-      return { success: true, user: data.user };
+      return { 
+        success: true, 
+        user: data.user, 
+        token: data.token, 
+        refreshToken: data.refreshToken 
+      };
     } catch (error) {
       return handleError(error);
     }
   },
   
-  // Refresh token
-  async refreshToken(refreshTokenData: RefreshTokenData) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(refreshTokenData),
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to refresh token");
-      }
-      
-      // Update tokens in localStorage
-      localStorage.setItem("accessToken", data.token);
-      localStorage.setItem("refreshToken", data.refreshToken);
-      
-      return { success: true, token: data.token, refreshToken: data.refreshToken };
-    } catch (error) {
-      // If refresh fails, logout
-      authService.logout();
-      return handleError(error);
-    }
-  },
-  
-  // User logout
-  logout() {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
-    localStorage.removeItem("isLoggedIn");
-    
-    // Redirect to login page
-    window.location.href = "/login";
-  },
-  
-  // Check if user is authenticated
-  isAuthenticated() {
-    return localStorage.getItem("isLoggedIn") === "true" && !!localStorage.getItem("accessToken");
-  },
-  
-  // Get current user data
-  getCurrentUser() {
-    const userStr = localStorage.getItem("user");
-    return userStr ? JSON.parse(userStr) : null;
-  },
-  
-  // Forgot password
-  async forgotPassword(email: string) {
+  async forgotPassword(email: string): Promise<ForgotPasswordResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/user/forgot-password/${email}`, {
         method: "POST",
@@ -231,8 +138,7 @@ export const authService = {
     }
   },
   
-  // Reset password
-  async resetPassword(password: string, resetToken: string, email: string) {
+  async resetPassword(password: string, resetToken: string, email: string): Promise<AuthResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/user/reset-password`, {
         method: "POST",
@@ -254,8 +160,7 @@ export const authService = {
     }
   },
   
-  // Change password
-  async changePassword(oldPassword: string, newPassword: string) {
+  async changePassword(oldPassword: string, newPassword: string): Promise<AuthResponse> {
     try {
       const token = localStorage.getItem("accessToken");
       
@@ -282,6 +187,24 @@ export const authService = {
     } catch (error) {
       return handleError(error);
     }
+  },
+
+  logout() {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
+    localStorage.removeItem("isLoggedIn");
+    
+    window.location.href = "/login";
+  },
+  
+  isAuthenticated() {
+    return localStorage.getItem("isLoggedIn") === "true" && !!localStorage.getItem("accessToken");
+  },
+  
+  getCurrentUser() {
+    const userStr = localStorage.getItem("user");
+    return userStr ? JSON.parse(userStr) : null;
   }
 };
 

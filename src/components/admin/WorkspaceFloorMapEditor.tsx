@@ -2,11 +2,14 @@
 import React from 'react';
 import { WorkspaceFloorMapEditor as FloorMapEditor } from './floor-map-editor';
 
-const WorkspaceFloorMapEditor = () => {
-  // Create a dummy onChange handler since it's required by the component
+interface WorkspaceFloorMapEditorProps {
+  onChange?: (data: any) => void;
+}
+
+const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = ({ onChange }) => {
   const handleFloorMapChange = (data: any) => {
     console.log("Floor map data changed:", data);
-    // This is a placeholder. In a real implementation, you would pass this data to the parent component
+    onChange?.(data);
   };
 
   return <FloorMapEditor onChange={handleFloorMapChange} />;
