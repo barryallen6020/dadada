@@ -1,29 +1,24 @@
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { fabric } from 'fabric';
 import { v4 as uuidv4 } from 'uuid';
 import { useGrid } from './useGrid';
 import { useDrawingTools } from './useDrawingTools';
-import { useMouseHandlers } from './useMouseHandlers';
-import { useHistory } from './useHistory';
 import { useFloorManagement, FloorData } from './useFloorManagement';
+import { useHistory } from './useHistory';
+import { useMouseHandlers } from './useMouseHandlers';
 
-export interface CanvasProps {
+export interface UseCanvasProps {
   canvasRef: React.RefObject<HTMLCanvasElement>;
   initialData?: any;
   onChange: (data: any) => void;
   toast: any;
 }
 
-export const useCanvas = ({ 
-  canvasRef, 
-  initialData, 
-  onChange, 
-  toast 
-}: CanvasProps) => {
+export const useCanvas = ({ canvasRef, initialData, onChange, toast }: UseCanvasProps) => {
   const fabricCanvasRef = useRef<fabric.Canvas | null>(null);
-  
-  // Initialize all the hooks we need
+
+  // Initialize grid hook
   const {
     gridSize,
     setGridSize,
@@ -36,45 +31,55 @@ export const useCanvas = ({
     snapObjectToGrid,
     isGridObject
   } = useGrid({ fabricCanvasRef });
-  
-  // Create a state for floors to pass to other hooks
-  const [floors, setFloors] = useState<FloorData[]>([]);
-  const [activeFloor, setActiveFloor] = useState<string>("");
-  
-  // Initialize history hook with required props
-  const { 
-    canUndo, 
-    canRedo, 
-    saveState, 
-    undo, 
-    redo, 
-    initHistory 
-  } = useHistory({ 
+
+  // Initialize history hook
+  const {
+    history,
+    historyIndex,
+    canUndo,
+    canRedo,
+    initHistory,
+    saveState,
+    undo,
+    redo
+  } = useHistory({
     fabricCanvasRef,
     ensureGridIsOnBottom,
-    floors,
-    activeFloor,
-    setFloors,
+    floors: [], // We'll update this from floorManagement
+    activeFloor: "", // We'll update this from floorManagement
+    setFloors: () => {}, // We'll update this from floorManagement
     onChange
   });
-  
-  // Initialize floor management with required props
+
+  // Initialize floor management hook
   const {
+    floors,
+    setFloors,
+    activeFloor,
+    setActiveFloor,
     addFloor,
     switchFloor,
     deleteFloor,
-    renameFloor,
-    exportFloorMap,
-    importFloorMap
-  } = useFloorManagement({ 
-    fabricCanvasRef, 
+    renameFloor
+  } = useFloorManagement({
+    fabricCanvasRef,
     onChange,
     ensureGridIsOnBottom,
     initHistory,
-    saveState,
-    toast
+    saveState
   });
-  
+
+  // Update history hook with floor management data
+  useEffect(() => {
+    if (history) {
+      // Update the history hook with the current floors and activeFloor
+      history.floors = floors;
+      history.activeFloor = activeFloor;
+      history.setFloors = setFloors;
+    }
+  }, [floors, activeFloor, history]);
+
+  // Initialize drawing tools hook
   const {
     activeTool,
     setActiveTool,
@@ -99,8 +104,8 @@ export const useCanvas = ({
     isGridObject,
     saveState
   });
-  
-  // Initialize the mouse handlers
+
+  // Initialize mouse handlers hook
   const {
     handleMouseDown,
     handleMouseMove,
@@ -118,107 +123,185 @@ export const useCanvas = ({
     setTempLine,
     setSelectedObject,
     isGridObject,
-    saveState,
-    snapToGrid,
-    snapObjectToGrid,
-    gridSize
+    saveState
   });
-  
-  // Initialize the canvas
-  useEffect(() => {
-    if (!canvasRef.current) return;
+
+  // Export and import functions
+  const exportFloorMap = () => {
+    if (!fabricCanvasRef.current) return;
     
+    const canvas = fabricCanvasRef.current;
+    const json = JSON.stringify({
+      floors: floors,
+      activeFloor: activeFloor,
+      currentCanvas: canvas.toJSON(['data'])
+    });
+    
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'floor-map.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const importFloorMap = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !fabricCanvasRef.current) return;
+    
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    
+    reader.onload = (event) => {
+      if (!event.target || !fabricCanvasRef.current) return;
+      
+      try {
+        const data = JSON.parse(event.target.result as string);
+        setFloors(data.floors || []);
+        
+        if (data.activeFloor) {
+          setActiveFloor(data.activeFloor);
+          const floor = data.floors.find((f: FloorData) => f.id === data.activeFloor);
+          
+          if (floor && floor.canvasJson) {
+            fabricCanvasRef.current.loadFromJSON(floor.canvasJson, () => {
+              fabricCanvasRef.current?.renderAll();
+              ensureGridIsOnBottom();
+            });
+          }
+        }
+        
+        toast({
+          title: "Import Successful",
+          description: "Floor map has been imported successfully.",
+        });
+      } catch (error) {
+        console.error("Error importing floor map:", error);
+        toast({
+          title: "Import Failed",
+          description: "Failed to import floor map. The file may be corrupted.",
+          variant: "destructive",
+        });
+      }
+    };
+    
+    reader.readAsText(file);
+  };
+
+  // Initialize Canvas
+  useEffect(() => {
+    if (!canvasRef.current || fabricCanvasRef.current) return;
+
     const canvas = new fabric.Canvas(canvasRef.current, {
       width: 800,
       height: 600,
-      backgroundColor: '#f0f0f0',
-      preserveObjectStacking: true
+      backgroundColor: "#f8f9fa",
+      selection: true,
     });
     
     fabricCanvasRef.current = canvas;
-    
-    // Initialize the canvas with event listeners
-    canvas.on('mouse:down', handleMouseDown);
-    canvas.on('mouse:move', handleMouseMove);
-    canvas.on('selection:created', handleSelectionCreated);
-    canvas.on('selection:updated', handleSelectionCreated);
-    canvas.on('selection:cleared', handleSelectionCleared);
-    
-    // Initialize with grid
-    drawGrid();
-    
-    // Handle object moving end to snap to grid
-    canvas.on('object:modified', (options) => {
-      const obj = options.target;
-      if (!obj || isGridObject(obj)) return;
-      
-      if (snapToGrid) {
-        snapObjectToGrid(obj);
-        canvas.renderAll();
+    canvas.seatCategories = [];
+    canvas.selectedSeatCategory = "standard";
+
+    canvas.on("object:modified", saveState);
+    canvas.on("object:added", (e) => {
+      if (e.target && (!e.target.data || e.target.data.type !== "grid")) {
+        saveState();
       }
-      
-      saveState();
     });
-    
-    // Handle importing initial data if present
+    canvas.on("object:removed", (e) => {
+      if (e.target && (!e.target.data || e.target.data.type !== "grid")) {
+        saveState();
+      }
+    });
+    canvas.on("selection:created", handleSelectionCreated);
+    canvas.on("selection:updated", handleSelectionCreated);
+    canvas.on("selection:cleared", handleSelectionCleared);
+    canvas.on("mouse:down", handleMouseDown);
+    canvas.on("mouse:move", handleMouseMove);
+
+    drawGrid();
+    initHistory();
+
     if (initialData) {
-      importFloorMap({ target: { result: JSON.stringify(initialData) } });
-    } else {
-      // Initialize with at least one floor
-      addFloor();
+      try {
+        canvas.loadFromJSON(initialData, canvas.renderAll.bind(canvas));
+      } catch (error) {
+        console.error("Failed to load initial data:", error);
+      }
     }
-    
-    // Cleanup function
+
     return () => {
-      canvas.off('mouse:down', handleMouseDown);
-      canvas.off('mouse:move', handleMouseMove);
-      canvas.off('selection:created', handleSelectionCreated);
-      canvas.off('selection:updated', handleSelectionCreated);
-      canvas.off('selection:cleared', handleSelectionCleared);
       canvas.dispose();
+      fabricCanvasRef.current = null;
     };
   }, []);
-  
-  // Update grid when grid settings change
+
+  // Handle snap to grid effect
   useEffect(() => {
+    const canvas = fabricCanvasRef.current;
+    if (!canvas) return;
+    
+    const handleObjectMoving = (e: any) => {
+      if (snapToGrid && e.target && !isGridObject(e.target)) {
+        snapObjectToGrid(e.target);
+      }
+    };
+    
+    canvas.on("object:moving", handleObjectMoving);
+    
+    return () => {
+      canvas.off("object:moving", handleObjectMoving);
+    };
+  }, [snapToGrid, gridSize]);
+
+  // Update grid when settings change
+  useEffect(() => {
+    if (!fabricCanvasRef.current) return;
     drawGrid();
-    ensureGridIsOnBottom();
-  }, [showGrid, gridSize]);
-  
-  // When the canvas changes, notify parent component
+  }, [gridSize, showGrid]);
+
+  // Initialize with a default floor
   useEffect(() => {
-    if (onChange && fabricCanvasRef.current) {
-      const exportData = () => {
-        const canvasData = {
-          floors: floors.map(floor => ({
-            id: floor.id,
-            name: floor.name,
-            // Use canvasJson instead of objects to fix the property error
-            canvasJson: floor.canvasJson
-          })),
-          activeFloorId: activeFloor
-        };
-        onChange(canvasData);
+    if (floors.length === 0) {
+      const defaultFloor = {
+        id: uuidv4(),
+        name: "Ground Floor",
+        canvasJson: "",
+        level: 0
       };
       
-      // Only export when we actually have a valid canvas with data
-      if (floors.length > 0) {
-        exportData();
-      }
+      setFloors([defaultFloor]);
+      setActiveFloor(defaultFloor.id);
     }
-  }, [floors, activeFloor, onChange]);
+  }, []);
 
-  // Return everything needed by the component
+  // Update canvas when switching floors
+  useEffect(() => {
+    if (!fabricCanvasRef.current || !activeFloor) return;
+    
+    const floor = floors.find(f => f.id === activeFloor);
+    if (floor && floor.canvasJson) {
+      fabricCanvasRef.current.loadFromJSON(floor.canvasJson, () => {
+        fabricCanvasRef.current?.renderAll();
+        ensureGridIsOnBottom();
+      });
+    }
+  }, [activeFloor]);
+
   return {
     fabricCanvasRef,
     gridSize,
     setGridSize,
     snapToGrid,
     setSnapToGrid,
-    showGrid,
-    setShowGrid,
     activeTool,
     setActiveTool,
+    showGrid,
+    setShowGrid,
     selectedObject,
     isDrawingLine,
     linePoints,

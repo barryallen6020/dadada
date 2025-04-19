@@ -1,9 +1,7 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/common/ScrollToTop";
 import { OrganizationProvider } from "./contexts/OrganizationContext";
 import { Toaster } from "@/components/ui/sonner";
-import SidebarExtender from "./components/layout/SidebarExtender";
 
 // Pages
 import Index from "./pages/Index";
@@ -21,7 +19,6 @@ import MyBookings from "./pages/MyBookings";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
-import FavoritesPage from "./pages/FavoritesPage";
 
 // Admin pages
 import Admin from "./pages/Admin";
@@ -52,7 +49,6 @@ function App() {
     <OrganizationProvider>
       <Router>
         <ScrollToTop />
-        <SidebarExtender />
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Index />} />
@@ -77,7 +73,6 @@ function App() {
           <Route path="/bookings" element={<MyBookings />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/favorites" element={<FavoritesPage />} />
           
           {/* Admin routes */}
           <Route path="/admin" element={<Admin />} />

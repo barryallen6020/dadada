@@ -1,3 +1,3 @@
 
-import { WorkspaceFloorMapEditor } from './floor-map-editor/WorkspaceFloorMapEditor';
+import { WorkspaceFloorMapEditor } from './floor-map-editor';
 export default WorkspaceFloorMapEditor;

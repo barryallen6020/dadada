@@ -1,117 +1,199 @@
-import React from "react";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
+
+import React, { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Calendar, LayoutDashboard, Settings, LogOut, Menu, X, ChevronRight, User, Building2, BarChart3, AlertCircle, SlidersHorizontal } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { NavLink } from "react-router-dom";
+import LogoFull from "../common/LogoFull";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useIsMobile } from "@/hooks/use-mobile";
+import AdminSidebar from "./AdminSidebar";
+import OrganizationSwitcher from "@/components/dashboard/OrganizationSwitcher";
 import { useOrganization } from "@/contexts/OrganizationContext";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import SidebarExtender from "./SidebarExtender";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({
+  children
+}) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const {
+    toast
+  } = useToast();
+  const isMobile = useIsMobile();
+  const [isNavOpen, setIsNavOpen] = useState(!isMobile);
+  
   const { currentOrganization } = useOrganization();
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <Sheet>
-        <SheetTrigger asChild>
-          <button className="md:hidden absolute left-4 top-4 text-gray-600 hover:text-gray-800">
-            <Menu className="h-6 w-6" />
-          </button>
-        </SheetTrigger>
-        <SheetContent className="w-64 pt-6 pl-0 pr-0 border-r">
-          <SheetHeader className="pl-6 pb-4">
-            <SheetTitle className="text-lg font-semibold">
-              {currentOrganization.name}
-            </SheetTitle>
-            <SheetDescription>
-              Manage your workspace and account settings
-            </SheetDescription>
-          </SheetHeader>
-          <ScrollArea className="h-[calc(100vh-100px)] pl-6">
-            <nav className="flex flex-col space-y-1">
-              <NavLink
-                to="/dashboard"
-                className={({ isActive }) =>
-                  `flex items-center px-3 py-2 rounded-lg transition duration-200 ${
-                    isActive
-                      ? "bg-deskhive-skyblue/20 text-deskhive-navy font-medium"
-                      : "hover:bg-gray-100 text-deskhive-darkgray/80 hover:text-deskhive-navy"
-                  }`
-                }
-              >
-                <Avatar className="mr-2 h-6 w-6">
-                  <AvatarImage src="https://github.com/shadcn.png" />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <span>Dashboard</span>
-              </NavLink>
-              <NavLink
-                to="/bookings"
-                className={({ isActive }) =>
-                  `flex items-center px-3 py-2 rounded-lg transition duration-200 ${
-                    isActive
-                      ? "bg-deskhive-skyblue/20 text-deskhive-navy font-medium"
-                      : "hover:bg-gray-100 text-deskhive-darkgray/80 hover:text-deskhive-navy"
-                  }`
-                }
-              >
-                <Avatar className="mr-2 h-6 w-6">
-                  <AvatarImage src="https://github.com/shadcn.png" />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <span>Bookings</span>
-              </NavLink>
-              <SidebarExtender />
-              <NavLink
-                to="/profile"
-                className={({ isActive }) =>
-                  `flex items-center px-3 py-2 rounded-lg transition duration-200 ${
-                    isActive
-                      ? "bg-deskhive-skyblue/20 text-deskhive-navy font-medium"
-                      : "hover:bg-gray-100 text-deskhive-darkgray/80 hover:text-deskhive-navy"
-                  }`
-                }
-              >
-                <Avatar className="mr-2 h-6 w-6">
-                  <AvatarImage src="https://github.com/shadcn.png" />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <span>Profile</span>
-              </NavLink>
-              <NavLink
-                to="/settings"
-                className={({ isActive }) =>
-                  `flex items-center px-3 py-2 rounded-lg transition duration-200 ${
-                    isActive
-                      ? "bg-deskhive-skyblue/20 text-deskhive-navy font-medium"
-                      : "hover:bg-gray-100 text-deskhive-darkgray/80 hover:text-deskhive-navy"
-                  }`
-                }
-              >
-                <Avatar className="mr-2 h-6 w-6">
-                  <AvatarImage src="https://github.com/shadcn.png" />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <span>Settings</span>
-              </NavLink>
-            </nav>
-          </ScrollArea>
-        </SheetContent>
-      </Sheet>
+  // Get user from localStorage with a fallback to prevent null errors
+  const userStr = localStorage.getItem("user");
+  const defaultUser = {
+    name: "Guest User",
+    email: "guest@example.com",
+    role: ""
+  };
+  const user = userStr ? JSON.parse(userStr) : defaultUser;
+  const isAdmin = user?.role === "admin";
+  const isAdminRoute = location.pathname.startsWith("/admin");
+  
+  useEffect(() => {
+    if (isMobile) {
+      setIsNavOpen(false);
+    } else {
+      setIsNavOpen(true);
+    }
+  }, [isMobile]);
+  
+  const toggleNav = () => {
+    setIsNavOpen(!isNavOpen);
+  };
+  
+  const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("user");
+    toast({
+      title: "Logged out successfully",
+      description: "You have been logged out of your account."
+    });
+    navigate("/");
+  };
+  
+  const menuItems = [{
+    title: "Dashboard",
+    icon: <LayoutDashboard className="h-5 w-5" />,
+    path: "/dashboard"
+  }, {
+    title: "My Bookings",
+    icon: <Calendar className="h-5 w-5" />,
+    path: "/bookings"
+  }, {
+    title: "Account Settings",
+    icon: <Settings className="h-5 w-5" />,
+    path: "/settings"
+  }];
 
-      <div className="md:pl-64">
-        <div className="p-4">{children}</div>
+  // Only add admin panel link if user is admin
+  if (isAdmin && !isAdminRoute) {
+    menuItems.push({
+      title: "Admin Panel",
+      icon: <BarChart3 className="h-5 w-5" />,
+      path: "/admin"
+    });
+  }
+
+  // Safely generate user initials or use fallback
+  const userInitials = user?.name ? user.name.split(" ").map((n: string) => n[0]).join("").toUpperCase() : "U";
+  
+  return (
+    <div className="min-h-screen bg-deskhive-skyblue flex">
+      {/* Render different sidebar based on route */}
+      {isAdminRoute ? <AdminSidebar isOpen={isNavOpen} toggleSidebar={toggleNav} user={user} /> : <aside className={`${isNavOpen ? "translate-x-0" : "-translate-x-full"} fixed inset-y-0 left-0 z-50 w-64 glass-nav rounded-tr-xl rounded-br-xl transition-transform duration-300 ease-in-out overflow-hidden shadow-lg`}>
+          <div className="h-full flex flex-col">
+            <div className="px-6 py-4 border-b border-white/20">
+              <Link to="/" className="flex items-center">
+                <LogoFull />
+              </Link>
+            </div>
+            
+            {/* Move organization switcher to sidebar */}
+            <div className="px-4 py-3 border-b border-white/20">
+              <OrganizationSwitcher />
+            </div>
+            
+            <nav className="flex-1 overflow-y-auto px-3 py-6 glass-scrollbar">
+              <ul className="space-y-1">
+                {menuItems.map(item => <li key={item.path}>
+                    <Link to={item.path} className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium ${location.pathname === item.path ? "bg-deskhive-navy text-white" : "text-deskhive-darkgray hover:bg-white/20"}`}>
+                      <span className="mr-3">{item.icon}</span>
+                      {item.title}
+                    </Link>
+                  </li>)}
+              </ul>
+            </nav>
+            
+            <div className="p-4 border-t border-white/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Avatar className="h-9 w-9 mr-3">
+                    <AvatarFallback className="bg-deskhive-navy text-white">
+                      {userInitials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm font-medium text-deskhive-darkgray">
+                      {user?.name || "Guest User"}
+                    </p>
+                    <p className="text-xs text-deskhive-darkgray/70">{user?.email || "guest@example.com"}</p>
+                  </div>
+                </div>
+                <Button variant="ghost" size="icon" onClick={handleLogout}>
+                  <LogOut className="h-5 w-5 text-deskhive-darkgray/70 hover:text-deskhive-darkgray" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </aside>}
+
+      {/* Mobile overlay */}
+      {isNavOpen && isMobile && <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 md:hidden" onClick={toggleNav}></div>}
+
+      {/* Main content - with left padding to accommodate fixed sidebar */}
+      <div className={`flex-1 flex flex-col ${isNavOpen && !isMobile ? 'ml-64' : ''} transition-all duration-300 w-full`}>
+        {/* Top navigation - glassmorphic */}
+        <header className="glass-nav py-3 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-md">
+          <div className="flex items-center">
+            <Button variant="ghost" size="icon" onClick={toggleNav} className="mr-2">
+              {isNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+            <h1 className="text-lg font-medium text-deskhive-navy">
+              {isAdminRoute ? "Admin Panel" : location.pathname === "/dashboard" ? "Dashboard" : location.pathname === "/bookings" ? "My Bookings" : location.pathname === "/settings" ? "Account Settings" : "DeskHive"}
+            </h1>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="bg-deskhive-navy text-white">
+                      {userInitials}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 glass-dropdown" style={{
+              zIndex: 150
+            }}>
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate("/profile")}>
+                  <User className="h-4 w-4 mr-2" />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/settings")}>
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </header>
+
+        {/* Page content - make sure it respects the width constraints */}
+        <main className="flex-1 overflow-x-hidden">
+          <div className="max-w-full px-4 md:px-6 py-6">
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   );

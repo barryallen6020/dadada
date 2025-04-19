@@ -4,7 +4,7 @@ import WorkspaceCard from "@/components/dashboard/WorkspaceCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, SlidersHorizontal, MapPin, Building2, UserCheck, Star, Heart } from "lucide-react";
+import { Calendar, SlidersHorizontal, MapPin, Building2, UserCheck, Star } from "lucide-react";
 import { workspaces } from "@/data/workspaces";
 import FilterModal from "@/components/dashboard/FilterModal";
 import CheckInStatus from "@/components/dashboard/CheckInStatus";

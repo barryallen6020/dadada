@@ -13,9 +13,6 @@ interface UseMouseHandlersProps {
   setSelectedObject: (obj: fabric.Object | null) => void;
   isGridObject: (obj: fabric.Object) => boolean;
   saveState: () => void;
-  snapToGrid: boolean;
-  snapObjectToGrid: (obj: fabric.Object) => void;
-  gridSize: number;
 }
 
 export const useMouseHandlers = ({
@@ -29,22 +26,8 @@ export const useMouseHandlers = ({
   setTempLine,
   setSelectedObject,
   isGridObject,
-  saveState,
-  snapToGrid,
-  snapObjectToGrid,
-  gridSize
+  saveState
 }: UseMouseHandlersProps) => {
-  
-  // Function to snap a point to the grid
-  const snapPointToGrid = (point: {x: number, y: number}): {x: number, y: number} => {
-    if (!snapToGrid) return point;
-    
-    return {
-      x: Math.round(point.x / gridSize) * gridSize,
-      y: Math.round(point.y / gridSize) * gridSize
-    };
-  };
-
   const handleMouseDown = (options: any) => {
     if (!fabricCanvasRef.current) return;
     
@@ -58,13 +41,11 @@ export const useMouseHandlers = ({
     
     if (activeTool === "line") {
       if (!isDrawingLine) {
-        // Start drawing a new line
-        const snappedPoint = snapPointToGrid(pointer);
         setIsDrawingLine(true);
-        setLinePoints([snappedPoint]);
+        setLinePoints([{ x: pointer.x, y: pointer.y }]);
         
         const line = new fabric.Line(
-          [snappedPoint.x, snappedPoint.y, snappedPoint.x, snappedPoint.y],
+          [pointer.x, pointer.y, pointer.x, pointer.y],
           {
             strokeWidth: 2,
             stroke: '#000',
@@ -76,13 +57,11 @@ export const useMouseHandlers = ({
         canvas.add(line);
         setTempLine(line);
       } else {
-        // Continue the existing line
         const lastPoint = linePoints[linePoints.length - 1];
-        const snappedPoint = snapPointToGrid(pointer);
         
         // Add a permanent line segment
         const line = new fabric.Line(
-          [lastPoint.x, lastPoint.y, snappedPoint.x, snappedPoint.y],
+          [lastPoint.x, lastPoint.y, pointer.x, pointer.y],
           {
             strokeWidth: 2,
             stroke: '#000',
@@ -98,7 +77,7 @@ export const useMouseHandlers = ({
         }
         
         const newTempLine = new fabric.Line(
-          [snappedPoint.x, snappedPoint.y, snappedPoint.x, snappedPoint.y],
+          [pointer.x, pointer.y, pointer.x, pointer.y],
           {
             strokeWidth: 2,
             stroke: '#000',
@@ -110,7 +89,7 @@ export const useMouseHandlers = ({
         canvas.add(newTempLine);
         setTempLine(newTempLine);
         
-        setLinePoints([...linePoints, snappedPoint]);
+        setLinePoints([...linePoints, { x: pointer.x, y: pointer.y }]);
       }
     }
   };
@@ -122,13 +101,10 @@ export const useMouseHandlers = ({
     const pointer = canvas.getPointer(options.e);
     const lastPoint = linePoints[linePoints.length - 1];
     
-    // Get snapped position for visual feedback during drawing
-    const snappedPoint = snapPointToGrid(pointer);
-    
-    // Update the temporary line to follow the mouse with snapping
+    // Update the temporary line to follow the mouse
     tempLine.set({
-      x2: snappedPoint.x,
-      y2: snappedPoint.y
+      x2: pointer.x,
+      y2: pointer.y
     });
     
     canvas.renderAll();

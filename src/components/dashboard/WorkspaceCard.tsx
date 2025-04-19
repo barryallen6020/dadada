@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -56,12 +55,6 @@ const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
     ? workspace.location 
     : `${workspace.location}, Nigeria`;
   
-  const handleRating = (star: number) => {
-    if (onRate) {
-      onRate(workspace.id, star);
-    }
-  };
-  
   const renderStars = () => {
     return (
       <div className="flex items-center space-x-1">
@@ -74,7 +67,7 @@ const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
                 ? "fill-yellow-400 text-yellow-400"
                 : "text-gray-300"
             )}
-            onClick={() => handleRating(star)}
+            onClick={() => onRate?.(workspace.id, star)}
           />
         ))}
       </div>
@@ -102,25 +95,19 @@ const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
             >
               {workspace.availability} Availability
             </Badge>
-            {onToggleFavorite && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white hover:text-red-500 transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onToggleFavorite(workspace.id);
-                }}
-              >
-                <Heart 
-                  className={cn(
-                    "h-5 w-5",
-                    workspace.isFavorite ? "fill-red-500 text-red-500" : ""
-                  )} 
-                />
-              </Button>
-            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:text-red-500 transition-colors"
+              onClick={() => onToggleFavorite?.(workspace.id)}
+            >
+              <Heart 
+                className={cn(
+                  "h-5 w-5",
+                  workspace.isFavorite ? "fill-red-500 text-red-500" : ""
+                )} 
+              />
+            </Button>
           </div>
           <h3 className="text-white text-xl font-bold">{workspace.name}</h3>
         </div>
