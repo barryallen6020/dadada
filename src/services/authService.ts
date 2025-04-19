@@ -54,13 +54,14 @@ export const authService = {
     }
   },
   
-  async checkEmailExists(email: string): Promise<{ success: boolean; exists: boolean }> {
+  async checkEmailExists(email: string): Promise<{ success: boolean; exists: boolean; message?: string }> {
     try {
       const response = await fetch(`${API_BASE_URL}/user/email-exists/${email}`);
       const data = await response.json();
       return { success: true, exists: data.exists };
     } catch (error) {
-      return { success: false, exists: false, message: handleError(error).message };
+      const errorResult = handleError(error);
+      return { success: false, exists: false, message: errorResult.message };
     }
   },
   

@@ -73,6 +73,7 @@ export const checkIns = [
   {
     id: "checkin-1",
     email: "john@example.com",
+    learnerName: "John Smith", // Added learnerName property
     status: "active",
     checkInTime: "2025-04-19T09:30:00.000Z",
     hub: "ALX Africa Hub",
@@ -81,6 +82,7 @@ export const checkIns = [
   {
     id: "checkin-2",
     email: "jane@example.com",
+    learnerName: "Jane Doe", // Added learnerName property
     status: "completed",
     checkInTime: "2025-04-18T10:00:00.000Z",
     checkOutTime: "2025-04-18T17:00:00.000Z",
