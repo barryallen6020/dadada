@@ -1,12 +1,13 @@
+import { Organization, Workspace, CheckIn } from '@/types/workspace';
 
-export const organizations = [
+export const organizations: Organization[] = [
   {
     id: "org-001",
     name: "ALX",
     logo: "",
     description: "ALX Learning Spaces",
     currency: "₦", // Nigerian Naira
-    type: "public" as const, // Explicitly typed as 'public'
+    type: "public", // Explicitly typed as 'public'
     visibility: true, // Is discoverable
     serviceFeePercentage: 10, // 10% platform fee
   },
@@ -16,7 +17,7 @@ export const organizations = [
     logo: "",
     description: "WorkCentral Collaborative Spaces",
     currency: "₦", // Updated to Naira
-    type: "public" as const,
+    type: "public",
     visibility: true,
     serviceFeePercentage: 10,
   },
@@ -26,7 +27,7 @@ export const organizations = [
     logo: "",
     description: "TechHub Innovation Centers",
     currency: "₦", // Updated to Naira
-    type: "private" as const,
+    type: "private",
     visibility: false,
     bookingCap: 100, // Weekly booking cap
     memberCap: 200, // Member cap
@@ -38,7 +39,7 @@ export const organizations = [
     logo: "",
     description: "Pan-African Coworking Network",
     currency: "₦", // Updated to Naira
-    type: "public" as const,
+    type: "public",
     visibility: true,
     serviceFeePercentage: 10,
   },
@@ -48,7 +49,7 @@ export const organizations = [
     logo: "",
     description: "Social Innovation Spaces",
     currency: "₦", // Updated to Naira
-    type: "private" as const,
+    type: "private",
     visibility: false,
     bookingCap: 150,
     memberCap: 300,
@@ -56,7 +57,7 @@ export const organizations = [
   }
 ];
 
-export const workspaces = [
+export const workspaces: Workspace[] = [
   // ALX Workspaces
   {
     id: "ws-001",
@@ -264,7 +265,7 @@ export const workspaces = [
   }
 ];
 
-export const checkIns = [
+export const checkIns: CheckIn[] = [
   { 
     id: "check-1", 
     learnerId: "user-001",

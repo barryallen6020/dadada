@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { workspaces } from "@/data/workspaces";
@@ -21,12 +20,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Workspace } from "@/types/workspace";
+
+interface HubWithPrice extends Workspace {
+  newPrice: number;
+}
 
 const HubPricingManager = () => {
   const { toast } = useToast();
   
   // State to manage the workspaces with price and enabled status
-  const [hubs, setHubs] = useState(workspaces.map(hub => ({
+  const [hubs, setHubs] = useState<HubWithPrice[]>(workspaces.map(hub => ({
     ...hub,
     newPrice: hub.pricePerHour
   })));

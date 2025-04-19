@@ -12,6 +12,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { Workspace } from "@/types/workspace";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -89,7 +90,7 @@ const Dashboard = () => {
   const userName = user?.name ? user.name.split(' ')[0] : 'Guest';
   const userEmail = user?.email || '';
 
-  const handleApplyFilters = (filters) => {
+  const handleApplyFilters = (filters: any) => {
     console.log("Filters applied:", filters);
   };
 
