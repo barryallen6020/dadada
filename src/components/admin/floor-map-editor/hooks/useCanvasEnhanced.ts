@@ -6,7 +6,7 @@ import { useGrid } from './useGrid';
 import { useDrawingTools } from './useDrawingTools';
 import { useMouseHandlers } from './useMouseHandlers';
 import { useHistory } from './useHistory';
-import { useFloorManagement } from './useFloorManagement';
+import { useFloorManagement, FloorData } from './useFloorManagement';
 
 export interface CanvasProps {
   canvasRef: React.RefObject<HTMLCanvasElement>;
@@ -37,18 +37,43 @@ export const useCanvasEnhanced = ({
     isGridObject
   } = useGrid({ fabricCanvasRef });
   
-  const { canUndo, canRedo, saveState, undo, redo } = useHistory({ fabricCanvasRef });
+  // Create a state for floors to pass to other hooks
+  const [floors, setFloors] = useState<FloorData[]>([]);
+  const [activeFloor, setActiveFloor] = useState<string>("");
   
-  const {
+  // Initialize history hook with required props
+  const { 
+    canUndo, 
+    canRedo, 
+    saveState, 
+    undo, 
+    redo,
+    initHistory
+  } = useHistory({ 
+    fabricCanvasRef,
+    ensureGridIsOnBottom,
     floors,
     activeFloor,
+    setFloors,
+    onChange
+  });
+  
+  // Initialize floor management with required props
+  const {
     addFloor,
     switchFloor,
     deleteFloor,
     renameFloor,
     exportFloorMap,
     importFloorMap
-  } = useFloorManagement({ fabricCanvasRef, saveState, toast });
+  } = useFloorManagement({ 
+    fabricCanvasRef, 
+    onChange,
+    ensureGridIsOnBottom,
+    initHistory,
+    saveState,
+    toast
+  });
   
   const {
     activeTool,
@@ -168,7 +193,8 @@ export const useCanvasEnhanced = ({
           floors: floors.map(floor => ({
             id: floor.id,
             name: floor.name,
-            objects: floor.objects
+            // Use canvasJson instead of objects to fix the property error
+            canvasJson: floor.canvasJson 
           })),
           activeFloorId: activeFloor
         };

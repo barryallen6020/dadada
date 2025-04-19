@@ -2,22 +2,22 @@
 import { useState } from 'react';
 import { fabric } from 'fabric';
 
-interface UseHistoryProps {
+export interface UseHistoryProps {
   fabricCanvasRef: React.MutableRefObject<fabric.Canvas | null>;
-  ensureGridIsOnBottom: () => void;
-  floors: any[];
-  activeFloor: string;
-  setFloors: (floors: any[]) => void;
-  onChange: (data: any) => void;
+  ensureGridIsOnBottom?: () => void;
+  floors?: any[];
+  activeFloor?: string;
+  setFloors?: (floors: any[]) => void;
+  onChange?: (data: any) => void;
 }
 
 export const useHistory = ({
   fabricCanvasRef,
-  ensureGridIsOnBottom,
-  floors,
-  activeFloor,
-  setFloors,
-  onChange
+  ensureGridIsOnBottom = () => {},
+  floors = [],
+  activeFloor = '',
+  setFloors = () => {},
+  onChange = () => {}
 }: UseHistoryProps) => {
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
@@ -77,7 +77,7 @@ export const useHistory = ({
     
     canvas.loadFromJSON(history[newIndex], () => {
       canvas.renderAll();
-      ensureGridIsOnBottom();
+      ensureGridIsOnBottom?.();
     });
     
     setHistoryIndex(newIndex);
@@ -93,7 +93,7 @@ export const useHistory = ({
     
     canvas.loadFromJSON(history[newIndex], () => {
       canvas.renderAll();
-      ensureGridIsOnBottom();
+      ensureGridIsOnBottom?.();
     });
     
     setHistoryIndex(newIndex);
