@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Edit, Trash2, Plus, Pencil, Check, X, Users, MapPin } from "lucide-reac
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { workspaces } from "@/data/workspaces";
+import { workspaces, Workspace } from "@/data/workspaces";
 import { 
   Dialog, 
   DialogContent, 
@@ -20,20 +19,47 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useOrganization } from "@/contexts/OrganizationContext";
 
+type TableWorkspace = {
+  id: string;
+  name: string;
+  type: string;
+  location: string;
+  capacity: number;
+  pricePerHour: number;
+  description: string;
+  organizationId: string;
+  enabled?: boolean;
+  availability?: string;
+  features?: string[];
+  amenities?: string[];
+  images?: string[];
+  image?: string;
+  rating?: number;
+  reviews?: number;
+  available?: boolean;
+};
+
 const WorkspaceManagementTable = () => {
   const { toast } = useToast();
   const { currentOrganization } = useOrganization();
   
-  // Filter workspaces to only show those from the current organization
-  const [tableWorkspaces, setTableWorkspaces] = useState(
-    workspaces.filter(workspace => workspace.organizationId === currentOrganization.id)
+  const [tableWorkspaces, setTableWorkspaces] = useState<TableWorkspace[]>(
+    workspaces
+      .filter(workspace => workspace.organizationId === currentOrganization.id)
+      .map(workspace => ({
+        ...workspace,
+        features: workspace.features || workspace.amenities,
+        availability: workspace.availability || (workspace.available ? "High" : "Low"),
+        enabled: workspace.enabled ?? workspace.available,
+        image: workspace.image || (workspace.images && workspace.images.length > 0 ? workspace.images[0] : "")
+      }))
   );
   
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editData, setEditData] = useState<any>({});
+  const [editData, setEditData] = useState<TableWorkspace | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [workspaceToDelete, setWorkspaceToDelete] = useState<any>(null);
+  const [workspaceToDelete, setWorkspaceToDelete] = useState<TableWorkspace | null>(null);
   const [newWorkspace, setNewWorkspace] = useState({
     name: "",
     type: "",
@@ -45,12 +71,14 @@ const WorkspaceManagementTable = () => {
     description: ""
   });
 
-  const handleEdit = (workspace: any) => {
+  const handleEdit = (workspace: TableWorkspace) => {
     setEditingId(workspace.id);
     setEditData({ ...workspace });
   };
 
   const handleSaveEdit = (id: string) => {
+    if (!editData) return;
+    
     setTableWorkspaces(tableWorkspaces.map(w => w.id === id ? editData : w));
     setEditingId(null);
     
@@ -65,6 +93,7 @@ const WorkspaceManagementTable = () => {
   };
 
   const handleChange = (field: string, value: any) => {
+    if (!editData) return;
     setEditData({ ...editData, [field]: value });
   };
 
@@ -78,7 +107,7 @@ const WorkspaceManagementTable = () => {
       return;
     }
     
-    const workspace = {
+    const workspace: TableWorkspace = {
       id: `ws-${Date.now()}`,
       name: newWorkspace.name,
       type: newWorkspace.type,
@@ -87,10 +116,15 @@ const WorkspaceManagementTable = () => {
       pricePerHour: parseInt(newWorkspace.pricePerHour),
       availability: newWorkspace.availability,
       features: newWorkspace.features.split(',').map(f => f.trim()),
+      amenities: newWorkspace.features.split(',').map(f => f.trim()),
       description: newWorkspace.description,
       image: "",
+      images: [],
       enabled: true,
-      organizationId: currentOrganization.id // Add the current organization ID here
+      available: true,
+      organizationId: currentOrganization.id,
+      rating: 0,
+      reviews: 0
     };
     
     setTableWorkspaces([...tableWorkspaces, workspace]);
@@ -113,7 +147,7 @@ const WorkspaceManagementTable = () => {
     });
   };
 
-  const handleDeletePrompt = (workspace: any) => {
+  const handleDeletePrompt = (workspace: TableWorkspace) => {
     setWorkspaceToDelete(workspace);
     setShowDeleteDialog(true);
   };
@@ -159,7 +193,7 @@ const WorkspaceManagementTable = () => {
                 <TableCell>
                   {editingId === workspace.id ? (
                     <Input
-                      value={editData.name}
+                      value={editData?.name}
                       onChange={(e) => handleChange("name", e.target.value)}
                       className="w-full"
                     />
@@ -170,7 +204,7 @@ const WorkspaceManagementTable = () => {
                 <TableCell>
                   {editingId === workspace.id ? (
                     <Select
-                      value={editData.type}
+                      value={editData?.type}
                       onValueChange={(value) => handleChange("type", value)}
                     >
                       <SelectTrigger className="w-full">
@@ -190,7 +224,7 @@ const WorkspaceManagementTable = () => {
                 <TableCell>
                   {editingId === workspace.id ? (
                     <Select
-                      value={editData.location}
+                      value={editData?.location}
                       onValueChange={(value) => handleChange("location", value)}
                     >
                       <SelectTrigger className="w-full">
@@ -215,7 +249,7 @@ const WorkspaceManagementTable = () => {
                   {editingId === workspace.id ? (
                     <Input
                       type="number"
-                      value={editData.capacity}
+                      value={editData?.capacity}
                       onChange={(e) => handleChange("capacity", parseInt(e.target.value))}
                       className="w-full"
                     />
@@ -234,7 +268,7 @@ const WorkspaceManagementTable = () => {
                       </div>
                       <Input
                         type="number"
-                        value={editData.pricePerHour}
+                        value={editData?.pricePerHour}
                         onChange={(e) => handleChange("pricePerHour", parseInt(e.target.value))}
                         className="w-full pl-8"
                       />
@@ -246,7 +280,7 @@ const WorkspaceManagementTable = () => {
                 <TableCell>
                   {editingId === workspace.id ? (
                     <Select
-                      value={editData.availability}
+                      value={editData?.availability}
                       onValueChange={(value) => handleChange("availability", value)}
                     >
                       <SelectTrigger className="w-full">

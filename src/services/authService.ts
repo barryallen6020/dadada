@@ -1,4 +1,3 @@
-
 import { UserSignupData, UserSignupOrgData, AuthResponse, ForgotPasswordResponse } from "@/types/auth";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://api.deskhive.app";
@@ -61,7 +60,7 @@ export const authService = {
       const data = await response.json();
       return { success: true, exists: data.exists };
     } catch (error) {
-      return handleError(error);
+      return { success: false, exists: false, message: handleError(error).message };
     }
   },
   

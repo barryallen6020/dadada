@@ -1,20 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { organizations } from '@/data/workspaces';
-
-type Organization = {
-  id: string;
-  name: string;
-  logo: string;
-  description: string;
-  currency?: string;
-  type?: 'public' | 'private';
-  visibility?: boolean;
-  serviceFeePercentage?: number;
-  bookingCap?: number;
-  memberCap?: number;
-  subscriptionPlan?: string;
-};
+import { organizations, Organization } from '@/data/workspaces';
 
 interface OrganizationContextType {
   currentOrganization: Organization;
