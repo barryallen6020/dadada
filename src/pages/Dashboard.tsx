@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import WorkspaceCard from "@/components/dashboard/WorkspaceCard";
@@ -12,23 +13,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-
-interface DashboardWorkspace {
-  id: string;
-  name: string;
-  type: string;
-  location: string;
-  capacity: number;
-  description: string;
-  features: string[];
-  pricePerHour: number;
-  image: string;
-  availability: string;
-  enabled?: boolean;
-  organizationId: string;
-  rating?: number;
-  isFavorite?: boolean;
-}
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -53,23 +37,12 @@ const Dashboard = () => {
     }
   }, []);
 
-  const organizationWorkspaces: DashboardWorkspace[] = workspaces
-    .filter(workspace => (workspace.enabled ?? workspace.available) !== false && workspace.organizationId === currentOrganization.id)
+  const organizationWorkspaces = workspaces
+    .filter(workspace => workspace.enabled !== false && workspace.organizationId === currentOrganization.id)
     .map(workspace => ({
-      id: workspace.id,
-      name: workspace.name,
-      type: workspace.type,
-      location: workspace.location,
-      capacity: workspace.capacity,
-      description: workspace.description,
-      features: workspace.features ?? workspace.amenities,
-      pricePerHour: workspace.pricePerHour,
-      image: workspace.image ?? (workspace.images && workspace.images.length > 0 ? workspace.images[0] : ""),
-      availability: workspace.availability ?? (workspace.available ? "High" : "Low"),
-      enabled: workspace.enabled ?? workspace.available,
-      organizationId: workspace.organizationId,
+      ...workspace,
       isFavorite: favorites.includes(workspace.id),
-      rating: ratings[workspace.id] ?? workspace.rating
+      rating: ratings[workspace.id]
     }));
   
   const filteredWorkspaces = organizationWorkspaces.filter(

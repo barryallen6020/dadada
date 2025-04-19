@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { format, parseISO } from "date-fns";
 import { Calendar, Clock, MapPin, Building2, Tag, Users, AlertTriangle, Search, Check, X } from "lucide-react";
@@ -7,7 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { bookings } from "@/data/bookings";
-import { workspaces, organizations } from "@/data/workspaces";
+import { workspaces } from "@/data/workspaces";
+import { organizations } from "@/data/workspaces";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 

@@ -28,8 +28,7 @@ const HubPricingManager = () => {
   // State to manage the workspaces with price and enabled status
   const [hubs, setHubs] = useState(workspaces.map(hub => ({
     ...hub,
-    newPrice: hub.pricePerHour,
-    enabled: hub.enabled ?? hub.available // Use enabled if it exists, otherwise use available
+    newPrice: hub.pricePerHour
   })));
 
   const handleStatusChange = (id: string, enabled: boolean) => {
