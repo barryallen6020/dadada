@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,6 @@ import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import LoadingDisplay from "@/components/common/LoadingDisplay";
 import LogoFull from "@/components/common/LogoFull";
 import { Card, CardContent } from "@/components/ui/card";
-import { authService } from "@/services/authService";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -29,42 +27,28 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
 
+    // Simulate login process
     try {
-      const result = await authService.login({
-        email: formData.email,
-        password: formData.password,
-      });
-
-      if (result.success) {
-        // Type check for user property
-        if ('user' in result) {
-          toast({
-            title: "Login successful",
-            description: `Welcome back, ${result.user.firstName}!`,
-          });
-          
-          navigate("/dashboard");
-        } else {
-          toast({
-            title: "Login successful",
-            description: "Welcome back!",
-          });
-          
-          navigate("/dashboard");
-        }
-      } else {
-        // Type check for message property
-        const errorMessage = 'message' in result ? result.message : "Invalid credentials. Please try again.";
+      // In a real application, you would send this data to a backend
+      setTimeout(() => {
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("user", JSON.stringify({
+          name: "John Doe",
+          email: formData.email,
+          role: "employee",
+        }));
+        
         toast({
-          title: "Login failed",
-          description: errorMessage,
-          variant: "destructive",
+          title: "Login successful",
+          description: `Welcome back, ${formData.email}!`,
         });
-      }
+        
+        navigate("/dashboard");
+      }, 1500);
     } catch (error) {
       toast({
         title: "Login failed",
-        description: "An unexpected error occurred. Please try again.",
+        description: "Invalid credentials. Please try again.",
         variant: "destructive",
       });
     } finally {

@@ -1,11 +1,9 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, Clock, MapPin, Users, Building2, Star, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { organizations } from "@/data/workspaces";
-import { Link } from "react-router-dom";
 
 interface WorkspaceCardProps {
   workspace: {
@@ -163,11 +161,9 @@ const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
             </div>
             {renderStars()}
           </div>
-          <Link to={`/book/${workspace.id}`}>
-            <Button className="btn-primary">
-              Book Now
-            </Button>
-          </Link>
+          <Button onClick={onBook} className="btn-primary">
+            Book Now
+          </Button>
         </div>
       </div>
     </div>
