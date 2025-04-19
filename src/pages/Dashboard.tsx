@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import WorkspaceCard from "@/components/dashboard/WorkspaceCard";
@@ -6,14 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, SlidersHorizontal, MapPin, Building2, UserCheck, Star } from "lucide-react";
-import { workspaces, organizations } from "@/data/workspaces";
+import { workspaces } from "@/data/workspaces";
 import FilterModal from "@/components/dashboard/FilterModal";
 import CheckInStatus from "@/components/dashboard/CheckInStatus";
 import { Link, useNavigate } from "react-router-dom";
 import { useOrganization } from "@/contexts/OrganizationContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Workspace, Organization } from "@/types/workspace";
+import { Workspace } from "@/types/workspace";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -23,9 +22,8 @@ const Dashboard = () => {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [activeTab, setActiveTab] = useState("all");
-  const [hasOrganization, setHasOrganization] = useState(true);
   
-  const { currentOrganization, setCurrentOrganization } = useOrganization();
+  const { currentOrganization } = useOrganization();
   
   useEffect(() => {
     const savedFavorites = localStorage.getItem("favoriteHubs");
@@ -37,18 +35,10 @@ const Dashboard = () => {
     if (savedRatings) {
       setRatings(JSON.parse(savedRatings));
     }
-    
-    // Check if user has an organization code
-    const userStr = localStorage.getItem("user");
-    if (userStr) {
-      const user = JSON.parse(userStr);
-      setHasOrganization(!!user.organizationCode);
-    }
   }, []);
 
   const organizationWorkspaces = workspaces
-    .filter(workspace => workspace.enabled !== false && 
-      (hasOrganization ? workspace.organizationId === currentOrganization.id : true))
+    .filter(workspace => workspace.enabled !== false && workspace.organizationId === currentOrganization.id)
     .map(workspace => ({
       ...workspace,
       isFavorite: favorites.includes(workspace.id),
@@ -92,14 +82,6 @@ const Dashboard = () => {
       description: `You've rated this hub ${rating} stars`,
     });
   };
-  
-  const handleSelectOrganization = (org: Organization) => {
-    setCurrentOrganization(org);
-    toast({
-      title: "Organization Changed",
-      description: `You are now viewing workspaces from ${org.name}`,
-    });
-  };
 
   const userStr = localStorage.getItem("user");
   const defaultUser = {name: "Guest User", email: "guest@example.com"};
@@ -111,126 +93,6 @@ const Dashboard = () => {
   const handleApplyFilters = (filters: any) => {
     console.log("Filters applied:", filters);
   };
-
-  if (!hasOrganization) {
-    return (
-      <DashboardLayout>
-        <div className="w-full max-w-7xl mx-auto">
-          <div className="mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold text-deskhive-navy mb-2">
-              Welcome, {userName}
-            </h1>
-            <p className="text-sm md:text-base text-deskhive-darkgray/80">
-              Explore organizations and their workspaces
-            </p>
-          </div>
-          
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-deskhive-navy mb-4">Organizations</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {organizations
-                .filter(org => org.type === "public" && org.visibility)
-                .map((org) => (
-                  <Card key={org.id} className="hover:shadow-lg transition-all cursor-pointer" 
-                        onClick={() => handleSelectOrganization(org)}>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <Building2 className="h-5 w-5 mr-2 text-deskhive-orange" />
-                        {org.name}
-                      </CardTitle>
-                      <CardDescription>{org.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex justify-between items-center">
-                        <div className="text-sm text-deskhive-darkgray">
-                          {workspaces.filter(ws => ws.organizationId === org.id && ws.enabled).length} workspaces
-                        </div>
-                        <Button 
-                          size="sm" 
-                          variant="default"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSelectOrganization(org);
-                          }}
-                        >
-                          View Workspaces
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-            </div>
-          </div>
-          
-          {currentOrganization && (
-            <>
-              <div className="mb-6 flex justify-between items-center">
-                <h2 className="text-xl font-semibold text-deskhive-navy">
-                  Workspaces from {currentOrganization.name}
-                </h2>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setCurrentOrganization(organizations[0])}
-                  className="text-deskhive-navy"
-                >
-                  Change Organization
-                </Button>
-              </div>
-              
-              <div className="mb-6 relative w-full">
-                <div className="relative w-full">
-                  <Input
-                    placeholder="Search by name, type, or location..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-12"
-                  />
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-deskhive-darkgray/70" />
-                  <Button 
-                    variant="ghost" 
-                    onClick={() => setIsFilterModalOpen(true)} 
-                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
-                  >
-                    <SlidersHorizontal className="h-4 w-4 text-deskhive-darkgray/70" />
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {workspaces
-                  .filter(ws => ws.organizationId === currentOrganization.id && ws.enabled)
-                  .filter(ws => 
-                    ws.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    ws.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    ws.location.toLowerCase().includes(searchQuery.toLowerCase())
-                  )
-                  .map((workspace) => (
-                    <WorkspaceCard
-                      key={workspace.id}
-                      workspace={{
-                        ...workspace,
-                        isFavorite: favorites.includes(workspace.id),
-                        rating: ratings[workspace.id]
-                      }}
-                      onBook={() => navigate(`/book/${workspace.id}`)}
-                      onToggleFavorite={handleToggleFavorite}
-                      onRate={handleRate}
-                    />
-                  ))
-                }
-              </div>
-            </>
-          )}
-          
-          <FilterModal
-            isOpen={isFilterModalOpen}
-            onClose={() => setIsFilterModalOpen(false)}
-            onApplyFilters={handleApplyFilters}
-          />
-        </div>
-      </DashboardLayout>
-    );
-  }
 
   return (
     <DashboardLayout>

@@ -1,4 +1,3 @@
-
 import { Organization, Workspace, CheckIn } from '@/types/workspace';
 
 export const organizations: Organization[] = [
@@ -175,7 +174,7 @@ export const workspaces: Workspace[] = [
     organizationId: "org-002" // WorkCentral
   },
   
-  // TechHub Workspaces
+  // TechHub Workspaces (now in Nigeria)
   {
     id: "ws-012",
     name: "TechHub Studio",
@@ -184,7 +183,7 @@ export const workspaces: Workspace[] = [
     capacity: 5,
     description: "Creative studio space designed for tech startups with flexible layouts and equipment.",
     features: ["3D printer", "Developer workstations", "Gaming area", "Podcast studio"],
-    pricePerHour: 3500,
+    pricePerHour: 35,
     image: "https://images.unsplash.com/photo-1517502884422-41eaead166d4?auto=format&fit=crop&w=800&q=80",
     availability: "High",
     enabled: true,
@@ -198,14 +197,14 @@ export const workspaces: Workspace[] = [
     capacity: 25,
     description: "Open collaboration space with flexible seating and ideation areas for tech teams.",
     features: ["Whiteboard walls", "Beanbags", "Idea booths", "Charging stations"],
-    pricePerHour: 1500,
+    pricePerHour: 15,
     image: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=800&q=80",
     availability: "Medium",
     enabled: true,
     organizationId: "org-003" // TechHub
   },
   
-  // AfricaWorks Workspaces
+  // AfricaWorks Workspaces (now in Nigeria)
   {
     id: "ws-014",
     name: "AfricaWorks Lagos",
@@ -235,7 +234,7 @@ export const workspaces: Workspace[] = [
     organizationId: "org-004" // AfricaWorks
   },
   
-  // Impact Hub Workspaces
+  // Impact Hub Workspaces (now in Nigeria)
   {
     id: "ws-016",
     name: "Impact Hub Lagos",
