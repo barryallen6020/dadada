@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
@@ -347,9 +346,7 @@ const WorkspaceCreation = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  <WorkspaceFloorMapEditor 
-                    onChange={handleFloorMapDataChange}
-                  />
+                  <WorkspaceFloorMapEditor />
                   
                   <div className="flex justify-end mt-6 space-x-4">
                     <Button 

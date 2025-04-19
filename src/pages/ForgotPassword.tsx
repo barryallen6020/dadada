@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,7 @@ import { ArrowLeft, Mail, Check } from "lucide-react";
 import LogoFull from "@/components/common/LogoFull";
 import { Card, CardContent } from "@/components/ui/card";
 import { authService } from "@/services/authService";
-import { LoadingDisplay } from "@/components/common/LoadingDisplay";
+import LoadingDisplay from "@/components/common/LoadingDisplay";
 
 const ForgotPassword = () => {
   const { toast } = useToast();

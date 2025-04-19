@@ -36,16 +36,28 @@ const Login = () => {
       });
 
       if (result.success) {
-        toast({
-          title: "Login successful",
-          description: `Welcome back, ${result.user.firstName}!`,
-        });
-        
-        navigate("/dashboard");
+        // Type check for user property
+        if ('user' in result) {
+          toast({
+            title: "Login successful",
+            description: `Welcome back, ${result.user.firstName}!`,
+          });
+          
+          navigate("/dashboard");
+        } else {
+          toast({
+            title: "Login successful",
+            description: "Welcome back!",
+          });
+          
+          navigate("/dashboard");
+        }
       } else {
+        // Type check for message property
+        const errorMessage = 'message' in result ? result.message : "Invalid credentials. Please try again.";
         toast({
           title: "Login failed",
-          description: result.message || "Invalid credentials. Please try again.",
+          description: errorMessage,
           variant: "destructive",
         });
       }

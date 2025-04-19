@@ -87,9 +87,11 @@ const Register = () => {
           navigate("/login");
         }
       } else {
+        // Type check for message property
+        const errorMessage = 'message' in result ? result.message : "Please try again.";
         toast({
           title: "Registration failed",
-          description: result.message || "Please try again.",
+          description: errorMessage,
           variant: "destructive",
         });
       }
@@ -146,9 +148,11 @@ const Register = () => {
           navigate("/login");
         }
       } else {
+        // Type check for message property
+        const errorMessage = 'message' in result ? result.message : "Please try again.";
         toast({
           title: "Registration failed",
-          description: result.message || "Please try again.",
+          description: errorMessage,
           variant: "destructive",
         });
       }
