@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { format, addDays, parseISO } from "date-fns";
 import { Calendar as CalendarIcon, Clock, Users, ArrowLeft, Tag, Repeat, MapPin, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -49,7 +49,8 @@ const generateSeats = (type, count) => {
 };
 
 const BookingPage = () => {
-  const { id } = useParams();
+  const { workspaceId } = useParams();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { currentOrganization } = useOrganization();
   
@@ -66,7 +67,13 @@ const BookingPage = () => {
   const [filteredSeats, setFilteredSeats] = useState([]);
   const [selectedSeatType, setSelectedSeatType] = useState("All");
   
-  const workspace = workspaces.find(ws => ws.id === id);
+  // Fix: Use workspaceId instead of id
+  const workspace = workspaces.find(ws => ws.id === workspaceId);
+
+  useEffect(() => {
+    console.log("Current workspaceId:", workspaceId);
+    console.log("Available workspaces:", workspaces.map(w => w.id));
+  }, [workspaceId]);
   
   useEffect(() => {
     // Generate seats based on workspace type
@@ -109,7 +116,7 @@ const BookingPage = () => {
       // Update seat availability based on bookings
       const updatedSeats = seats.map(seat => {
         const seatBookings = dayBookings.filter(booking => 
-          booking.workspaceId === id && 
+          booking.workspaceId === workspaceId && 
           booking.status === "confirmed"
         );
         
@@ -132,7 +139,7 @@ const BookingPage = () => {
         setFilteredSeats(updatedSeats.filter(seat => seat.type === selectedSeatType));
       }
     }
-  }, [date, id, selectedSeatType]);
+  }, [date, workspaceId, selectedSeatType]);
   
   const handleBooking = () => {
     if (!selectedSeat) {
@@ -155,7 +162,7 @@ const BookingPage = () => {
     
     // In a real app, you would send this data to your backend
     const bookingData = {
-      workspaceId: id,
+      workspaceId: workspaceId,
       workspaceName: workspace?.name,
       organizationId: workspace?.organizationId,
       organizationName: currentOrganization.name,
@@ -180,7 +187,7 @@ const BookingPage = () => {
     
     // In a real app, you would redirect to a confirmation page or the bookings list
     setTimeout(() => {
-      window.location.href = "/bookings";
+      navigate("/bookings");
     }, 2000);
   };
   
@@ -253,7 +260,6 @@ const BookingPage = () => {
                   </div>
                   
                   <div>
-                    {/* FIX: Wrap TabsList in Tabs component */}
                     <Tabs value={view} onValueChange={setView}>
                       <TabsList>
                         <TabsTrigger value="list">List</TabsTrigger>
