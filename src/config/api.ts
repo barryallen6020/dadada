@@ -1,4 +1,3 @@
-
 // API configuration
 export const API_BASE_URL = 'https://api.deskhive.ng';
 
@@ -42,10 +41,24 @@ export const API_ENDPOINTS = {
   },
   // Workspace endpoints
   WORKSPACE: {
-    CREATE: '/workspace/create',
     GET_ALL: '/workspace',
-    UPDATE: '/workspace/update',
-    DELETE: '/workspace/delete',
-    GET_BY_ORG: '/workspace/organization',
+    CREATE: '/workspace/create',
+    GET_ORG_WORKSPACES: '/workspace/all-org-workpaces',
+    BULK_CREATE_SEATS: (workspaceId: string) => `/workspace/bulk-create-seats/${workspaceId}`,
+    GET_BY_ID: (workspaceId: string) => `/workspace/${workspaceId}`,
+    UPDATE: (workspaceId: string) => `/workspace/${workspaceId}`,
+    GET_SEATS: (workspaceId: string) => `/workspace/${workspaceId}/seats`,
+    CREATE_SEAT: (workspaceId: string) => `/workspace/${workspaceId}/seats`,
+    UPDATE_SEAT: (seatId: string) => `/workspace/seats/${seatId}`,
+    UPLOAD_FLOOR_PLAN: (workspaceId: string) => `/workspace/${workspaceId}/floor-plan`,
+    GET_FLOOR_PLANS: (workspaceId: string) => `/workspace/${workspaceId}/floor-plans`,
+  },
+  
+  // Location endpoints
+  LOCATION: {
+    GET_STATES: '/location',
+    GET_STATE: (id: string) => `/location/id/${id}`,
+    GET_LGAS: (stateId: string) => `/location/lgas/${stateId}`,
+    GET_LGA: (id: string) => `/location/lga/${id}`,
   },
 };
