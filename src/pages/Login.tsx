@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -53,13 +54,12 @@ const Login = () => {
         console.log('Login successful, user data:', result.data.user);
         
         // Show success toast
-        const firstName = result.data.data.user.firstName as any;
-
-        const user = result.data.data.user;
+        // Accessing user information from the correct path in the response
+        const user = result.data.user;
+        const firstName = user.firstName;
 
         localStorage.setItem("user", JSON.stringify(user));
 
-        // console.log(data);
         toast({
           title: "Login successful",
           description: `Welcome back, ${firstName || 'User'}!`,
@@ -67,12 +67,12 @@ const Login = () => {
         });
         
         // Force a delay to ensure the toast is shown before navigation
-        if (user.role == "USER") {
-          navigate('/dashboard')
-        } else if (user.role == "HUB_MANAGER") {
-          navigate('/hub-manager')
+        if (user.role === "USER") {
+          navigate('/dashboard');
+        } else if (user.role === "HUB_MANAGER") {
+          navigate('/hub-manager');
         } else {
-          navigate('/admin')
+          navigate('/admin');
         }
       } else {
         console.error('Login failed:', result.message, result.error);
