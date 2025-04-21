@@ -1,3 +1,4 @@
+
 // API configuration
 export const API_BASE_URL = 'https://api.deskhive.ng';
 
@@ -20,5 +21,31 @@ export const API_ENDPOINTS = {
     FORGOT_PASSWORD: '/user/forgot-password',
     RESET_PASSWORD: '/user/reset-password',
     CHANGE_PASSWORD: '/user/change-password',
+  },
+  // Organization endpoints
+  ORGANIZATION: {
+    CREATE: '/organization/create',
+    GET_ALL: '/organization',
+    GET_USERS: '/organization/users',
+    ADD_MEMBER: '/organization/member/create',
+    UPDATE: '/organization/update',
+    UPDATE_SETTINGS: '/organization/update-settings',
+    UPDATE_MEMBER: '/organization/member/update',
+    GET_MY_ORG: '/organization/myorg',
+  },
+  // Invitation endpoints
+  INVITATION: {
+    CREATE: '/invitation/create',
+    GET_ALL: '/invitation',
+    ACCEPT: '/invitation/accept',
+    DISABLE: '/invitation',
+  },
+  // Workspace endpoints
+  WORKSPACE: {
+    CREATE: '/workspace/create',
+    GET_ALL: '/workspace',
+    UPDATE: '/workspace/update',
+    DELETE: '/workspace/delete',
+    GET_BY_ORG: '/workspace/organization',
   },
 };
