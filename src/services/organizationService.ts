@@ -13,6 +13,7 @@ export interface UpdateOrganizationDTO {
   description?: string;
   logo?: string;
   type?: 'public' | 'private';
+  currency?: string;
 }
 
 export interface OrganizationMemberDTO {
