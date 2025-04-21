@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Building2, Save, LinkIcon, UsersRound, Lock, Globe, Ban, Copy, Send } from "lucide-react";
+import { Building2, Save, LinkIcon, UsersRound, Send, Ban } from "lucide-react";
 import { useOrganization } from "@/contexts/OrganizationContext";
+import organizationService from "@/services/organizationService";
+import invitationService from "@/services/invitationService";
 import {
   Table,
   TableBody,
@@ -33,69 +34,109 @@ const OrganizationSettings = () => {
   const [serviceFee] = useState(10); // Fixed 10% service fee
   
   // Invitation System
-  const [invitations, setInvitations] = useState([
-    { email: "john.smith@example.com", status: "pending", date: "2023-04-01" },
-    { email: "sarah.johnson@example.com", status: "accepted", date: "2023-03-28" },
-    { email: "michael.brown@example.com", status: "expired", date: "2023-03-15" },
-  ]);
+  const [invitations, setInvitations] = useState([]);
   const [newInviteEmail, setNewInviteEmail] = useState("");
 
-  const handleSaveGeneral = () => {
-    // Update organization settings
-    setCurrentOrganization({
-      ...currentOrganization,
-      name,
-      description,
-      currency,
-      type: 'public', // Always public
-      serviceFeePercentage: 10
-    });
-    
-    toast({
-      title: "Organization settings updated",
-      description: "Your organization settings have been saved.",
-    });
+  // Fetch invitations on component mount
+  useEffect(() => {
+    const fetchInvitations = async () => {
+      try {
+        const response = await invitationService.getInvitations();
+        setInvitations(response.data);
+      } catch (error) {
+        console.error('Failed to fetch invitations:', error);
+        toast({
+          title: "Error fetching invitations",
+          description: "Failed to load invitations. Please try again.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchInvitations();
+  }, []);
+
+  const handleSaveGeneral = async () => {
+    try {
+      // Update organization settings using the service
+      const updatedOrg = await organizationService.updateOrganization(currentOrganization.id, {
+        name,
+        description,
+        currency,
+        type: 'public'
+      });
+
+      setCurrentOrganization({
+        ...currentOrganization,
+        ...updatedOrg.data
+      });
+      
+      toast({
+        title: "Organization settings updated",
+        description: "Your organization settings have been saved.",
+      });
+    } catch (error) {
+      console.error('Failed to update organization:', error);
+      toast({
+        title: "Error updating organization",
+        description: "Failed to save organization settings. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
   
-  const handleSendInvite = () => {
+  const handleSendInvite = async () => {
     if (!newInviteEmail) return;
     
-    // In a real app, this would send an invitation
-    setInvitations([
-      ...invitations,
-      { email: newInviteEmail, status: "pending", date: new Date().toISOString().split('T')[0] }
-    ]);
-    
-    setNewInviteEmail("");
-    
-    toast({
-      title: "Invitation sent",
-      description: `An invitation has been sent to ${newInviteEmail}.`,
-    });
+    try {
+      await invitationService.createInvitation({
+        email: newInviteEmail,
+        organizationId: currentOrganization.id,
+        role: 'MEMBER' // Default role for new members
+      });
+      
+      // Refresh invitations list
+      const updatedInvitations = await invitationService.getInvitations();
+      setInvitations(updatedInvitations.data);
+      
+      setNewInviteEmail("");
+      
+      toast({
+        title: "Invitation sent",
+        description: `An invitation has been sent to ${newInviteEmail}.`,
+      });
+    } catch (error) {
+      console.error('Failed to send invitation:', error);
+      toast({
+        title: "Error sending invitation",
+        description: "Failed to send invitation. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
   
-  const handleGenerateInviteLink = () => {
-    const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const inviteUrl = `${window.location.origin}/signup?code=${inviteCode}&org=${currentOrganization.id}`;
-    
-    // Copy to clipboard
-    navigator.clipboard.writeText(inviteUrl);
-    
-    toast({
-      title: "Invite link generated",
-      description: "The invite link has been copied to your clipboard.",
-    });
+  const handleCancelInvite = async (invitationId: string) => {
+    try {
+      await invitationService.disableInvitation(invitationId);
+      
+      // Refresh invitations list
+      const updatedInvitations = await invitationService.getInvitations();
+      setInvitations(updatedInvitations.data);
+      
+      toast({
+        title: "Invitation cancelled",
+        description: "The invitation has been cancelled successfully.",
+      });
+    } catch (error) {
+      console.error('Failed to cancel invitation:', error);
+      toast({
+        title: "Error cancelling invitation",
+        description: "Failed to cancel invitation. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
-  
-  const handleCancelInvite = (email: string) => {
-    setInvitations(invitations.filter(invite => invite.email !== email));
-    
-    toast({
-      title: "Invitation cancelled",
-      description: `The invitation to ${email} has been cancelled.`,
-    });
-  };
-  
+
   return (
     <DashboardLayout>
       <div className="w-full max-w-7xl mx-auto pb-10">
@@ -212,22 +253,6 @@ const OrganizationSettings = () => {
                     >
                       <Send className="mr-2 h-4 w-4" />
                       Send Invitation
-                    </Button>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h4 className="text-sm font-medium mb-1">Generate Invite Link</h4>
-                      <p className="text-xs text-deskhive-darkgray/70">
-                        Create a reusable link to invite multiple members
-                      </p>
-                    </div>
-                    <Button 
-                      variant="outline"
-                      onClick={handleGenerateInviteLink}
-                    >
-                      <LinkIcon className="mr-2 h-4 w-4" />
-                      Generate Link
                     </Button>
                   </div>
                   
