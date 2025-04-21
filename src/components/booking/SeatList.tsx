@@ -53,8 +53,7 @@ const SeatList: React.FC<SeatListProps> = ({ seats, selectedSeat, onSelectSeat }
                           : "border-red-200 bg-red-50 cursor-not-allowed opacity-60",
                         selectedSeat?.id === seat.id && "ring-2 ring-deskhive-navy"
                       )}
-                      disabled={!seat.available}
-                    >
+                      disabled={!seat.available}>
                       <div
                         className={cn(
                           "w-3 h-3 rounded-full mr-2",

@@ -1,33 +1,62 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, Send, Loader2 } from "lucide-react";
 import LogoFull from "@/components/common/LogoFull";
 import { Card, CardContent } from "@/components/ui/card";
+import { forgotPassword, getCurrentUser } from "@/services/authService";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-  const {
-    toast
-  } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  // Check if user is already logged in
+  useEffect(() => {
+    try {
+      const user = getCurrentUser();
+      if (user) {
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      console.error('Error checking user login status:', error);
+      // Clear any potentially corrupted data
+      localStorage.removeItem('user');
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    
     try {
-      setTimeout(() => {
+      const result = await forgotPassword(email);
+      
+      if (result.success) {
         toast({
           title: "Password reset email sent",
           description: `A password reset link has been sent to ${email}. Please check your inbox.`
         });
-      }, 1000);
+      } else {
+        toast({
+          title: "Error sending email",
+          description: result.message || "There was an error sending the password reset email. Please try again.",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
       toast({
         title: "Error sending email",
         description: "There was an error sending the password reset email. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -59,9 +88,22 @@ const ForgotPassword = () => {
                 />
               </div>
 
-              <Button type="submit" className="w-full bg-deskhive-navy hover:bg-deskhive-navy/90 flex items-center justify-center gap-2">
-                <Send className="h-4 w-4" />
-                Send Reset Link
+              <Button 
+                type="submit" 
+                className="w-full bg-deskhive-navy hover:bg-deskhive-navy/90 flex items-center justify-center gap-2"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4" />
+                    Send Reset Link
+                  </>
+                )}
               </Button>
             </form>
           </CardContent>

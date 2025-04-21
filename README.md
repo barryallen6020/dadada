@@ -5,7 +5,7 @@ DeskHive is Nigeria's premier workspace management solution designed for modern 
 
 ## Project Info
 
-**URL**: [example.com](example.com)
+**URL**: [deskhive.ng](https://deskhive.ng)
 
 ## Features
 
@@ -40,7 +40,7 @@ DeskHive is Nigeria's premier workspace management solution designed for modern 
    ```
 3. Start the development server:
    ```bash
-   npm run dev
+npm run dev
    ```
    or
    ```bash

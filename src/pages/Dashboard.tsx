@@ -13,6 +13,7 @@ import { useOrganization } from "@/contexts/OrganizationContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Workspace } from "@/types/workspace";
+import { getCurrentUser } from "@/services/authService";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -24,6 +25,13 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("all");
   
   const { currentOrganization } = useOrganization();
+  
+  // Get the current user from authentication
+  const user = getCurrentUser();
+  const firstName = user?.firstName || 'Guest';
+  const lastName = user?.lastName || '';
+  const userEmail = user?.email || '';
+  const displayName = firstName + (lastName ? ` ${lastName}` : '');
   
   useEffect(() => {
     const savedFavorites = localStorage.getItem("favoriteHubs");
@@ -83,13 +91,6 @@ const Dashboard = () => {
     });
   };
 
-  const userStr = localStorage.getItem("user");
-  const defaultUser = {name: "Guest User", email: "guest@example.com"};
-  const user = userStr ? JSON.parse(userStr) : defaultUser;
-
-  const userName = user?.name ? user.name.split(' ')[0] : 'Guest';
-  const userEmail = user?.email || '';
-
   const handleApplyFilters = (filters: any) => {
     console.log("Filters applied:", filters);
   };
@@ -99,7 +100,7 @@ const Dashboard = () => {
       <div className="w-full max-w-7xl mx-auto">
         <div className="mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-deskhive-navy mb-2">
-            Welcome back, {userName}
+            Welcome back, {displayName}
           </h1>
           <p className="text-sm md:text-base text-deskhive-darkgray/80">
             Find and book the perfect workspace for your needs

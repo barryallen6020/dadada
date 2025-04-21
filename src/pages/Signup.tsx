@@ -1,30 +1,52 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, CheckCircle2, Building } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { organizations } from "@/data/workspaces";
 import LoadingDisplay from "@/components/common/LoadingDisplay";
+import { signUp, signUpWithOrg, checkEmailExists, getCurrentUser } from "@/services/authService";
 
 const Signup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState("individual");
   const [formData, setFormData] = useState({
-    fullName: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
-    organizationCode: "",
+    orgName: "",
+    orgDomain: "",
     agreeToTerms: false,
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [passwordError, setPasswordError] = useState("");
-  const [orgError, setOrgError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+
+  // Check if user is already logged in
+  useEffect(() => {
+    try {
+      const user = getCurrentUser();
+      if (user) {
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      console.error('Error checking user login status:', error);
+      // Clear any potentially corrupted data
+      localStorage.removeItem('user');
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+    }
+  }, [navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -42,16 +64,30 @@ const Signup = () => {
       }
     }
 
-    if (name === "organizationCode") {
-      // Check if organization code exists
-      const orgExists = organizations.some(org => 
-        org.id.toLowerCase() === value.toLowerCase()
-      );
-      
-      if (value && !orgExists) {
-        setOrgError("Organization not found. Please check the code.");
+    if (name === "email") {
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (value && !emailRegex.test(value)) {
+        setEmailError("Please enter a valid email address");
       } else {
-        setOrgError("");
+        setEmailError("");
+      }
+    }
+  };
+
+  // Check if email exists when email field loses focus
+  const handleEmailBlur = async () => {
+    if (formData.email && !emailError) {
+      setIsCheckingEmail(true);
+      try {
+        const result = await checkEmailExists(formData.email);
+        if (result.success && result.data?.exists) {
+          setEmailError("This email is already registered. Please use a different email or login.");
+        }
+      } catch (error) {
+        console.error("Error checking email:", error);
+      } finally {
+        setIsCheckingEmail(false);
       }
     }
   };
@@ -98,10 +134,10 @@ const Signup = () => {
       return;
     }
     
-    if (formData.organizationCode && orgError) {
+    if (emailError) {
       toast({
-        title: "Invalid organization",
-        description: "The organization code you entered doesn't exist.",
+        title: "Invalid email",
+        description: emailError,
         variant: "destructive",
       });
       return;
@@ -109,46 +145,44 @@ const Signup = () => {
     
     setIsLoading(true);
     
-    // Simulate signup process
     try {
-      // Get organization if code provided
-      let userOrg = null;
-      if (formData.organizationCode) {
-        userOrg = organizations.find(org => 
-          org.id.toLowerCase() === formData.organizationCode.toLowerCase()
+      let result;
+      
+      if (activeTab === "individual") {
+        // Regular user signup
+        result = await signUp(
+          formData.firstName,
+          formData.lastName,
+          formData.email,
+          formData.password
+        );
+      } else {
+        // Organization signup
+        result = await signUpWithOrg(
+          formData.firstName,
+          formData.lastName,
+          formData.email,
+          formData.password,
+          formData.orgName,
+          formData.orgDomain
         );
       }
       
-      // Determine user role - if it's a special admin code, make them admin
-      const isAdmin = formData.organizationCode === "admin123"; // Special admin code for testing
-      
-      // In a real application, you would send this data to a backend
-      setTimeout(() => {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("user", JSON.stringify({
-          name: formData.fullName,
-          email: formData.email,
-          role: isAdmin ? "admin" : "employee",
-          organizationCode: formData.organizationCode || null
-        }));
-        
-        // Only set current organization if organization code was provided
-        if (userOrg) {
-          localStorage.setItem('currentOrganizationId', userOrg.id);
-        }
-        
+      if (result.success) {
         toast({
           title: "Account created successfully",
-          description: `Welcome to DeskHive, ${formData.fullName}!`,
+          description: `Welcome to DeskHive, ${formData.firstName}!`,
         });
         
-        // Redirect to the appropriate dashboard based on role
-        if (isAdmin) {
-          navigate("/admin");
-        } else {
-          navigate("/dashboard");
-        }
-      }, 1500);
+        // Redirect to login page
+        navigate("/login");
+      } else {
+        toast({
+          title: "Registration failed",
+          description: result.message || "An error occurred during registration. Please try again.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       toast({
         title: "Registration failed",
@@ -172,23 +206,45 @@ const Signup = () => {
     <div className="min-h-screen flex flex-col">
       <div className="flex-1 flex items-center justify-center px-4 py-12 bg-gradient-to-b from-deskhive-skyblue to-white">
         <div className="w-full max-w-md p-8 bg-white/90 rounded-lg shadow-xl backdrop-blur-sm border border-white/20">
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
             <h1 className="text-3xl font-bold text-deskhive-navy">Sign Up</h1>
             <p className="text-deskhive-darkgray mt-2">Join DeskHive to book workspaces</p>
           </div>
           
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="individual">Individual</TabsTrigger>
+              <TabsTrigger value="organization">Organization</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
-              <Input
-                id="fullName"
-                name="fullName"
-                type="text"
-                placeholder="John Doe"
-                required
-                value={formData.fullName}
-                onChange={handleChange}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName">First Name</Label>
+                <Input
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  placeholder="John"
+                  required
+                  value={formData.firstName}
+                  onChange={handleChange}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Last Name</Label>
+                <Input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  placeholder="Doe"
+                  required
+                  value={formData.lastName}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
             
             <div className="space-y-2">
@@ -201,28 +257,45 @@ const Signup = () => {
                 required
                 value={formData.email}
                 onChange={handleChange}
+                onBlur={handleEmailBlur}
               />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="organizationCode">Organization Code (Optional)</Label>
-              <Input
-                id="organizationCode"
-                name="organizationCode"
-                type="text"
-                placeholder="e.g., alx, microsoft, etc."
-                value={formData.organizationCode}
-                onChange={handleChange}
-                className={orgError ? "border-red-500" : ""}
-              />
-              {orgError ? (
-                <p className="text-sm text-red-500">{orgError}</p>
-              ) : (
-                <p className="text-xs text-deskhive-darkgray/70">
-                  Enter your organization's code if you have one, otherwise leave blank to browse public workspaces
-                </p>
+              {emailError && (
+                <p className="text-red-500 text-sm mt-1">{emailError}</p>
+              )}
+              {isCheckingEmail && (
+                <p className="text-blue-500 text-sm mt-1">Checking email availability...</p>
               )}
             </div>
+            
+            {activeTab === "organization" && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="orgName">Organization Name</Label>
+                  <Input
+                    id="orgName"
+                    name="orgName"
+                    type="text"
+                    placeholder="My Organization"
+                    required={activeTab === "organization"}
+                    value={formData.orgName}
+                    onChange={handleChange}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="orgDomain">Organization Domain</Label>
+                  <Input
+                    id="orgDomain"
+                    name="orgDomain"
+                    type="text"
+                    placeholder="example.com"
+                    required={activeTab === "organization"}
+                    value={formData.orgDomain}
+                    onChange={handleChange}
+                  />
+                </div>
+              </>
+            )}
             
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
@@ -240,7 +313,7 @@ const Signup = () => {
                 <button
                   type="button"
                   onClick={togglePasswordVisibility}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-deskhive-darkgray/70 hover:text-deskhive-darkgray"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" />
@@ -251,100 +324,97 @@ const Signup = () => {
               </div>
               
               {/* Password strength indicator */}
-              <div className="mt-2">
-                <div className="flex gap-1 mb-1">
-                  {[1, 2, 3, 4].map((level) => (
+              {formData.password && (
+                <div className="mt-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="text-sm text-gray-600">Password strength:</div>
+                    <div className="text-sm">
+                      {passwordStrength === 0 && "Very weak"}
+                      {passwordStrength === 1 && "Weak"}
+                      {passwordStrength === 2 && "Medium"}
+                      {passwordStrength === 3 && "Strong"}
+                      {passwordStrength === 4 && "Very strong"}
+                    </div>
+                  </div>
+                  <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                     <div
-                      key={level}
-                      className={`h-1.5 flex-1 rounded-full ${
-                        passwordStrength >= level
-                          ? passwordStrength === 1
-                            ? "bg-red-500"
-                            : passwordStrength === 2
-                            ? "bg-orange-500"
-                            : passwordStrength === 3
-                            ? "bg-yellow-500"
-                            : "bg-green-500"
-                          : "bg-gray-200"
-                      }`}
+                      className={`h-full ${passwordStrength === 0 ? 'bg-red-500' : passwordStrength === 1 ? 'bg-orange-500' : passwordStrength === 2 ? 'bg-yellow-500' : passwordStrength === 3 ? 'bg-green-500' : 'bg-emerald-500'}`}
+                      style={{ width: `${(passwordStrength / 4) * 100}%` }}
                     />
-                  ))}
+                  </div>
+                  <ul className="mt-2 text-xs space-y-1 text-gray-600">
+                    <li className="flex items-center">
+                      <CheckCircle2 className={`h-3 w-3 mr-1 ${formData.password.length >= 8 ? 'text-green-500' : 'text-gray-400'}`} />
+                      At least 8 characters
+                    </li>
+                    <li className="flex items-center">
+                      <CheckCircle2 className={`h-3 w-3 mr-1 ${/[A-Z]/.test(formData.password) ? 'text-green-500' : 'text-gray-400'}`} />
+                      At least one uppercase letter
+                    </li>
+                    <li className="flex items-center">
+                      <CheckCircle2 className={`h-3 w-3 mr-1 ${/[0-9]/.test(formData.password) ? 'text-green-500' : 'text-gray-400'}`} />
+                      At least one number
+                    </li>
+                    <li className="flex items-center">
+                      <CheckCircle2 className={`h-3 w-3 mr-1 ${/[^A-Za-z0-9]/.test(formData.password) ? 'text-green-500' : 'text-gray-400'}`} />
+                      At least one special character
+                    </li>
+                  </ul>
                 </div>
-                <p className="text-xs text-deskhive-darkgray/70">
-                  {passwordStrength === 0 && "Enter a strong password"}
-                  {passwordStrength === 1 && "Weak password"}
-                  {passwordStrength === 2 && "Moderate password"}
-                  {passwordStrength === 3 && "Good password"}
-                  {passwordStrength === 4 && "Strong password"}
-                </p>
-              </div>
+              )}
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <div className="relative">
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  required
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className={passwordError ? "border-red-500 pr-10" : "pr-10"}
-                />
-                {formData.confirmPassword && !passwordError && (
-                  <CheckCircle2 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500 h-5 w-5" />
-                )}
-              </div>
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                required
+                value={formData.confirmPassword}
+                onChange={handleChange}
+              />
               {passwordError && (
-                <p className="text-sm text-red-500">{passwordError}</p>
+                <p className="text-red-500 text-sm mt-1">{passwordError}</p>
               )}
             </div>
-
-            <div className="flex items-start space-x-2 my-4">
-              <Checkbox 
-                id="terms" 
-                onCheckedChange={handleCheckboxChange}
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="agreeToTerms"
                 checked={formData.agreeToTerms}
+                onCheckedChange={handleCheckboxChange}
               />
-              <div className="grid gap-1.5 leading-none">
-                <label
-                  htmlFor="terms"
-                  className="text-sm text-deskhive-darkgray leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  I agree to the{" "}
-                  <Link to="/terms" className="text-deskhive-royal hover:underline">
-                    Terms of Service
-                  </Link>
-                  {" "}and{" "}
-                  <Link to="/privacy" className="text-deskhive-royal hover:underline">
-                    Privacy Policy
-                  </Link>
-                </label>
-              </div>
+              <label
+                htmlFor="agreeToTerms"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                I agree to the{" "}
+                <Link to="/terms-of-service" className="text-deskhive-royal hover:underline">
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link to="/privacy-policy" className="text-deskhive-royal hover:underline">
+                  Privacy Policy
+                </Link>
+              </label>
             </div>
             
-            <Button 
-              type="submit" 
-              className="w-full btn-primary h-11 bg-gradient-to-r from-deskhive-navy to-deskhive-royal hover:opacity-90 transition-opacity"
-              disabled={isLoading || !!passwordError || !!orgError}
+            <Button
+              type="submit"
+              className="w-full bg-deskhive-navy hover:bg-deskhive-navy/90"
+              disabled={!!passwordError || isCheckingEmail}
             >
-              {isLoading ? "Creating Account..." : "Sign Up"}
+              Create Account
             </Button>
           </form>
           
-          <div className="mt-6 text-center">
-            <p className="text-deskhive-darkgray text-sm">
+          <div className="mt-6 text-center text-sm">
+            <p className="text-deskhive-darkgray">
               Already have an account?{" "}
               <Link to="/login" className="text-deskhive-royal hover:underline font-medium">
-                Log in
-              </Link>
-            </p>
-            <p className="text-deskhive-darkgray/70 text-xs mt-2">
-              Need to create an organization?{" "}
-              <Link to="/register" className="text-deskhive-royal hover:underline">
-                Register your organization
+                Sign in
               </Link>
             </p>
           </div>

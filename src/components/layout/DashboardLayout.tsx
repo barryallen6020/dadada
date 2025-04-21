@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Calendar, LayoutDashboard, Settings, LogOut, Menu, X, ChevronRight, User, Building2, BarChart3, AlertCircle, SlidersHorizontal } from "lucide-react";
+import { Calendar, LayoutDashboard, Settings, LogOut, Menu, X, User, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import LogoFull from "../common/LogoFull";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -30,13 +30,26 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const { currentOrganization } = useOrganization();
 
   // Get user from localStorage with a fallback to prevent null errors
-  const userStr = localStorage.getItem("user");
-  const defaultUser = {
-    name: "Guest User",
-    email: "guest@example.com",
-    role: ""
-  };
-  const user = userStr ? JSON.parse(userStr) : defaultUser;
+  let user;
+  try {
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      user = JSON.parse(userStr);
+    }
+  } catch (error) {
+    console.error('Error parsing user data:', error);
+  }
+  
+  // Default user if no user data is found or parsing fails
+  if (!user) {
+    user = {
+      firstName: "Guest",
+      lastName: "User",
+      email: "guest@example.com",
+      role: ""
+    };
+  }
+  
   const isAdmin = user?.role === "admin";
   const isAdminRoute = location.pathname.startsWith("/admin");
   
@@ -125,7 +138,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                   </Avatar>
                   <div>
                     <p className="text-sm font-medium text-deskhive-darkgray">
-                      {user?.name || "Guest User"}
+                      {`${user?.firstName} ${user?.lastName}` || "Guest User"}
                     </p>
                     <p className="text-xs text-deskhive-darkgray/70">{user?.email || "guest@example.com"}</p>
                   </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import LoadingDisplay from "@/components/common/LoadingDisplay";
 import LogoFull from "@/components/common/LogoFull";
 import { Card, CardContent } from "@/components/ui/card";
+import { login, getCurrentUser } from "@/services/authService";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -23,32 +24,72 @@ const Login = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Check if user is already logged in
+  useEffect(() => {
+    try {
+      const user = getCurrentUser();
+      if (user) {
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      console.error('Error checking user login status:', error);
+      // Clear any potentially corrupted data
+      localStorage.removeItem('user');
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+    }
+  }, [navigate]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate login process
     try {
-      // In a real application, you would send this data to a backend
-      setTimeout(() => {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("user", JSON.stringify({
-          name: "John Doe",
-          email: formData.email,
-          role: "employee",
-        }));
+      console.log('Submitting login form with email:', formData.email);
+      const result = await login(formData.email, formData.password);
+      console.log('Login result:', result);
+      
+      if (result.success && result.data) {
+        console.log('Login successful, user data:', result.data.user);
         
+        // Show success toast
+        const firstName = result.data.data.user.firstName as any;
+
+        const user = result.data.data.user;
+
+        localStorage.setItem("user", JSON.stringify(user));
+
+        // console.log(data);
         toast({
           title: "Login successful",
-          description: `Welcome back, ${formData.email}!`,
+          description: `Welcome back, ${firstName || 'User'}!`,
+          variant: "default",
         });
         
-        navigate("/dashboard");
-      }, 1500);
+        // Force a delay to ensure the toast is shown before navigation
+        if (user.role == "USER") {
+          navigate('/dashboard')
+        } else if (user.role == "HUB_MANAGER") {
+          navigate('/hub-manager')
+        } else {
+          navigate('/admin')
+        }
+      } else {
+        console.error('Login failed:', result.message, result.error);
+        
+        // Show error toast
+        toast({
+          title: "Login failed",
+          description: result.message || "Invalid credentials. Please try again.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
+      console.error('Login exception:', error);
+      
       toast({
         title: "Login failed",
-        description: "Invalid credentials. Please try again.",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     } finally {
