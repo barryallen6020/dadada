@@ -1,3 +1,4 @@
+
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/common/ScrollToTop";
@@ -21,6 +22,7 @@ import MyBookings from "./pages/MyBookings";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import PreLaunch from "./pages/PreLaunch"; // Add the new pre-launch page
 
 // Admin pages
 import Admin from "./pages/Admin";
@@ -53,9 +55,13 @@ function App() {
       <Router>
         <ScrollToTop />
         <Routes>
+          {/* Pre-launch page - setting as root route during pre-launch phase */}
+          <Route path="/" element={<PreLaunch />} />
+          
+          {/* Original index page now accessible via /home */}
+          <Route path="/home" element={<IndexPage />} />
+          
           {/* Public routes */}
-          <Route path="/" element={<IndexPage />} />
-          <Route path="/home" element={<Home />} />
           <Route path="/features" element={<Features />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/contact" element={<Contact />} />
