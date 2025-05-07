@@ -1,3 +1,4 @@
+
 export interface Organization {
   id: string;
   name: string;
@@ -27,6 +28,17 @@ export interface Workspace {
   pricePerBooking: number;
   status: 'ACTIVE' | 'INACTIVE';
   organizationId: string;
+  // Additional properties needed across the application
+  location?: string; // Location name (city, state, etc.)
+  capacity?: number; // Alias for seatingCapacity for backward compatibility
+  pricePerHour?: number; // Alias for pricePerBooking for backward compatibility
+  availability?: string; // Availability status (High, Medium, Low)
+  enabled?: boolean; // Whether the workspace is enabled
+  features?: string[]; // Alias for amenities for backward compatibility
+  image?: string; // Image URL
+  images?: string[]; // Multiple image URLs
+  rating?: number; // Rating score
+  isFavorite?: boolean; // Whether the workspace is marked as favorite
 }
 
 export interface CheckIn {
@@ -87,4 +99,9 @@ export interface FloorPlan {
   name: string;
   floor: number;
   imageUrl: string;
+}
+
+// Define HubWithPrice interface for HubPricingManager
+export interface HubWithPrice extends Workspace {
+  newPrice: number;
 }

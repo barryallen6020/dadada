@@ -268,9 +268,7 @@ const MyBookings = () => {
                 {booking.status.charAt(0) + booking.status.slice(1).toLowerCase()}
               </Badge>
               {isCheckedIn && !isCheckedOut && (
-                <Badge variant="success" className="bg-green-500">
-                  Checked In
-                </Badge>
+                <Badge variant="outline" className="bg-green-100 text-green-800">Completed</Badge>
               )}
               {isCheckedOut && <Badge variant="secondary">Checked Out</Badge>}
             </div>

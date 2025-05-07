@@ -38,7 +38,7 @@ const DeleteWorkspaceDialog: React.FC<DeleteWorkspaceDialogProps> = ({
           <div className="py-2">
             <div className="bg-gray-50 p-3 rounded-md">
               <p className="font-medium">{workspace.name}</p>
-              <p className="text-sm text-gray-500">{workspace.type} • {workspace.location}</p>
+              <p className="text-sm text-gray-500">{workspace.type} • {workspace.address}</p>
             </div>
           </div>
         )}

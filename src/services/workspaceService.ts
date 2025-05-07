@@ -1,3 +1,4 @@
+
 import { API_BASE_URL, API_ENDPOINTS } from "@/config/api";
 import { 
   CreateWorkspaceDTO, 
@@ -9,6 +10,9 @@ import {
   FloorPlan
 } from "@/types/workspace";
 import api from '@/lib/api';
+
+// Re-export the Workspace type to maintain backward compatibility
+export type { Workspace } from "@/types/workspace";
 
 // Helper function to get auth headers
 const getAuthHeaders = () => {
