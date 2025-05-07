@@ -24,7 +24,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Check, ChevronRight, Mail, Star, User, Users } from "lucide-react";
+import { Check, ChevronRight, Mail, MapPin, Calendar, Star, User, Users } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 const waitlistSchema = z.object({
