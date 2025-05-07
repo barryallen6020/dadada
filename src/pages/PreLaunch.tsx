@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Check, ChevronRight, Mail, MapPin, Calendar, Star, User, Users } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import LogoFull from "@/components/common/LogoFull";
+
 const waitlistSchema = z.object({
   name: z.string().min(2, {
     message: "Name must be at least 2 characters"
@@ -100,10 +102,10 @@ const PreLaunch = () => {
     title: "Team Management",
     description: "Coordinate teams and manage workspace utilization"
   }];
-  return <div className="min-h-screen flex flex-col relative overflow-hidden bg-deskhive-navy">
+  return <div className="min-h-screen flex flex-col relative overflow-hidden bg-[#1EAEDB]">
       {/* Animated background gradient */}
       <motion.div className="absolute inset-0 pointer-events-none" style={{
-      background: "linear-gradient(125deg, #022B60 0%, #0056B3 50%, #022B60 100%)",
+      background: "linear-gradient(125deg, #1EAEDB 0%, #33C3F0 50%, #1EAEDB 100%)",
       backgroundSize: "200% 200%"
     }} variants={gradientVariants} animate="animate"></motion.div>
 
@@ -121,10 +123,7 @@ const PreLaunch = () => {
       {/* Header with logo */}
       <header className="relative z-10 p-6 flex justify-center md:justify-start">
         <div className="container flex items-center">
-          <div className="text-white font-bold text-2xl flex items-center">
-            <span className="bg-deskhive-orange px-2 py-1 rounded mr-2">DH</span>
-            DeskHive
-          </div>
+          <LogoFull />
         </div>
       </header>
 
