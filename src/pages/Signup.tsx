@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,11 +10,15 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { organizations } from "@/data/workspaces";
 import LoadingDisplay from "@/components/common/LoadingDisplay";
 import { signUp, signUpWithOrg, checkEmailExists, getCurrentUser } from "@/services/authService";
+import LogoFull from "@/components/common/LogoFull";
+import { Card, CardContent } from "@/components/ui/card";
 
 const Signup = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isOrgSignup = searchParams.get('type') === 'organization';
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("individual");
+  const [activeTab, setActiveTab] = useState(isOrgSignup ? "organization" : "individual");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -47,6 +51,13 @@ const Signup = () => {
       localStorage.removeItem('refreshToken');
     }
   }, [navigate]);
+
+  // Add effect to handle URL parameter changes
+  useEffect(() => {
+    if (isOrgSignup) {
+      setActiveTab("organization");
+    }
+  }, [isOrgSignup]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -198,27 +209,39 @@ const Signup = () => {
     setShowPassword(!showPassword);
   };
 
+  const getDescriptionText = () => {
+    return activeTab === "organization" 
+      ? "Create a workspace for your team"
+      : "Join DeskHive to book workspaces";
+  };
+
   if (isLoading) {
     return <LoadingDisplay />;
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="flex-1 flex items-center justify-center px-4 py-12 bg-gradient-to-b from-deskhive-skyblue to-white">
-        <div className="w-full max-w-md p-8 bg-white/90 rounded-lg shadow-xl backdrop-blur-sm border border-white/20">
-          <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-deskhive-navy">Sign Up</h1>
-            <p className="text-deskhive-darkgray mt-2">Join DeskHive to book workspaces</p>
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 bg-gradient-to-b from-deskhive-skyblue to-white">
+      <div className="w-full max-w-md space-y-8">
+        <div className="flex justify-center mb-8">
+          <LogoFull />
+        </div>
+        
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-semibold text-deskhive-navy">Sign Up</h1>
+          <p className="mt-2 text-sm text-deskhive-darkgray/80">
+            {getDescriptionText()}
+          </p>
           </div>
           
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-            <TabsList className="grid w-full grid-cols-2">
+        <Card className="bg-white/90 backdrop-blur-sm border border-white/20">
+          <CardContent className="pt-6">
+            <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid grid-cols-2 w-full mb-6">
               <TabsTrigger value="individual">Individual</TabsTrigger>
               <TabsTrigger value="organization">Organization</TabsTrigger>
             </TabsList>
-          </Tabs>
           
-          <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-5 mt-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>
@@ -409,15 +432,17 @@ const Signup = () => {
               Create Account
             </Button>
           </form>
+            </Tabs>
+          </CardContent>
+        </Card>
           
-          <div className="mt-6 text-center text-sm">
-            <p className="text-deskhive-darkgray">
+        <div className="text-center mt-6">
+          <p className="text-sm text-deskhive-darkgray">
               Already have an account?{" "}
-              <Link to="/login" className="text-deskhive-royal hover:underline font-medium">
+            <Link to="/login" className="text-deskhive-royal hover:underline">
                 Sign in
               </Link>
             </p>
-          </div>
         </div>
       </div>
     </div>

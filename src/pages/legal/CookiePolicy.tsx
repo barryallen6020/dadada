@@ -1,4 +1,3 @@
-
 import React from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -8,10 +7,10 @@ const CookiePolicy = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow">
-        <section className="section-padding bg-gradient-to-b from-deskhive-skyblue to-white">
-          <div className="container mx-auto">
-            <div className="max-w-4xl mx-auto">
-              <div className="glass-card p-8 md:p-12 backdrop-blur-xl bg-white/20 border border-white/30 shadow-xl">
+        <section className="section-padding pt-28 bg-gradient-to-b from-deskhive-skyblue to-white">
+          <div className="container mx-auto px-2">
+            <div className="max-w-5xl mx-auto">
+              <div className="glass-card p-4 md:p-12 backdrop-blur-xl bg-white/20 border border-white/30 shadow-xl">
                 <h1 className="text-4xl font-bold text-deskhive-navy mb-8">Cookie Policy</h1>
                 
                 <div className="space-y-6 text-deskhive-darkgray">

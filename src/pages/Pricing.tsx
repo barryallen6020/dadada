@@ -1,17 +1,17 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Check, HelpCircle, X, Building2, Lock, Globe, Users } from "lucide-react";
+import { Check, HelpCircle, X, Building2, Lock, Globe, Users, ChevronDown } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 
 const Pricing = () => {
   const [billingAnnually, setBillingAnnually] = useState(true);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const plans = [
     {
@@ -103,22 +103,19 @@ const Pricing = () => {
       
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="section-padding bg-gradient-to-b from-deskhive-skyblue to-white">
-          <div className="container mx-auto">
+        <section className="section-padding pt-28 bg-gradient-to-b from-deskhive-skyblue to-white">
+          <div className="container mx-auto px-2">
             <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-5xl font-bold text-deskhive-navy mb-6 animate-fade-in">
-                Two Flexible Business Models
-              </h1>
-              <p className="text-xl text-deskhive-darkgray/80 mb-6 animate-fade-in">
+              <p className="text-xl text-deskhive-darkgray/80 mb-6 animate-fade-in px-2">
                 Choose how your organization manages workspaces on the DeskHive platform.
               </p>
               <div className="flex flex-wrap justify-center gap-4 mb-10">
-                <div className="flex items-center glass-card px-4 py-2 border border-white/30">
+                <div className="flex items-center glass-card px-3 py-2 border border-white/30">
                   <Globe className="h-5 w-5 mr-2 text-deskhive-navy" />
                   <span className="font-medium">Public Organizations</span>
                   <Badge className="ml-2">10% per booking</Badge>
                 </div>
-                <div className="flex items-center glass-card px-4 py-2 border border-white/30">
+                <div className="flex items-center glass-card px-3 py-2 border border-white/30">
                   <Lock className="h-5 w-5 mr-2 text-deskhive-navy" />
                   <span className="font-medium">Private Organizations</span>
                   <Badge variant="outline" className="ml-2">Subscription</Badge>
@@ -130,13 +127,13 @@ const Pricing = () => {
         
         {/* Pricing Plans */}
         <section className="section-padding bg-white">
-          <div className="container mx-auto">
+          <div className="container mx-auto px-2">
             <h2 className="text-3xl font-bold text-deskhive-navy text-center mb-12">Choose Your Organization Type</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 max-w-5xl mx-auto">
               {plans.map((plan, index) => (
                 <div 
                   key={index} 
-                  className={`glass-card p-8 flex flex-col h-full transition-all duration-300 hover:shadow-lg ${
+                  className={`glass-card p-4 md:p-8 flex flex-col h-full transition-all duration-300 hover:shadow-lg ${
                     plan.mostPopular ? 'border-deskhive-orange ring-2 ring-deskhive-orange/20 relative' : ''
                   }`}
                 >
@@ -184,7 +181,7 @@ const Pricing = () => {
                       className={`w-full ${
                         plan.buttonVariant === "default" 
                           ? "btn-primary" 
-                          : "border-deskhive-navy text-deskhive-navy hover:bg-deskhive-navy/5"
+                          : "border-deskhive-navy text-deskhive-navy hover:bg-deskhive-navy/5 hover:text-deskhive-navy/80"
                       }`}
                     >
                       <Link to={plan.buttonText === "Contact Sales" ? "/contact" : "/register"}>
@@ -200,19 +197,19 @@ const Pricing = () => {
         
         {/* Private Organization Plans Section */}
         <section className="section-padding bg-deskhive-skyblue">
-          <div className="container mx-auto">
-            <div className="max-w-5xl mx-auto glass-card p-10">
+          <div className="container mx-auto px-2">
+            <div className="max-w-5xl mx-auto glass-card p-4 md:p-10">
               <div className="mb-8 text-center">
                 <h2 className="text-3xl font-bold text-deskhive-navy mb-4">Private Organization Plans</h2>
-                <p className="text-deskhive-darkgray/80 max-w-3xl mx-auto">
+                <p className="text-deskhive-darkgray/80 max-w-3xl mx-auto px-2">
                   Tailored subscriptions for organizations that need complete control over their workspace management
                 </p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {privatePlans.map((plan, index) => (
                   <Card key={index} className="glass bg-white/60 border-white/30">
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 md:p-6">
                       <h3 className="text-xl font-bold text-deskhive-navy mb-4">{plan.name}</h3>
                       <div className="mb-4">
                         <p className="text-3xl font-bold text-deskhive-navy">
@@ -236,7 +233,7 @@ const Pricing = () => {
                       </ul>
                       <Button 
                         variant="outline" 
-                        className="w-full border-deskhive-navy text-deskhive-navy hover:bg-deskhive-navy/5"
+                        className="w-full border-deskhive-navy text-deskhive-navy hover:bg-deskhive-navy/5 hover:text-deskhive-navy/80"
                         asChild
                       >
                         <Link to="/contact">
@@ -262,7 +259,7 @@ const Pricing = () => {
         
         {/* Add-ons (Coming Soon) Section */}
         <section className="section-padding bg-white">
-          <div className="container mx-auto">
+          <div className="container mx-auto px-2">
             <div className="text-center mb-10">
               <Badge variant="outline" className="mb-4">Coming Soon</Badge>
               <h2 className="text-3xl font-bold text-deskhive-navy mb-4">Premium Add-ons</h2>
@@ -271,7 +268,7 @@ const Pricing = () => {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
               <div className="glass-card p-6 border border-white/30">
                 <div className="flex items-start gap-4">
                   <div className="p-3 bg-deskhive-skyblue/30 rounded-lg">
@@ -333,44 +330,84 @@ const Pricing = () => {
         
         {/* FAQs */}
         <section className="section-padding bg-white">
-          <div className="container mx-auto">
-            <div className="max-w-3xl mx-auto">
+          <div className="container mx-auto px-2">
+            <div className="max-w-4xl mx-auto">
               <h2 className="text-3xl font-bold text-deskhive-navy text-center mb-12">
                 Frequently Asked Questions
               </h2>
               
-              <div className="space-y-6">
-                <div className="glass-card p-6">
-                  <h3 className="text-xl font-semibold text-deskhive-navy mb-2">What's the difference between Public and Private organizations?</h3>
-                  <p className="text-deskhive-darkgray/80">
-                    Public organizations are discoverable by all users, who can book workspaces with a 10% platform fee per booking. 
-                    Private organizations are invite-only, not publicly visible, and operate on subscription plans with booking and member caps.
-                  </p>
+              <div className="space-y-4">
+                <div className="glass-card">
+                  <button 
+                    className="w-full flex justify-between items-center p-6"
+                    onClick={() => setOpenFaq(openFaq === 1 ? null : 1)}
+                  >
+                    <h3 className="text-xl font-semibold text-deskhive-navy text-left">What's the difference between Public and Private organizations?</h3>
+                    <ChevronDown className={`h-5 w-5 text-deskhive-navy transition-transform ${openFaq === 1 ? 'rotate-180' : ''}`} />
+                  </button>
+                  {openFaq === 1 && (
+                    <div className="px-6 pb-6">
+                      <p className="text-deskhive-darkgray/80">
+                        Public organizations are discoverable by all users, who can book workspaces with a 10% platform fee per booking. 
+                        Private organizations are invite-only, not publicly visible, and operate on subscription plans with booking and member caps.
+                      </p>
+                    </div>
+                  )}
                 </div>
                 
-                <div className="glass-card p-6">
-                  <h3 className="text-xl font-semibold text-deskhive-navy mb-2">How do I set pricing for my workspaces?</h3>
-                  <p className="text-deskhive-darkgray/80">
-                    Public organization admins can set their own workspace pricing through the admin dashboard. 
-                    For each booking, DeskHive deducts a 10% service fee, and the rest goes to your organization.
-                  </p>
+                <div className="glass-card">
+                  <button 
+                    className="w-full flex justify-between items-center p-6"
+                    onClick={() => setOpenFaq(openFaq === 2 ? null : 2)}
+                  >
+                    <h3 className="text-xl font-semibold text-deskhive-navy text-left">How do I set pricing for my workspaces?</h3>
+                    <ChevronDown className={`h-5 w-5 text-deskhive-navy transition-transform ${openFaq === 2 ? 'rotate-180' : ''}`} />
+                  </button>
+                  {openFaq === 2 && (
+                    <div className="px-6 pb-6">
+                      <p className="text-deskhive-darkgray/80">
+                        Public organization admins can set their own workspace pricing through the admin dashboard. 
+                        For each booking, DeskHive deducts a 10% service fee, and the rest goes to your organization.
+                      </p>
+                    </div>
+                  )}
                 </div>
                 
-                <div className="glass-card p-6">
-                  <h3 className="text-xl font-semibold text-deskhive-navy mb-2">How do Private organization subscriptions work?</h3>
-                  <p className="text-deskhive-darkgray/80">
-                    Private organizations pay a subscription fee based on their booking volume and member cap needs. 
-                    Users don't pay booking fees - instead, the organization pays for the entire service directly. 
-                    Contact our sales team for custom pricing.
-                  </p>
+                <div className="glass-card">
+                  <button 
+                    className="w-full flex justify-between items-center p-6"
+                    onClick={() => setOpenFaq(openFaq === 3 ? null : 3)}
+                  >
+                    <h3 className="text-xl font-semibold text-deskhive-navy text-left">How do Private organization subscriptions work?</h3>
+                    <ChevronDown className={`h-5 w-5 text-deskhive-navy transition-transform ${openFaq === 3 ? 'rotate-180' : ''}`} />
+                  </button>
+                  {openFaq === 3 && (
+                    <div className="px-6 pb-6">
+                      <p className="text-deskhive-darkgray/80">
+                        Private organizations pay a subscription fee based on their booking volume and member cap needs. 
+                        Users don't pay booking fees - instead, the organization pays for the entire service directly. 
+                        Contact our sales team for custom pricing.
+                      </p>
+                    </div>
+                  )}
                 </div>
                 
-                <div className="glass-card p-6">
-                  <h3 className="text-xl font-semibold text-deskhive-navy mb-2">Can I change my organization type later?</h3>
-                  <p className="text-deskhive-darkgray/80">
-                    Yes, you can switch between Public and Private organization types by contacting our support team. 
-                    Note that this may require adjustments to your billing and user management setup.
-                  </p>
+                <div className="glass-card">
+                  <button 
+                    className="w-full flex justify-between items-center p-6"
+                    onClick={() => setOpenFaq(openFaq === 4 ? null : 4)}
+                  >
+                    <h3 className="text-xl font-semibold text-deskhive-navy text-left">Can I change my organization type later?</h3>
+                    <ChevronDown className={`h-5 w-5 text-deskhive-navy transition-transform ${openFaq === 4 ? 'rotate-180' : ''}`} />
+                  </button>
+                  {openFaq === 4 && (
+                    <div className="px-6 pb-6">
+                      <p className="text-deskhive-darkgray/80">
+                        Yes, you can switch between Public and Private organization types by contacting our support team. 
+                        Note that this may require adjustments to your billing and user management setup.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -387,9 +424,9 @@ const Pricing = () => {
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <Button asChild variant="default" className="bg-deskhive-orange hover:bg-deskhive-orange/90 text-white">
-                  <Link to="/register">Create Your Organization</Link>
+                  <Link to="/signup?type=organization">Create Your Organization</Link>
                 </Button>
-                <Button asChild variant="outline" className="border-white text-white hover:bg-white/10">
+                <Button asChild variant="outline" className="border-white text-deskhive-navy hover:bg-white/10">
                   <Link to="/contact">Schedule a Demo</Link>
                 </Button>
               </div>

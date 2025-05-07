@@ -46,7 +46,7 @@ const Home = () => {
                   Nigeria's premier workspace management solution designed for the modern workforce.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 mb-8 md:mb-10">
-                  <Link to="/register">
+                  <Link to="/signup">
                     <Button className="btn-primary h-12 px-8 text-base w-full sm:w-auto">
                       Get Started <ChevronRight className="ml-2 h-5 w-5" />
                     </Button>
@@ -171,11 +171,14 @@ const Home = () => {
             <div className="glass-gradient p-6 md:p-12 text-center rounded-2xl">
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 md:mb-6">Ready to Optimize Your Workspace?</h2>
               <p className="text-sm md:text-base lg:text-lg mb-6 md:mb-8 max-w-2xl mx-auto">Step into the future of workspace management with DeskHive</p>
-              <Link to="/register">
-                <Button className="btn-secondary h-10 md:h-12 px-6 md:px-8 text-sm md:text-base">
-                  Get Started Now
+              <div className="flex flex-col sm:flex-row justify-center gap-4">
+                <Button asChild variant="default" className="btn-primary">
+                  <Link to="/signup">Find a Workspace</Link>
                 </Button>
-              </Link>
+                <Button asChild variant="outline" className="border-deskhive-navy text-deskhive-navy hover:bg-deskhive-navy/5">
+                  <Link to="/signup?type=organization">List Your Space</Link>
+                </Button>
+              </div>
             </div>
           </div>
         </section>

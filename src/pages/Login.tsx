@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import LoadingDisplay from "@/components/common/LoadingDisplay";
 import LogoFull from "@/components/common/LogoFull";
@@ -12,7 +11,6 @@ import { login, getCurrentUser } from "@/services/authService";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -46,52 +44,31 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      console.log('Submitting login form with email:', formData.email);
       const result = await login(formData.email, formData.password);
-      console.log('Login result:', result);
       
       if (result.success && result.data) {
-        console.log('Login successful, user data:', result.data.user);
+        const { user } = result.data;
         
-        // Show success toast
-        // Accessing user information from the correct path in the response
-        const user = result.data.user;
-        const firstName = user.firstName;
-
-        localStorage.setItem("user", JSON.stringify(user));
-
-        toast({
-          title: "Login successful",
-          description: `Welcome back, ${firstName || 'User'}!`,
-          variant: "default",
-        });
-        
-        // Force a delay to ensure the toast is shown before navigation
-        if (user.role === "USER") {
-          navigate('/dashboard');
-        } else if (user.role === "HUB_MANAGER") {
-          navigate('/hub-manager');
+        if (user) {
+          toast.success(`Welcome back, ${user.firstName || 'User'}!`);
+          
+          // Navigate based on user role
+          if (user.role === "USER") {
+            navigate('/dashboard');
+          } else if (user.role === "HUB_MANAGER") {
+            navigate('/hub-manager');
+          } else {
+            navigate('/admin');
+          }
         } else {
-          navigate('/admin');
+          toast.error("Invalid user data received");
         }
       } else {
-        console.error('Login failed:', result.message, result.error);
-        
-        // Show error toast
-        toast({
-          title: "Login failed",
-          description: result.message || "Invalid credentials. Please try again.",
-          variant: "destructive",
-        });
+        toast.error(result.message || "Invalid credentials. Please try again.");
       }
     } catch (error) {
-      console.error('Login exception:', error);
-      
-      toast({
-        title: "Login failed",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive",
-      });
+      console.error('Login error:', error);
+      toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }

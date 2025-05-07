@@ -156,8 +156,8 @@ const FAQ = () => {
       <Navbar />
       
       <main className="flex-grow">
-        {/* Hero Section - Added more top padding for floating navbar */}
-        <section className="py-10 pt-28 md:pt-32 md:py-16 px-4 md:px-8 bg-gradient-to-b from-deskhive-skyblue to-white">
+        {/* Hero Section */}
+        <section className="py-10 pt-28 md:pt-32 md:py-16 px-2 md:px-8 bg-gradient-to-b from-deskhive-skyblue to-white">
           <div className="container mx-auto">
             <div className="max-w-3xl mx-auto text-center">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-deskhive-navy mb-4 md:mb-6 animate-fade-in">
@@ -184,10 +184,10 @@ const FAQ = () => {
         </section>
         
         {/* FAQ Categories */}
-        <section className="py-10 md:py-16 px-4 md:px-8 bg-white">
+        <section className="py-10 md:py-16 px-2 md:px-8 bg-white">
           <div className="container mx-auto">
             {/* Category buttons - horizontal scrollable on mobile */}
-            <div className="overflow-x-auto pb-4 mb-8 md:mb-16 -mx-4 px-4 md:px-0 md:overflow-visible">
+            <div className="overflow-x-auto pb-4 mb-8 md:mb-16 -mx-2 px-2 md:px-0 md:overflow-visible">
               <div className="flex md:grid md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6 w-max md:w-auto md:max-w-6xl mx-auto">
                 {faqCategories.map((category, index) => (
                   <button 
@@ -206,7 +206,7 @@ const FAQ = () => {
               </div>
             </div>
             
-            <div className="max-w-3xl mx-auto">
+            <div className="max-w-4xl mx-auto">
               {searchQuery && filteredCategories.length === 0 && (
                 <div className="text-center py-8">
                   <p className="text-deskhive-darkgray">No results found for "{searchQuery}"</p>
@@ -258,9 +258,9 @@ const FAQ = () => {
         </section>
         
         {/* Still Have Questions */}
-        <section className="py-10 md:py-16 px-4 md:px-8 bg-deskhive-skyblue">
+        <section className="py-10 md:py-16 px-2 md:px-8 bg-deskhive-skyblue">
           <div className="container mx-auto">
-            <div className="max-w-3xl mx-auto text-center glass-card p-6 md:p-10 shadow-md">
+            <div className="max-w-4xl mx-auto text-center glass-card p-4 md:p-10 shadow-md">
               <h2 className="text-2xl md:text-3xl font-bold text-deskhive-navy mb-3 md:mb-6">Still Have Questions?</h2>
               <p className="text-base md:text-lg text-deskhive-darkgray/80 mb-6 md:mb-8">
                 Can't find the answer you're looking for? Our support team is here to help.

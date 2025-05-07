@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, Clock, MapPin, Users, Building2, Star, Heart } from "lucide-react";
@@ -27,7 +27,7 @@ interface WorkspaceCardProps {
   onRate?: (id: string, rating: number) => void;
 }
 
-const WorkspaceCard: React.FC<WorkspaceCardProps> = ({ 
+const WorkspaceCard: React.FC<any> = ({ 
   workspace, 
   onBook, 
   onToggleFavorite,
@@ -41,19 +41,9 @@ const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
   
   const currencySymbol = organization?.currency || "₦";
   
-  const imageUrl = workspace.image
-    ? workspace.image
-    : `https://images.unsplash.com/photo-${workspace.type === "Meeting Room" 
-        ? "1497366811353-6db17581c291" 
-        : workspace.type === "Hot Desk" 
-        ? "1521737604893-f6a8aca548c2" 
-        : workspace.type === "Private Office" 
-        ? "1486312338219-ce68d2c6f44d" 
-        : "1527192491265-7cea4cc962ef"}?auto=format&fit=crop&w=800&q=80`;
+  const imageUrl = workspace.images[0]
   
-  const formattedLocation = workspace.location.includes("Nigeria") 
-    ? workspace.location 
-    : `${workspace.location}, Nigeria`;
+  const [formattedLocation, setFormatedLocation] = useState('')
   
   const renderStars = () => {
     return (
@@ -63,11 +53,11 @@ const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
             key={star}
             className={cn(
               "h-4 w-4 cursor-pointer transition-colors",
-              star <= (workspace.rating || 0)
+              star <= (workspace?.rating || 0)
                 ? "fill-yellow-400 text-yellow-400"
                 : "text-gray-300"
             )}
-            onClick={() => onRate?.(workspace.id, star)}
+            onClick={() => onRate?.(workspace?.id, star)}
           />
         ))}
       </div>
@@ -109,7 +99,7 @@ const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
               />
             </Button>
           </div>
-          <h3 className="text-white text-xl font-bold">{workspace.name}</h3>
+          <h3 className="text-white text-xl font-bold">{workspace?.name}</h3>
         </div>
       </div>
       
@@ -123,7 +113,7 @@ const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
               </div>
               <div className="flex items-center">
                 <Users className="mr-2 h-4 w-4" />
-                {workspace.capacity} {workspace.capacity === 1 ? "person" : "people"}
+                {workspace?.seatingCapacity} {workspace?.seatingCapacity === 1 ? "person" : "people"}
               </div>
               {organization && (
                 <div className="flex items-center">
@@ -143,7 +133,7 @@ const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
         </p>
         
         <div className="flex flex-wrap gap-2 mb-4">
-          {workspace.features.map((feature, index) => (
+          {workspace?.amenities.map((feature, index) => (
             <Badge 
               key={index} 
               variant="outline" 
@@ -157,7 +147,7 @@ const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
         <div className="flex items-center justify-between mt-4">
           <div>
             <div className="text-deskhive-navy font-semibold">
-              {currencySymbol}{workspace.pricePerHour.toLocaleString()} / hour
+              {currencySymbol}{workspace?.pricePerBooking.toLocaleString()} / hour
             </div>
             {renderStars()}
           </div>

@@ -1,4 +1,3 @@
-
 import { API_BASE_URL, API_ENDPOINTS } from '@/config/api';
 
 export interface CreateOrganizationDTO {
@@ -21,17 +20,30 @@ export interface OrganizationMemberDTO {
   role: string;
 }
 
+// Helper function to get auth headers
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('accessToken');
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+};
+
 const organizationService = {
   // Get all organizations
   getAllOrganizations: async () => {
-    const response = await fetch(`${API_BASE_URL}/organization`);
+    const response = await fetch(`${API_BASE_URL}/organization`, {
+      headers: getAuthHeaders()
+    });
     if (!response.ok) throw new Error('Failed to fetch organizations');
     return response.json();
   },
 
   // Get organization users
   getOrganizationUsers: async (organizationId: string) => {
-    const response = await fetch(`${API_BASE_URL}/organization/users/${organizationId}`);
+    const response = await fetch(`${API_BASE_URL}/organization/users/${organizationId}`, {
+      headers: getAuthHeaders()
+    });
     if (!response.ok) throw new Error('Failed to fetch organization users');
     return response.json();
   },
@@ -40,7 +52,7 @@ const organizationService = {
   createOrganization: async (data: CreateOrganizationDTO) => {
     const response = await fetch(`${API_BASE_URL}/organization/create`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
     if (!response.ok) throw new Error('Failed to create organization');
@@ -51,7 +63,7 @@ const organizationService = {
   addOrganizationMember: async (data: OrganizationMemberDTO) => {
     const response = await fetch(`${API_BASE_URL}/organization/member/create`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data)
     });
     if (!response.ok) throw new Error('Failed to add member');
@@ -62,7 +74,7 @@ const organizationService = {
   updateOrganization: async (organizationId: string, data: UpdateOrganizationDTO) => {
     const response = await fetch(`${API_BASE_URL}/organization/update`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ id: organizationId, ...data })
     });
     if (!response.ok) throw new Error('Failed to update organization');
@@ -71,7 +83,9 @@ const organizationService = {
 
   // Get my organization
   getMyOrganization: async () => {
-    const response = await fetch(`${API_BASE_URL}/organization/myorg`);
+    const response = await fetch(`${API_BASE_URL}/organization/myorg`, {
+      headers: getAuthHeaders()
+    });
     if (!response.ok) throw new Error('Failed to fetch my organization');
     return response.json();
   },

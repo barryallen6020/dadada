@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -7,9 +7,8 @@ import HeroImage from "@/components/home/HeroImage";
 import FeatureCard from "@/components/home/FeatureCard";
 import TestimonialCarousel from "@/components/home/TestimonialCarousel";
 import { ChevronRight, Calendar, MapPin, Users, Clock, Check } from "lucide-react";
-import { Link } from "react-router-dom";
 
-const Index = () => {
+const IndexPage = () => {
   const navigate = useNavigate();
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
 
@@ -55,7 +54,7 @@ const Index = () => {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-grow">
-        <section className="relative bg-gradient-to-b from-deskhive-skyblue to-white overflow-hidden pt-44 md:pt-44 pb-16 md:pb-24 px-4 md:px-8 lg:px-16">
+        <section className="relative bg-gradient-to-b from-deskhive-skyblue to-white overflow-hidden pt-20 md:pt-44 pb-16 md:pb-24 px-4 md:px-8 lg:px-16">
           <div className="absolute inset-0 bg-[url('/lovable-uploads/e4637799-cdf0-41b0-af2b-8393e9f28fe0.png')] opacity-5 bg-center bg-no-repeat bg-contain"></div>
           <div className="container mx-auto">
             <div className="flex flex-col lg:flex-row items-center gap-12 md:gap-16">
@@ -68,13 +67,13 @@ const Index = () => {
                   DeskHive makes it simple to find, book, and manage flexible work environments.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 mb-8 md:mb-10">
-                  <Link to="/register">
+                  <Link to="/login">
                     <Button className="btn-primary h-12 px-8 text-base w-full sm:w-auto">
                       Find Workspace <ChevronRight className="ml-2 h-5 w-5" />
                     </Button>
                   </Link>
-                  <Link to="/login">
-                    <Button variant="outline" className="h-12 px-8 text-base border-deskhive-navy text-deskhive-navy hover:bg-deskhive-navy/5 w-full sm:w-auto">
+                  <Link to="/signup?type=organization">
+                    <Button variant="outline" className="h-12 px-8 text-base border-deskhive-navy text-deskhive-navy hover:bg-deskhive-navy/5 hover:text-deskhive-navy/80 w-full sm:w-auto">
                       List Your Space
                     </Button>
                   </Link>
@@ -96,7 +95,7 @@ const Index = () => {
             <div className="text-center mb-10 md:mb-16">
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-deskhive-navy mb-3 md:mb-4">Everything You Need</h2>
               <p className="text-base md:text-lg text-deskhive-darkgray/80 max-w-2xl mx-auto">
-                A comprehensive platform for both workspace seekers and providers
+                A comprehensive platform for both workspace users and providers
               </p>
             </div>
             
@@ -191,10 +190,10 @@ const Index = () => {
                     <div className="h-5 w-5 md:h-6 md:w-6 rounded-full bg-green-500 flex items-center justify-center text-white mr-3 mt-0.5 flex-shrink-0">
                       <Check className="h-3 w-3 md:h-4 md:w-4" />
                     </div>
-                    <span className="text-deskhive-darkgray/90 text-sm md:text-base">See who's sitting where</span>
+                    <span className="text-deskhive-darkgray/90 text-sm md:text-base">Efficient workspace allocation</span>
                   </li>
                 </ul>
-                <Link to="/dashboard">
+                <Link to="/login">
                   <Button className="glass-button text-sm md:text-base">
                     Explore Floor Plans <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -209,7 +208,7 @@ const Index = () => {
             <div className="glass-gradient p-6 md:p-12 text-center rounded-2xl">
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 md:mb-6">Ready to Optimize Your Workspace?</h2>
               <p className="text-sm md:text-base lg:text-lg mb-6 md:mb-8 max-w-2xl mx-auto">Step into the future of workspace management with DeskHive</p>
-              <Link to="/register">
+              <Link to="/login">
                 <Button className="btn-secondary h-10 md:h-12 px-6 md:px-8 text-sm md:text-base">
                   Get Started Now
                 </Button>
@@ -223,4 +222,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default IndexPage;

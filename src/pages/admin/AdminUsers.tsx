@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -17,121 +17,145 @@ import {
   Mail,
   UserPlus,
   Shield,
-  UserX
+  UserX,
+  Inbox
 } from "lucide-react";
+import AddMemberModal from "@/components/admin/AddMemberModal";
+import UserTableSkeleton from "@/components/admin/UserTableSkeleton";
+import userManagementService, { User, UserStats } from "@/services/userManagementService";
 
-// Sample data for users
-const initialUsers = [
-  { 
-    id: '1', 
-    name: 'John Doe', 
-    email: 'john.doe@example.com', 
-    role: 'member',
-    status: 'active',
-    preferredHub: 'RALNO HUB AKOWONJO',
-    joinDate: '2023-05-12',
-    lastLogin: '2023-09-28'
-  },
-  { 
-    id: '2', 
-    name: 'Jane Smith', 
-    email: 'jane.smith@example.com', 
-    role: 'member',
-    status: 'active',
-    preferredHub: 'Workbay Ajah',
-    joinDate: '2023-06-15',
-    lastLogin: '2023-09-27'
-  },
-  { 
-    id: '3', 
-    name: 'Michael Brown', 
-    email: 'michael.b@example.com', 
-    role: 'hub_manager',
-    status: 'active',
-    preferredHub: 'Costain Hub 4th Floor (n)',
-    joinDate: '2023-01-05',
-    lastLogin: '2023-09-28'
-  },
-  { 
-    id: '4', 
-    name: 'Sarah Johnson', 
-    email: 'sarah.j@example.com', 
-    role: 'hub_manager',
-    status: 'active',
-    preferredHub: 'Costain Hub 5th Floor',
-    joinDate: '2023-03-18',
-    lastLogin: '2023-09-26'
-  },
-  { 
-    id: '5', 
-    name: 'David Wilson', 
-    email: 'david.w@example.com', 
-    role: 'member',
-    status: 'inactive',
-    preferredHub: 'RALNO HUB AKOWONJO',
-    joinDate: '2023-07-22',
-    lastLogin: '2023-08-15'
-  },
-  { 
-    id: '6', 
-    name: 'Emma Watson', 
-    email: 'emma.w@example.com', 
-    role: 'member',
-    status: 'pending',
-    preferredHub: 'Workbay Ajah',
-    joinDate: '2023-09-05',
-    lastLogin: null
-  }
-];
+const EmptyState = () => (
+  <div className="text-center py-12">
+    <Inbox className="h-12 w-12 mx-auto text-deskhive-darkgray/40 mb-4" />
+    <h3 className="text-xl font-medium text-deskhive-navy mb-2">No Members Found</h3>
+    <p className="text-deskhive-darkgray/80 mb-6">
+      There are no members matching your search criteria.
+    </p>
+  </div>
+);
 
 const AdminUsers = () => {
   const { toast } = useToast();
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterRole, setFilterRole] = useState<string | null>(null);
-
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesRole = filterRole ? user.role === filterRole : true;
-    return matchesSearch && matchesRole;
+  const [showAddMemberModal, setShowAddMemberModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState<UserStats>({
+    totalUsers: 0,
+    activeUsers: 0,
+    hubManagers: 0,
+    pendingApprovals: 0
   });
 
-  const handleCreateUser = () => {
-    toast({
-      title: "Create new user",
-      description: "Opening user creation form...",
-    });
-    // In a real app, this would open a form to create a new user
+  const fetchUsers = async () => {
+    try {
+      setIsLoading(true);
+      const [fetchedUsers, userStats] = await Promise.all([
+        userManagementService.getOrganizationUsers(),
+        userManagementService.getUserStats()
+      ]);
+      setUsers(fetchedUsers);
+      setStats(userStats);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch users. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleActivateUser = (id: string) => {
-    setUsers(users.map(user => 
-      user.id === id ? { ...user, status: 'active' } : user
-    ));
-    
-    toast({
-      title: "User activated",
-      description: "User account has been activated successfully.",
-    });
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  // const filteredUsers = users.filter(user => {
+  //   const matchesSearch = 
+  //     user?.user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //     user?.user.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //     user?.user.email.toLowerCase().includes(searchQuery.toLowerCase());
+  //   const matchesRole = filterRole ? user?.role === filterRole : true;
+  //   return matchesSearch && matchesRole;
+  // });
+
+  // const [allUsers, setUsers ] = useState<any[]>([]);
+
+  const handleAddMember = async (memberData: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: string;
+    preferredHub: string;
+  }) => {
+    try {
+      await userManagementService.addMember(memberData);
+      await userManagementService.sendInvitation(memberData.email);
+      await fetchUsers(); // Refresh the user list
+      toast({
+        title: "Member added",
+        description: "New member has been added and invited successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add member. Please try again.",
+        variant: "destructive",
+      });
+      throw error; // Re-throw to be handled by the modal
+    }
   };
 
-  const handleDeactivateUser = (id: string) => {
-    setUsers(users.map(user => 
-      user.id === id ? { ...user, status: 'inactive' } : user
-    ));
-    
-    toast({
-      title: "User deactivated",
-      description: "User account has been deactivated successfully.",
-    });
+  const handleActivateUser = async (userId: string) => {
+    try {
+      await userManagementService.updateMember(userId, { status: 'active' });
+      await fetchUsers();
+      toast({
+        title: "User activated",
+        description: "User account has been activated successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to activate user. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleSendInvite = (email: string) => {
-    toast({
-      title: "Invitation sent",
-      description: `An invitation email has been sent to ${email}`,
-    });
+  const handleDeactivateUser = async (userId: string) => {
+    try {
+      await userManagementService.updateMember(userId, { status: 'inactive' });
+      await fetchUsers();
+      toast({
+        title: "User deactivated",
+        description: "User account has been deactivated successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to deactivate user. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSendInvite = async (email: string) => {
+    try {
+      await userManagementService.sendInvitation(email);
+      toast({
+        title: "Invitation sent",
+        description: `An invitation email has been sent to ${email}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send invitation. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -174,9 +198,9 @@ const AdminUsers = () => {
                 {filterRole === 'hub_manager' ? 'All Members' : 'Hub Managers'}
               </Button>
             </div>
-            <Button onClick={handleCreateUser} className="bg-deskhive-navy hover:bg-deskhive-navy/90 w-full sm:w-auto">
+            <Button onClick={() => setShowAddMemberModal(true)} className="bg-deskhive-navy hover:bg-deskhive-navy/90 w-full sm:w-auto">
               <UserPlus className="h-4 w-4 mr-2" />
-              Add Member
+              Add Hub Manager
             </Button>
           </div>
         </Card>
@@ -193,90 +217,99 @@ const AdminUsers = () => {
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-white/10 hover:bg-white/20">
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Preferred Hub</TableHead>
-                    <TableHead>Join Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredUsers.map((user) => (
-                    <TableRow key={user.id} className="hover:bg-white/10">
-                      <TableCell className="font-medium">{user.name}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>
-                        <Badge variant={user.role === 'hub_manager' ? 'outline' : 'secondary'} className="capitalize">
-                          {user.role === 'hub_manager' ? 'Hub Manager' : 'Member'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{user.preferredHub}</TableCell>
-                      <TableCell>{new Date(user.joinDate).toLocaleDateString()}</TableCell>
-                      <TableCell>
-                        <Badge 
-                          variant={
-                            user.status === 'active' ? 'default' : 
-                            user.status === 'pending' ? 'outline' : 'destructive'
-                          }
-                          className="capitalize"
-                        >
-                          {user.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          
-                          {user.status === 'pending' ? (
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8"
-                              onClick={() => handleActivateUser(user.id)}
-                            >
-                              <CheckCircle className="h-4 w-4 text-green-500" />
-                            </Button>
-                          ) : user.status === 'active' ? (
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8"
-                              onClick={() => handleDeactivateUser(user.id)}
-                            >
-                              <UserX className="h-4 w-4 text-red-500" />
-                            </Button>
-                          ) : (
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8"
-                              onClick={() => handleActivateUser(user.id)}
-                            >
-                              <CheckCircle className="h-4 w-4 text-green-500" />
-                            </Button>
-                          )}
-                          
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8"
-                            onClick={() => handleSendInvite(user.email)}
-                          >
-                            <Mail className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+              {isLoading ? (
+                <UserTableSkeleton />
+              ) : users.length === 0 ? (
+                <EmptyState />
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-white/10 hover:bg-white/20">
+                      <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Preferred Hub</TableHead>
+                      <TableHead>Join Date</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((user: any) => (
+                      <TableRow key={user.id} className="hover:bg-white/10">
+                        <TableCell className="font-medium">
+                          {`${user.user?.firstName} ${user?.user.lastName}`}
+                        </TableCell>
+                        <TableCell>{user?.user.email}</TableCell>
+                        <TableCell>
+                          
+                            <Badge variant={user?.role === 'HUB_MANAGER' ? 'outline' : user?.role === 'ORG_ADMIN' ? 'default' : 'secondary'} className="capitalize">
+                            {user?.user.role === 'HUB_MANAGER' ? 'Hub Manager' : user?.user.role === 'ORG_ADMIN' ? 'Org Admin' : 'Member'}
+                            </Badge>
+                        </TableCell>
+                        <TableCell>{user.preferredHub || '-'}</TableCell>
+                        <TableCell>{new Date(user.joinDate).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          <Badge 
+                            variant={
+                              user.status === true ? 'default' : 
+                              user.status === 'pending' ? 'outline' : 'destructive'
+                            }
+                            className="capitalize"
+                          >
+                            {user.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            
+                            {user.status === 'pending' ? (
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8"
+                                onClick={() => handleActivateUser(user.id)}
+                              >
+                                <CheckCircle className="h-4 w-4 text-green-500" />
+                              </Button>
+                            ) : user.status === 'active' ? (
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8"
+                                onClick={() => handleDeactivateUser(user.id)}
+                              >
+                                <UserX className="h-4 w-4 text-red-500" />
+                              </Button>
+                            ) : (
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8"
+                                onClick={() => handleActivateUser(user.id)}
+                              >
+                                <CheckCircle className="h-4 w-4 text-green-500" />
+                              </Button>
+                            )}
+                            
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8"
+                              onClick={() => handleSendInvite(user.email)}
+                            >
+                              <Mail className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -287,9 +320,9 @@ const AdminUsers = () => {
               <CardTitle className="text-lg">Total Users</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold text-deskhive-navy">{users.length}</div>
+              <div className="text-4xl font-bold text-deskhive-navy">{stats.totalUsers}</div>
               <p className="text-sm text-deskhive-darkgray/70 mt-1">
-                {users.filter(u => u.status === 'active').length} active users
+                {stats.activeUsers} active users
               </p>
             </CardContent>
           </Card>
@@ -300,10 +333,10 @@ const AdminUsers = () => {
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-bold text-deskhive-navy">
-                {users.filter(u => u.role === 'hub_manager').length}
+                {stats.hubManagers}
               </div>
               <p className="text-sm text-deskhive-darkgray/70 mt-1">
-                Managing {4} hubs
+                Managing multiple hubs
               </p>
             </CardContent>
           </Card>
@@ -314,7 +347,7 @@ const AdminUsers = () => {
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-bold text-deskhive-orange">
-                {users.filter(u => u.status === 'pending').length}
+                {stats.pendingApprovals}
               </div>
               <p className="text-sm text-deskhive-darkgray/70 mt-1">
                 Users awaiting approval
@@ -322,6 +355,12 @@ const AdminUsers = () => {
             </CardContent>
           </Card>
         </div>
+
+        <AddMemberModal
+          isOpen={showAddMemberModal}
+          onClose={() => setShowAddMemberModal(false)}
+          onAddMember={handleAddMember}
+        />
       </div>
     </DashboardLayout>
   );

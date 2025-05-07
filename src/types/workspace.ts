@@ -16,17 +16,17 @@ export interface Workspace {
   id: string;
   name: string;
   type: string;
-  location: string;
-  capacity: number;
+  address: string;
   description: string;
-  features: string[];
-  pricePerHour: number;
-  image: string;
-  availability: string;
-  enabled: boolean;
+  totalFloors: number;
+  openingTime: string;
+  closingTime: string;
+  seatingCapacity: number;
+  amenities: string[];
+  isPaidBooking: boolean;
+  pricePerBooking: number;
+  status: 'ACTIVE' | 'INACTIVE';
   organizationId: string;
-  rating?: number;
-  isFavorite?: boolean;
 }
 
 export interface CheckIn {
@@ -54,8 +54,8 @@ export interface CreateWorkspaceDTO {
   pricePerBooking: number;
 }
 
-export interface UpdateWorkspaceDTO extends CreateWorkspaceDTO {
-  status: 'ACTIVE' | 'INACTIVE';
+export interface UpdateWorkspaceDTO extends Workspace {
+  // All fields from Workspace plus any additional update-specific fields
 }
 
 export interface Position {

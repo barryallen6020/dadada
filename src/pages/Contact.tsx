@@ -1,4 +1,3 @@
-
 import React from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -59,39 +58,6 @@ const Contact = () => {
     }, 1000);
   };
 
-  const contactInfo = [
-    {
-      icon: <MapPin className="h-6 w-6 text-deskhive-orange" />,
-      title: "Our Location",
-      details: "23 Kofo Abayomi Street, Victoria Island, Lagos, Nigeria",
-      action: null
-    },
-    {
-      icon: <Phone className="h-6 w-6 text-deskhive-orange" />,
-      title: "Phone Number",
-      details: "+234 800 123 4567",
-      action: {
-        text: "Call Us",
-        href: "tel:+2348001234567"
-      }
-    },
-    {
-      icon: <Mail className="h-6 w-6 text-deskhive-orange" />,
-      title: "Email Address",
-      details: "info@deskhive.ng",
-      action: {
-        text: "Email Us",
-        href: "mailto:info@deskhive.ng"
-      }
-    },
-    {
-      icon: <Clock className="h-6 w-6 text-deskhive-orange" />,
-      title: "Office Hours",
-      details: "Monday - Friday: 8am - 6pm",
-      details2: "Saturday: 9am - 1pm",
-      action: null
-    }
-  ];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -99,7 +65,7 @@ const Contact = () => {
       
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="section-padding bg-gradient-to-b from-deskhive-skyblue to-white">
+        <section className="section-padding pt-28 bg-gradient-to-b from-deskhive-skyblue to-white">
           <div className="container mx-auto">
             <div className="max-w-3xl mx-auto text-center">
               <h1 className="text-5xl font-bold text-deskhive-navy mb-6 animate-fade-in">
@@ -112,51 +78,21 @@ const Contact = () => {
           </div>
         </section>
         
-        {/* Contact Information Cards */}
-        <section className="section-padding bg-white">
-          <div className="container mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-              {contactInfo.map((item, index) => (
-                <Card key={index} className="glass-card border-none">
-                  <CardContent className="p-6">
-                    <div className="flex flex-col items-center text-center">
-                      <div className="bg-deskhive-navy/5 p-3 rounded-full mb-4">
-                        {item.icon}
-                      </div>
-                      <h3 className="text-lg font-semibold text-deskhive-navy mb-2">{item.title}</h3>
-                      <p className="text-deskhive-darkgray/80 mb-1">{item.details}</p>
-                      {item.details2 && <p className="text-deskhive-darkgray/80 mb-4">{item.details2}</p>}
-                      {item.action && (
-                        <a
-                          href={item.action.href}
-                          className="text-deskhive-royal font-medium hover:text-deskhive-navy transition-colors"
-                        >
-                          {item.action.text}
-                        </a>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-        
         {/* Contact Form and Map */}
         <section className="section-padding bg-deskhive-skyblue">
-          <div className="container mx-auto">
+          <div className="container mx-auto px-2">
             <div className="max-w-6xl mx-auto">
-              <div className="flex flex-col lg:flex-row gap-10">
+              <div className="flex flex-col lg:flex-row gap-6 lg:gap-10">
                 {/* Contact Form */}
-                <div className="w-full lg:w-1/2 glass-card p-8">
+                <div className="w-full lg:w-1/2 glass-card p-4 md:p-8">
                   <div className="flex items-center mb-6">
                     <MessageSquare className="h-6 w-6 text-deskhive-orange mr-3" />
                     <h2 className="text-2xl font-bold text-deskhive-navy">Send Us a Message</h2>
                   </div>
                   
                   <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         <FormField
                           control={form.control}
                           name="name"
@@ -186,7 +122,7 @@ const Contact = () => {
                         />
                       </div>
                       
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         <FormField
                           control={form.control}
                           name="phone"
@@ -256,7 +192,7 @@ const Contact = () => {
                 </div>
                 
                 {/* Map */}
-                <div className="w-full lg:w-1/2 glass-card p-8 flex flex-col">
+                <div className="w-full lg:w-1/2 glass-card p-4 md:p-8 flex flex-col">
                   <h2 className="text-2xl font-bold text-deskhive-navy mb-6">Find Us on the Map</h2>
                   <div className="flex-grow rounded-lg overflow-hidden bg-white/50 h-[400px] flex items-center justify-center">
                     <div className="text-center p-6">
@@ -274,8 +210,8 @@ const Contact = () => {
         
         {/* Support Options */}
         <section className="section-padding bg-white">
-          <div className="container mx-auto">
-            <div className="max-w-4xl mx-auto text-center">
+          <div className="container mx-auto px-2">
+            <div className="max-w-5xl mx-auto text-center">
               <h2 className="text-3xl font-bold text-deskhive-navy mb-12">We're Here to Help</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -287,7 +223,7 @@ const Contact = () => {
                   <p className="text-deskhive-darkgray/80 mb-4">
                     Chat with our support team in real-time during business hours.
                   </p>
-                  <Button variant="outline" className="border-deskhive-navy text-deskhive-navy hover:bg-deskhive-navy/5 w-full">
+                  <Button variant="outline" className="border-deskhive-navy text-deskhive-navy hover:bg-deskhive-navy/5 hover:text-deskhive-navy/80 w-full">
                     Start Chat
                   </Button>
                 </div>
@@ -303,7 +239,7 @@ const Contact = () => {
                   <Button 
                     asChild
                     variant="outline" 
-                    className="border-deskhive-navy text-deskhive-navy hover:bg-deskhive-navy/5 w-full"
+                    className="border-deskhive-navy text-deskhive-navy hover:bg-deskhive-navy/5 hover:text-deskhive-navy/80 w-full"
                   >
                     <a href="mailto:support@deskhive.ng">Email Us</a>
                   </Button>
@@ -320,7 +256,7 @@ const Contact = () => {
                   <Button 
                     asChild
                     variant="outline" 
-                    className="border-deskhive-navy text-deskhive-navy hover:bg-deskhive-navy/5 w-full"
+                    className="border-deskhive-navy text-deskhive-navy hover:bg-deskhive-navy/5 hover:text-deskhive-navy/80 w-full"
                   >
                     <a href="tel:+2348001234567">Call Now</a>
                   </Button>

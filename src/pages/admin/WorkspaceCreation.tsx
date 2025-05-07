@@ -26,16 +26,21 @@ import { useToast } from "@/hooks/use-toast";
 import WorkspaceFloorMapEditor from "@/components/admin/WorkspaceFloorMapEditor";
 import WorkspaceImageUpload from "@/components/admin/WorkspaceImageUpload";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import api from "@/lib/api";
 
 const WorkspaceCreation = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [states, setStates] = useState([])
+  const [lgas, setLgas] = useState([])
   
   // State for workspace details
   const [workspaceDetails, setWorkspaceDetails] = useState({
     name: "",
     type: "",
     location: "",
+    stateId: "",
+    lgaId: "",
     address: "",
     capacity: "",
     pricePerHour: "",
@@ -70,12 +75,20 @@ const WorkspaceCreation = () => {
     console.log("Floor map data updated:", data);
   };
   
+  async function handleFetchLgas(id: string) {
+    try {
+      const response = await api.get(`/location/lgas/${id}`);
+      setLgas(response.data.data);
+    } catch (error) {
+      console.error("Error fetching LGAs:", error);
+    }
+  }
   // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate form
-    if (!workspaceDetails.name || !workspaceDetails.type || !workspaceDetails.location || 
+    if (!workspaceDetails.name || !workspaceDetails.type || 
         !workspaceDetails.address || !workspaceDetails.capacity || !workspaceDetails.pricePerHour) {
       toast({
         title: "Missing information",
@@ -87,26 +100,45 @@ const WorkspaceCreation = () => {
     
     // In a real app, this would save to a database
     // For now, we'll just show a success toast and redirect
-    const newWorkspace = {
-      ...workspaceDetails,
-      id: `ws-${Date.now()}`,
-      images,
-      floorMap: floorMapData,
-      capacity: parseInt(workspaceDetails.capacity),
-      pricePerHour: parseInt(workspaceDetails.pricePerHour),
-      features: workspaceDetails.features.split(',').map(f => f.trim()),
-    };
-    
-    console.log("Saving workspace:", newWorkspace);
-    
-    toast({
-      title: "Workspace created",
-      description: `${workspaceDetails.name} has been created successfully.`,
-    });
+    try {
+      console.log(images)
+      // return;
+      const data = await api.post("/workspace/create", {
+        ...workspaceDetails,
+        pricePerBooking: parseInt(workspaceDetails.pricePerHour),
+        seatingCapacity: parseInt(workspaceDetails.capacity),
+        amenities: workspaceDetails.features.split(",").map((feature) => feature.trim()),
+        images,
+      })
+
+      toast({
+        title: "Workspace created",
+        description: `${workspaceDetails.name} has been created successfully.`,
+      });
+      navigate(`/admin/workspace/${data.data.data.id}/seat-management`);
+    } catch (error) {
+      console.log("Create Workspace Error --------------------")
+      console.log(error)
+    }
     
     // Navigate back to hub management
-    navigate("/admin/hubs");
   };
+
+  useEffect(() => {
+    const fetchStates = async () => {
+      try {
+        const response = await api.get("/location");
+        setStates(response.data.data);
+
+        console.log(response)
+      } catch (error) {
+        console.error("Error fetching states:", error);
+      }
+    };
+    
+    fetchStates();
+  }
+  , []);
 
   return (
     <DashboardLayout>
@@ -196,20 +228,38 @@ const WorkspaceCreation = () => {
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="location">Location *</Label>
+                      <Label htmlFor="location">Location * </Label>
                       <Select 
-                        value={workspaceDetails.location} 
-                        onValueChange={(value) => handleInputChange("location", value)}
+                        value={workspaceDetails.stateId}
+                        onValueChange={(value) => {
+                          handleInputChange("stateId", value)
+                          handleFetchLgas(value)
+                        }}
                       >
-                        <SelectTrigger id="location">
-                          <SelectValue placeholder="Select location" />
+                        <SelectTrigger id="state">
+                          <SelectValue placeholder="Select State" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Lagos">Lagos</SelectItem>
-                          <SelectItem value="Abuja">Abuja</SelectItem>
-                          <SelectItem value="Port Harcourt">Port Harcourt</SelectItem>
-                          <SelectItem value="Ibadan">Ibadan</SelectItem>
-                          <SelectItem value="Kano">Kano</SelectItem>
+                          {Array.isArray(states) && states.map((state) => (
+                            <SelectItem key={state.id} value={state.id}>
+                              {state.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select 
+                        value={workspaceDetails.lgaId} 
+                        onValueChange={(value) => handleInputChange("lgaId", value)}
+                      >
+                        <SelectTrigger id="lga">
+                          <SelectValue placeholder="Select LGA" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.isArray(lgas) && lgas.map((lga) => (
+                            <SelectItem key={lga.id} value={lga.id}>
+                              {lga.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>

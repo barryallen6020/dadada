@@ -1,19 +1,20 @@
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/common/ScrollToTop";
 import { OrganizationProvider } from "./contexts/OrganizationContext";
 import { Toaster } from "@/components/ui/sonner";
 
 // Pages
-import Index from "./pages/Index";
+import IndexPage from "./pages/Index";
 import Home from "./pages/Home";
 import Features from "./pages/Features";
 import Pricing from "./pages/Pricing";
 import Contact from "./pages/Contact";
 import FAQ from "./pages/FAQ";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import BookingPage from "./pages/BookingPage";
 import MyBookings from "./pages/MyBookings";
@@ -44,6 +45,7 @@ import TermsOfService from "./pages/legal/TermsOfService";
 import PrivacyPolicy from "./pages/legal/PrivacyPolicy";
 import RefundPolicy from "./pages/legal/RefundPolicy";
 import CookiePolicy from "./pages/legal/CookiePolicy";
+import WorkspaceSeatManagement from "./pages/admin/CreateSeats";
 
 function App() {
   return (
@@ -52,16 +54,16 @@ function App() {
         <ScrollToTop />
         <Routes>
           {/* Public routes */}
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<IndexPage />} />
           <Route path="/home" element={<Home />} />
           <Route path="/features" element={<Features />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
@@ -69,7 +71,7 @@ function App() {
           
           {/* Authenticated member routes */}
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/book/:workspaceId" element={<BookingPage />} />
+          <Route path="/book/:id" element={<BookingPage />} />
           <Route path="/book" element={<BookingPage />} />
           <Route path="/bookings" element={<MyBookings />} />
           <Route path="/profile" element={<Profile />} />
@@ -84,6 +86,7 @@ function App() {
           <Route path="/admin/workspace/create" element={<WorkspaceCreation />} />
           <Route path="/admin/check-in" element={<HubCheckIn />} />
           <Route path="/admin/organization" element={<OrganizationSettings />} />
+          <Route path="/admin/workspace/:workspaceId/seat-management" element={<WorkspaceSeatManagement />} />
           
           {/* Hub manager routes */}
           <Route path="/hub-manager" element={<HubManagerDashboard />} />

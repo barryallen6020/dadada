@@ -9,7 +9,7 @@ const Footer = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           <div>
-            <LogoFull className="text-white w-32 mb-4" />
+            <LogoFull className="text-white w-32 mb-4 invert" />
             <p className="text-white/80 mb-4">
               Nigeria's premier workspace management solution for modern professionals and businesses.
             </p>
@@ -59,22 +59,22 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Legal</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/terms" className="text-white/80 hover:text-white transition-colors">
+                <Link to="/terms-of-service" className="text-white/80 hover:text-white transition-colors">
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link to="/privacy" className="text-white/80 hover:text-white transition-colors">
+                <Link to="/privacy-policy" className="text-white/80 hover:text-white transition-colors">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link to="/cookies" className="text-white/80 hover:text-white transition-colors">
+                <Link to="/cookie-policy" className="text-white/80 hover:text-white transition-colors">
                   Cookie Policy
                 </Link>
               </li>
               <li>
-                <Link to="/refunds" className="text-white/80 hover:text-white transition-colors">
+                <Link to="/refund-policy" className="text-white/80 hover:text-white transition-colors">
                   Refund Policy
                 </Link>
               </li>

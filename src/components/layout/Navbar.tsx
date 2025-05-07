@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, Building2 } from "lucide-react";
 import LogoFull from "../common/LogoFull";
 import { useOrganization } from "@/contexts/OrganizationContext";
+import { cn } from "@/lib/utils";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -39,21 +40,19 @@ const Navbar = () => {
   };
 
   return (
-    <div className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4">
-      <header
-        className={`transition-all duration-300 max-w-7xl w-full ${
-          isScrolled 
-            ? "backdrop-blur-md shadow-lg rounded-full border border-white/20" 
-            : "bg-transparent"
-        }`}
-      >
-        <div className="px-4 md:px-6">
-          <div className="flex items-center justify-between h-14">
-            <div className="flex-shrink-0">
+    <div className="fixed top-0 left-0 right-0 z-50 px-4">
+      <header className={cn(
+        "transition-all duration-300",
+        "mt-4 rounded-full glass-nav border border-white/20 backdrop-blur-md",
+        "relative",
+        isScrolled ? "shadow-lg" : "",
+        "w-full max-w-7xl mx-auto" // Center and limit width
+      )}>
+        <div className="px-4">
+          <div className="flex items-center justify-between h-16">
               <Link to="/" className="flex items-center">
                 <LogoFull />
               </Link>
-            </div>
             
             {isLoggedIn && currentOrganization?.name && (
               <div className="hidden md:flex items-center mx-4 px-3 py-1 bg-deskhive-navy/10 rounded-full">
@@ -116,7 +115,7 @@ const Navbar = () => {
                     <Link to="/login">Log in</Link>
                   </Button>
                   <Button asChild variant="default" className="btn-primary rounded-full">
-                    <Link to="/register">Create Organization</Link>
+                    <Link to="/signup?type=organization">Create Organization</Link>
                   </Button>
                 </>
               )}
@@ -129,24 +128,19 @@ const Navbar = () => {
             </div>
           </div>
         </div>
+      </header>
         
         {mobileMenuOpen && (
-          <div className="md:hidden pt-2 pb-4 px-4 mt-2 rounded-xl shadow-md border border-white/20 backdrop-blur-md mx-4">
-            {isLoggedIn && currentOrganization?.name && (
-              <div className="flex items-center mb-4 px-3 py-2 bg-deskhive-navy/10 rounded-lg">
-                <Building2 className="h-4 w-4 text-deskhive-navy mr-2" />
-                <span className="text-sm font-medium text-deskhive-navy">{currentOrganization.name}</span>
-              </div>
-            )}
-          
-            <div className="space-y-1">
+        <div className="md:hidden absolute top-full left-0 right-0 mt-2">
+          <div className="glass-nav border border-white/20 backdrop-blur-md rounded-2xl shadow-lg max-w-7xl mx-auto">
+            <nav className="flex flex-col space-y-2 p-4">
               <Link 
                 to="/" 
                 onClick={toggleMobileMenu}
-                className={`block px-3 py-2 rounded-md text-base font-medium ${
+                className={`text-sm font-medium transition-colors px-4 py-2 rounded-lg ${
                   location.pathname === "/"
-                    ? "text-deskhive-navy bg-deskhive-navy/5"
-                    : "text-deskhive-darkgray/70 hover:text-deskhive-navy hover:bg-deskhive-navy/5"
+                    ? "bg-deskhive-navy/10 text-deskhive-navy"
+                    : "text-deskhive-darkgray/70 hover:bg-deskhive-navy/5 hover:text-deskhive-navy"
                 }`}
               >
                 Home
@@ -154,10 +148,10 @@ const Navbar = () => {
               <Link 
                 to="/features" 
                 onClick={toggleMobileMenu}
-                className={`block px-3 py-2 rounded-md text-base font-medium ${
+                className={`text-sm font-medium transition-colors px-4 py-2 rounded-lg ${
                   location.pathname === "/features"
-                    ? "text-deskhive-navy bg-deskhive-navy/5"
-                    : "text-deskhive-darkgray/70 hover:text-deskhive-navy hover:bg-deskhive-navy/5"
+                    ? "bg-deskhive-navy/10 text-deskhive-navy"
+                    : "text-deskhive-darkgray/70 hover:bg-deskhive-navy/5 hover:text-deskhive-navy"
                 }`}
               >
                 Features
@@ -165,10 +159,10 @@ const Navbar = () => {
               <Link 
                 to="/pricing" 
                 onClick={toggleMobileMenu}
-                className={`block px-3 py-2 rounded-md text-base font-medium ${
+                className={`text-sm font-medium transition-colors px-4 py-2 rounded-lg ${
                   location.pathname === "/pricing"
-                    ? "text-deskhive-navy bg-deskhive-navy/5"
-                    : "text-deskhive-darkgray/70 hover:text-deskhive-navy hover:bg-deskhive-navy/5"
+                    ? "bg-deskhive-navy/10 text-deskhive-navy"
+                    : "text-deskhive-darkgray/70 hover:bg-deskhive-navy/5 hover:text-deskhive-navy"
                 }`}
               >
                 Pricing
@@ -176,35 +170,41 @@ const Navbar = () => {
               <Link 
                 to="/contact" 
                 onClick={toggleMobileMenu}
-                className={`block px-3 py-2 rounded-md text-base font-medium ${
+                className={`text-sm font-medium transition-colors px-4 py-2 rounded-lg ${
                   location.pathname === "/contact"
-                    ? "text-deskhive-navy bg-deskhive-navy/5"
-                    : "text-deskhive-darkgray/70 hover:text-deskhive-navy hover:bg-deskhive-navy/5"
+                    ? "bg-deskhive-navy/10 text-deskhive-navy"
+                    : "text-deskhive-darkgray/70 hover:bg-deskhive-navy/5 hover:text-deskhive-navy"
                 }`}
               >
                 Contact
               </Link>
               
-              <div className="pt-4 flex flex-col space-y-2">
+              <div className="pt-4 space-y-2 border-t border-white/10">
                 {isLoggedIn ? (
-                  <Button asChild variant="default" className="btn-primary w-full rounded-full">
-                    <Link to={getDashboardRoute()} onClick={toggleMobileMenu}>Dashboard</Link>
+                  <Button asChild variant="default" className="btn-primary w-full">
+                    <Link to={getDashboardRoute()} onClick={toggleMobileMenu}>
+                      Dashboard
+                    </Link>
                   </Button>
                 ) : (
                   <>
-                    <Button asChild variant="outline" className="border-deskhive-navy text-deskhive-navy hover:bg-deskhive-navy/5 w-full rounded-full">
-                      <Link to="/login" onClick={toggleMobileMenu}>Log in</Link>
+                    <Button asChild variant="outline" className="w-full border-deskhive-navy text-deskhive-navy hover:bg-deskhive-navy/5">
+                      <Link to="/login" onClick={toggleMobileMenu}>
+                        Log in
+                      </Link>
                     </Button>
-                    <Button asChild variant="default" className="btn-primary w-full rounded-full">
-                      <Link to="/register" onClick={toggleMobileMenu}>Create Organization</Link>
+                    <Button asChild variant="default" className="w-full btn-primary">
+                      <Link to="/signup?type=organization" onClick={toggleMobileMenu}>
+                        Create Organization
+                      </Link>
                     </Button>
                   </>
                 )}
               </div>
+            </nav>
             </div>
           </div>
         )}
-      </header>
     </div>
   );
 };

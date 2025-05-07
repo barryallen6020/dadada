@@ -93,11 +93,6 @@ export const getCurrentUser = (): User | null => {
 // Auth API calls
 export const login = async (email: string, password: string): Promise<ApiResponse<AuthResponse>> => {
   try {
-    console.log('Attempting login with:', { email });
-    
-    // Use the real API
-    console.log('Making API request to:', `${API_BASE_URL}${API_ENDPOINTS.AUTH.LOGIN}`);
-    
     const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.AUTH.LOGIN}`, {
       method: 'POST',
       headers: {
@@ -106,77 +101,32 @@ export const login = async (email: string, password: string): Promise<ApiRespons
       body: JSON.stringify({ email, password }),
     });
 
-    console.log('Login API Response Status:', response.status, response.statusText);
+    const responseData = await response.json();
     
-    // If the response is 401, create a custom error response
-    if (response.status === 401) {
-      console.error('Authentication failed: Invalid credentials');
-      return {
-        success: false,
-        message: 'Invalid email or password. Please try again.',
-        error: 'Unauthorized'
-      };
-    }
-    
-    // Try to get the response as text first to debug
-    const responseText = await response.text();
-    console.log('Raw API response:', responseText);
-    
-    // Parse the response text as JSON
-    let responseData;
-    try {
-      responseData = JSON.parse(responseText);
-      console.log('Parsed API response data:', responseData);
-    } catch (e) {
-      console.error('Failed to parse response as JSON:', e);
-      return {
-        success: false,
-        message: 'Invalid response from server',
-        error: 'Parse Error'
-      };
-    }
-    
-    // Create a success response with the data
-    const result: ApiResponse<AuthResponse> = {
-      success: true,
-      data: responseData,
-      message: 'Login successful'
-    };
-    
-    if (result.success && result.data) {
-      console.log('Login successful, storing user data');
+    if (response.ok) {
+      const { user, accessToken, refreshToken } = responseData.data;
       
-      // Check if the response has the expected structure
-      if (result.data.accessToken && result.data.user) {
-        setAuthTokens(result.data.accessToken, result.data.refreshToken || '');
-        setCurrentUser(result.data.user);
-        console.log('User data stored in localStorage:', localStorage.getItem('user'));
-      } else {
-        console.error('API response missing expected fields:', result.data);
-        // Try to adapt to the API response structure
-        if (responseData.token) {
-          // If the API returns a token field instead of accessToken
-          setAuthTokens(responseData.token, responseData.refreshToken || '');
-          // If the API returns user data in a different field
-          const userData = responseData.user || responseData.userData || responseData.data;
-          if (userData) {
-            setCurrentUser(userData);
-            // Update the result.data to match what our app expects
-            result.data = {
-              user: userData,
-              accessToken: responseData.token,
-              refreshToken: responseData.refreshToken || ''
-            };
-          }
-        }
-      }
-    } else {
-      console.error('Login failed with API response:', result);
-    }
+      // Store tokens and user data
+      setAuthTokens(accessToken, refreshToken);
+      setCurrentUser(user);
 
-    return result;
+      return {
+        success: true,
+        data: {
+          user,
+          accessToken,
+          refreshToken
+        },
+        message: responseData.message || 'Login successful'
+      };
+    } else {
+      return {
+        success: false,
+        message: responseData.message || 'Login failed',
+        error: responseData.error || 'Unknown error'
+      };
+    }
   } catch (error) {
-    console.error('Login error:', error);
     return {
       success: false,
       message: 'Login failed',
@@ -434,8 +384,7 @@ export const forgotPassword = async (email: string): Promise<ApiResponse<null>> 
 
 export const resetPassword = async (
   password: string,
-  resetToken: string,
-  email: string
+  resetToken: string
 ): Promise<ApiResponse<null>> => {
   try {
     const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.USER.RESET_PASSWORD}`, {
@@ -443,7 +392,7 @@ export const resetPassword = async (
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ password, resetToken, email }),
+      body: JSON.stringify({ password, resetToken }),
     });
 
     return await handleResponse<null>(response);
