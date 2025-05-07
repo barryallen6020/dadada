@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Workspace } from "@/types/workspace";
+import { Workspace, WorkspaceDisplay } from "@/types/workspace";
 import { useOrganization } from "@/contexts/OrganizationContext";
 
 interface AddWorkspaceDialogProps {
@@ -50,19 +50,30 @@ const AddWorkspaceDialog: React.FC<AddWorkspaceDialogProps> = ({
       return;
     }
     
+    // Create a workspace object with all required fields
     const workspace: Workspace = {
       id: `ws-${Date.now()}`,
       name: newWorkspace.name,
       type: newWorkspace.type,
+      address: `Default Address in ${newWorkspace.location}`,
+      description: newWorkspace.description,
+      totalFloors: 1,
+      openingTime: "09:00:00",
+      closingTime: "17:00:00",
+      seatingCapacity: parseInt(newWorkspace.capacity),
+      amenities: newWorkspace.features.split(',').map(f => f.trim()),
+      isPaidBooking: parseInt(newWorkspace.pricePerHour) > 0,
+      pricePerBooking: parseInt(newWorkspace.pricePerHour),
+      status: 'ACTIVE',
+      organizationId: currentOrganization.id,
+      // Additional properties
       location: newWorkspace.location,
       capacity: parseInt(newWorkspace.capacity),
       pricePerHour: parseInt(newWorkspace.pricePerHour),
-      availability: newWorkspace.availability,
       features: newWorkspace.features.split(',').map(f => f.trim()),
-      description: newWorkspace.description,
-      image: "",
+      availability: newWorkspace.availability,
       enabled: true,
-      organizationId: currentOrganization.id
+      image: ""
     };
     
     onWorkspaceAdd(workspace);

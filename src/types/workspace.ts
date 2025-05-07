@@ -41,6 +41,22 @@ export interface Workspace {
   isFavorite?: boolean; // Whether the workspace is marked as favorite
 }
 
+// Create a simplified workspace interface for use in display components and forms
+export interface WorkspaceDisplay {
+  id: string;
+  name: string;
+  type: string;
+  location?: string;
+  capacity?: number;
+  pricePerHour?: number;
+  availability?: string;
+  features?: string[];
+  description: string;
+  image?: string;
+  enabled?: boolean;
+  organizationId: string;
+}
+
 export interface CheckIn {
   id: string;
   learnerId: string;
