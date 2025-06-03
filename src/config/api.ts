@@ -61,4 +61,9 @@ export const API_ENDPOINTS = {
     GET_LGAS: (stateId: string) => `/location/lgas/${stateId}`,
     GET_LGA: (id: string) => `/location/lga/${id}`,
   },
+
+  // Waitlist endpoints
+  WAITLIST: {
+    CREATE: '/waitlist',
+  }
 };
