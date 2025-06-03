@@ -65,7 +65,7 @@ const GlobalAdminLayout: React.FC<GlobalAdminLayoutProps> = ({
       <div className={`fixed left-0 top-0 h-full bg-white shadow-lg transition-all duration-300 z-40 ${isSidebarOpen ? 'w-64' : 'w-16'}`}>
         <div className="p-6 border-b flex items-center justify-between">
           <div className={`flex items-center gap-3 ${!isSidebarOpen && 'justify-center'}`}>
-            <Shield className="h-8 w-8 text-primary flex-shrink-0" />
+            
             {isSidebarOpen && <div>
                 <h1 className="text-xl font-bold">Global Admin</h1>
                 
