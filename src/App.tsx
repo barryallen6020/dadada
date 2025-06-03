@@ -22,7 +22,7 @@ import MyBookings from "./pages/MyBookings";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
-import PreLaunch from "./pages/PreLaunch"; // Add the new pre-launch page
+import PreLaunch from "./pages/PreLaunch";
 
 // Admin pages
 import Admin from "./pages/Admin";
@@ -33,6 +33,10 @@ import HubManagement from "./pages/admin/HubManagement";
 import WorkspaceCreation from "./pages/admin/WorkspaceCreation";
 import HubCheckIn from "./pages/admin/HubCheckIn";
 import OrganizationSettings from "./pages/admin/OrganizationSettings";
+
+// Global Admin pages
+import GlobalAdminLogin from "./pages/GlobalAdminLogin";
+import GlobalAdmin from "./pages/GlobalAdmin";
 
 // Hub manager pages
 import HubManagerDashboard from "./pages/hubmanager/HubManagerDashboard";
@@ -93,6 +97,10 @@ function App() {
           <Route path="/admin/check-in" element={<HubCheckIn />} />
           <Route path="/admin/organization" element={<OrganizationSettings />} />
           <Route path="/admin/workspace/:workspaceId/seat-management" element={<WorkspaceSeatManagement />} />
+          
+          {/* Global Admin routes */}
+          <Route path="/global-admin/login" element={<GlobalAdminLogin />} />
+          <Route path="/global-admin" element={<GlobalAdmin />} />
           
           {/* Hub manager routes */}
           <Route path="/hub-manager" element={<HubManagerDashboard />} />
