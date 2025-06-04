@@ -1,11 +1,13 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import LogoFull from '@/components/common/LogoFull';
+
 const GlobalAdminLogin = () => {
   const [credentials, setCredentials] = useState({
     username: '',
@@ -13,18 +15,18 @@ const GlobalAdminLogin = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
 
   // Test credentials
   const TEST_CREDENTIALS = {
     username: 'globaladmin',
     password: 'admin123'
   };
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
     setTimeout(() => {
       if (credentials.username === TEST_CREDENTIALS.username && credentials.password === TEST_CREDENTIALS.password) {
         localStorage.setItem('globalAdminToken', 'test-global-admin-token');
@@ -49,10 +51,14 @@ const GlobalAdminLogin = () => {
       setIsLoading(false);
     }, 1000);
   };
-  return <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4">
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          
+          <div className="flex justify-center mb-4">
+            <LogoFull className="text-xl" />
+          </div>
           <CardTitle className="text-2xl">Global Admin</CardTitle>
           <CardDescription>
             Sign in to access the global administration panel
@@ -69,16 +75,28 @@ const GlobalAdminLogin = () => {
           
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <Input type="text" placeholder="Username" value={credentials.username} onChange={e => setCredentials({
-              ...credentials,
-              username: e.target.value
-            })} required />
+              <Input 
+                type="text" 
+                placeholder="Username" 
+                value={credentials.username} 
+                onChange={e => setCredentials({
+                  ...credentials,
+                  username: e.target.value
+                })} 
+                required 
+              />
             </div>
             <div>
-              <Input type="password" placeholder="Password" value={credentials.password} onChange={e => setCredentials({
-              ...credentials,
-              password: e.target.value
-            })} required />
+              <Input 
+                type="password" 
+                placeholder="Password" 
+                value={credentials.password} 
+                onChange={e => setCredentials({
+                  ...credentials,
+                  password: e.target.value
+                })} 
+                required 
+              />
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? 'Signing in...' : 'Sign in'}
@@ -86,6 +104,8 @@ const GlobalAdminLogin = () => {
           </form>
         </CardContent>
       </Card>
-    </div>;
+    </div>
+  );
 };
+
 export default GlobalAdminLogin;
