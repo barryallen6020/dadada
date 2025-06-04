@@ -40,23 +40,23 @@ const PlatformSettings = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold">Platform Settings</h2>
-        <p className="text-gray-600">Manage global configurations and system settings</p>
+        <h2 className="text-xl md:text-2xl font-bold">Platform Settings</h2>
+        <p className="text-sm md:text-base text-gray-600">Manage global configurations and system settings</p>
       </div>
 
       {/* Email Configuration */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
             <Mail className="h-5 w-5" />
             Email Configuration
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="emailProvider">Email Provider</Label>
               <Select value={settings.emailProvider} onValueChange={(value) => setSettings({...settings, emailProvider: value})}>
@@ -82,7 +82,7 @@ const PlatformSettings = () => {
             </div>
           </div>
           
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <Label htmlFor="smtpPort">Port</Label>
               <Input
@@ -113,20 +113,20 @@ const PlatformSettings = () => {
             </div>
           </div>
           
-          <Button onClick={() => handleSave('Email')}>Save Email Settings</Button>
+          <Button onClick={() => handleSave('Email')} size="sm">Save Email Settings</Button>
         </CardContent>
       </Card>
 
       {/* SMS Configuration */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
             <MessageSquare className="h-5 w-5" />
             SMS Configuration
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <Label htmlFor="smsProvider">SMS Provider</Label>
               <Select value={settings.smsProvider} onValueChange={(value) => setSettings({...settings, smsProvider: value})}>
@@ -161,20 +161,20 @@ const PlatformSettings = () => {
             </div>
           </div>
           
-          <Button onClick={() => handleSave('SMS')}>Save SMS Settings</Button>
+          <Button onClick={() => handleSave('SMS')} size="sm">Save SMS Settings</Button>
         </CardContent>
       </Card>
 
       {/* Security Settings */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
             <Shield className="h-5 w-5" />
             Security Settings
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
                 <Label htmlFor="qrRotation">QR Code Rotation Interval (hours)</Label>
@@ -215,7 +215,7 @@ const PlatformSettings = () => {
               </div>
               
               <div className="flex items-center justify-between">
-                <Label htmlFor="mfaRequired">Require Multi-Factor Authentication</Label>
+                <Label htmlFor="mfaRequired" className="text-sm">Require Multi-Factor Authentication</Label>
                 <Switch
                   id="mfaRequired"
                   checked={settings.mfaRequired}
@@ -225,29 +225,29 @@ const PlatformSettings = () => {
             </div>
           </div>
           
-          <Button onClick={() => handleSave('Security')}>Save Security Settings</Button>
+          <Button onClick={() => handleSave('Security')} size="sm">Save Security Settings</Button>
         </CardContent>
       </Card>
 
       {/* System Settings */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
             <Clock className="h-5 w-5" />
             System Settings
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="flex items-center justify-between p-4 border rounded-lg">
+          <div className="flex items-center justify-between p-3 md:p-4 border rounded-lg">
             <div className="flex items-center gap-3">
               <AlertTriangle className={`h-5 w-5 ${settings.maintenanceMode ? 'text-red-500' : 'text-gray-400'}`} />
               <div>
-                <h4 className="font-medium">Maintenance Mode</h4>
-                <p className="text-sm text-gray-600">Temporarily disable access to the platform</p>
+                <h4 className="font-medium text-sm md:text-base">Maintenance Mode</h4>
+                <p className="text-xs md:text-sm text-gray-600">Temporarily disable access to the platform</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {settings.maintenanceMode && <Badge variant="destructive">Active</Badge>}
+              {settings.maintenanceMode && <Badge variant="destructive" className="text-xs">Active</Badge>}
               <Switch
                 checked={settings.maintenanceMode}
                 onCheckedChange={(checked) => setSettings({...settings, maintenanceMode: checked})}
@@ -255,10 +255,10 @@ const PlatformSettings = () => {
             </div>
           </div>
           
-          <div className="flex items-center justify-between p-4 border rounded-lg">
+          <div className="flex items-center justify-between p-3 md:p-4 border rounded-lg">
             <div>
-              <h4 className="font-medium">Automatic Backups</h4>
-              <p className="text-sm text-gray-600">Automatically backup system data</p>
+              <h4 className="font-medium text-sm md:text-base">Automatic Backups</h4>
+              <p className="text-xs md:text-sm text-gray-600">Automatically backup system data</p>
             </div>
             <Switch
               checked={settings.autoBackup}
@@ -270,7 +270,7 @@ const PlatformSettings = () => {
             <div>
               <Label htmlFor="backupInterval">Backup Interval (hours)</Label>
               <Select value={settings.backupInterval} onValueChange={(value) => setSettings({...settings, backupInterval: value})}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-full md:w-48">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -283,7 +283,7 @@ const PlatformSettings = () => {
             </div>
           )}
           
-          <Button onClick={() => handleSave('System')}>Save System Settings</Button>
+          <Button onClick={() => handleSave('System')} size="sm">Save System Settings</Button>
         </CardContent>
       </Card>
     </div>

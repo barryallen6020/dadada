@@ -102,30 +102,32 @@ const BookingAuditLogs = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold">Booking Audit Logs</h2>
-          <p className="text-gray-600">Monitor all booking activity for compliance and debugging</p>
+          <h2 className="text-xl md:text-2xl font-bold">Booking Audit Logs</h2>
+          <p className="text-sm md:text-base text-gray-600">Monitor all booking activity for compliance and debugging</p>
         </div>
         
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => handleExport('csv')}>
+          <Button variant="outline" onClick={() => handleExport('csv')} size="sm">
             <Download className="h-4 w-4 mr-2" />
-            Export CSV
+            <span className="hidden sm:inline">Export CSV</span>
+            <span className="sm:hidden">CSV</span>
           </Button>
-          <Button variant="outline" onClick={() => handleExport('pdf')}>
+          <Button variant="outline" onClick={() => handleExport('pdf')} size="sm">
             <FileText className="h-4 w-4 mr-2" />
-            Export PDF
+            <span className="hidden sm:inline">Export PDF</span>
+            <span className="sm:hidden">PDF</span>
           </Button>
         </div>
       </div>
 
       {/* Filters */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="flex gap-4">
+        <CardContent className="pt-4 md:pt-6">
+          <div className="flex flex-col md:flex-row gap-3 md:gap-4">
             <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -137,65 +139,91 @@ const BookingAuditLogs = () => {
                 />
               </div>
             </div>
-            <Select value={actionFilter} onValueChange={setActionFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by action" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Actions</SelectItem>
-                <SelectItem value="created">Created</SelectItem>
-                <SelectItem value="modified">Modified</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
-                <SelectItem value="checked in">Checked In</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={dateRange} onValueChange={setDateRange}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Date range" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1day">Last 24 hours</SelectItem>
-                <SelectItem value="7days">Last 7 days</SelectItem>
-                <SelectItem value="30days">Last 30 days</SelectItem>
-                <SelectItem value="90days">Last 90 days</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2 md:gap-4">
+              <Select value={actionFilter} onValueChange={setActionFilter}>
+                <SelectTrigger className="w-full md:w-48">
+                  <SelectValue placeholder="Filter by action" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Actions</SelectItem>
+                  <SelectItem value="created">Created</SelectItem>
+                  <SelectItem value="modified">Modified</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                  <SelectItem value="checked in">Checked In</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={dateRange} onValueChange={setDateRange}>
+                <SelectTrigger className="w-full md:w-48">
+                  <SelectValue placeholder="Date range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1day">Last 24 hours</SelectItem>
+                  <SelectItem value="7days">Last 7 days</SelectItem>
+                  <SelectItem value="30days">Last 30 days</SelectItem>
+                  <SelectItem value="90days">Last 90 days</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Audit Logs Table */}
       <Card>
-        <CardHeader>
-          <CardTitle>Audit Logs ({filteredLogs.length})</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg md:text-xl">Audit Logs ({filteredLogs.length})</CardTitle>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Timestamp</TableHead>
-                <TableHead>User</TableHead>
-                <TableHead>Organization</TableHead>
-                <TableHead>Action</TableHead>
-                <TableHead>Resource</TableHead>
-                <TableHead>Details</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredLogs.map((log) => (
-                <TableRow key={log.id}>
-                  <TableCell className="font-mono text-sm">{log.timestamp}</TableCell>
-                  <TableCell>{log.user}</TableCell>
-                  <TableCell>{log.organization}</TableCell>
-                  <TableCell>{getActionBadge(log.action)}</TableCell>
-                  <TableCell className="font-medium">{log.resource}</TableCell>
-                  <TableCell className="max-w-xs truncate">{log.details}</TableCell>
-                  <TableCell>{getStatusBadge(log.status)}</TableCell>
+        <CardContent className="p-0">
+          {/* Mobile Card View */}
+          <div className="block md:hidden space-y-3 p-4">
+            {filteredLogs.map((log) => (
+              <Card key={log.id} className="p-3">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="font-medium text-sm">{log.user}</div>
+                    {getStatusBadge(log.status)}
+                  </div>
+                  <div className="text-xs text-gray-500">{log.organization}</div>
+                  <div className="flex items-center gap-2">
+                    {getActionBadge(log.action)}
+                    <span className="text-sm font-medium">{log.resource}</span>
+                  </div>
+                  <div className="text-xs text-gray-600 truncate">{log.details}</div>
+                  <div className="text-xs text-gray-500 font-mono">{log.timestamp}</div>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Timestamp</TableHead>
+                  <TableHead>User</TableHead>
+                  <TableHead>Organization</TableHead>
+                  <TableHead>Action</TableHead>
+                  <TableHead>Resource</TableHead>
+                  <TableHead>Details</TableHead>
+                  <TableHead>Status</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredLogs.map((log) => (
+                  <TableRow key={log.id}>
+                    <TableCell className="font-mono text-sm">{log.timestamp}</TableCell>
+                    <TableCell>{log.user}</TableCell>
+                    <TableCell>{log.organization}</TableCell>
+                    <TableCell>{getActionBadge(log.action)}</TableCell>
+                    <TableCell className="font-medium">{log.resource}</TableCell>
+                    <TableCell className="max-w-xs truncate">{log.details}</TableCell>
+                    <TableCell>{getStatusBadge(log.status)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

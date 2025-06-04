@@ -128,17 +128,17 @@ const SecurityCenter = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold">Security Center</h2>
-        <p className="text-gray-600">Monitor security events and audit system access</p>
+        <h2 className="text-xl md:text-2xl font-bold">Security Center</h2>
+        <p className="text-sm md:text-base text-gray-600">Monitor security events and audit system access</p>
       </div>
 
       {/* Security Alerts */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
             <AlertTriangle className="h-5 w-5" />
             Active Security Alerts
           </CardTitle>
@@ -147,15 +147,15 @@ const SecurityCenter = () => {
           <div className="space-y-3">
             {securityAlerts.map((alert) => (
               <Alert key={alert.id}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Shield className="h-4 w-4" />
-                    <div>
-                      <AlertDescription className="font-medium">{alert.message}</AlertDescription>
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <Shield className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <AlertDescription className="font-medium text-sm">{alert.message}</AlertDescription>
                       <p className="text-xs text-gray-500 mt-1">{alert.timestamp}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 ml-7 md:ml-0">
                     {getAlertBadge(alert.type)}
                     {getStatusBadge(alert.status)}
                   </div>
@@ -168,15 +168,15 @@ const SecurityCenter = () => {
 
       {/* Failed Login Attempts */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
             <Ban className="h-5 w-5" />
             Failed Login Attempts
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="mb-4">
-            <div className="flex gap-4">
+            <div className="flex flex-col md:flex-row gap-3 md:gap-4">
               <div className="flex-1">
                 <div className="relative">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -189,7 +189,7 @@ const SecurityCenter = () => {
                 </div>
               </div>
               <Select value={timeRange} onValueChange={setTimeRange}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-full md:w-48">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -202,54 +202,81 @@ const SecurityCenter = () => {
             </div>
           </div>
           
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Username</TableHead>
-                <TableHead>IP Address</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Attempts</TableHead>
-                <TableHead>Timestamp</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {failedLogins.map((login) => (
-                <TableRow key={login.id}>
-                  <TableCell className="font-medium">{login.username}</TableCell>
-                  <TableCell className="font-mono">{login.ipAddress}</TableCell>
-                  <TableCell>{login.location}</TableCell>
-                  <TableCell>
-                    <Badge variant={login.attempts > 5 ? "destructive" : "secondary"}>
-                      {login.attempts}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="font-mono text-sm">{login.timestamp}</TableCell>
-                  <TableCell>
+          {/* Mobile Card View */}
+          <div className="block md:hidden space-y-3">
+            {failedLogins.map((login) => (
+              <Card key={login.id} className="p-3">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="font-medium text-sm truncate">{login.username}</div>
                     {login.blocked ? (
-                      <Badge variant="destructive">Blocked</Badge>
+                      <Badge variant="destructive" className="text-xs">Blocked</Badge>
                     ) : (
-                      <Badge variant="outline">Active</Badge>
+                      <Badge variant="outline" className="text-xs">Active</Badge>
                     )}
-                  </TableCell>
+                  </div>
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <div>IP: {login.ipAddress}</div>
+                    <div>Location: {login.location}</div>
+                    <div>Attempts: <Badge variant={login.attempts > 5 ? "destructive" : "secondary"} className="text-xs">{login.attempts}</Badge></div>
+                    <div className="font-mono">{login.timestamp}</div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Username</TableHead>
+                  <TableHead>IP Address</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Attempts</TableHead>
+                  <TableHead>Timestamp</TableHead>
+                  <TableHead>Status</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {failedLogins.map((login) => (
+                  <TableRow key={login.id}>
+                    <TableCell className="font-medium">{login.username}</TableCell>
+                    <TableCell className="font-mono">{login.ipAddress}</TableCell>
+                    <TableCell>{login.location}</TableCell>
+                    <TableCell>
+                      <Badge variant={login.attempts > 5 ? "destructive" : "secondary"}>
+                        {login.attempts}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-mono text-sm">{login.timestamp}</TableCell>
+                    <TableCell>
+                      {login.blocked ? (
+                        <Badge variant="destructive">Blocked</Badge>
+                      ) : (
+                        <Badge variant="outline">Active</Badge>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
       {/* API Request Logs */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
             <Activity className="h-5 w-5" />
             API Request Logs
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="mb-4">
-            <div className="flex gap-4">
+            <div className="flex flex-col md:flex-row gap-3 md:gap-4">
               <div className="flex-1">
                 <div className="relative">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -260,7 +287,7 @@ const SecurityCenter = () => {
                 </div>
               </div>
               <Select value={logType} onValueChange={setLogType}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-full md:w-48">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -273,32 +300,57 @@ const SecurityCenter = () => {
             </div>
           </div>
           
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Endpoint</TableHead>
-                <TableHead>Method</TableHead>
-                <TableHead>IP Address</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Response Time</TableHead>
-                <TableHead>Timestamp</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {apiLogs.map((log) => (
-                <TableRow key={log.id}>
-                  <TableCell className="font-mono text-sm">{log.endpoint}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{log.method}</Badge>
-                  </TableCell>
-                  <TableCell className="font-mono">{log.ipAddress}</TableCell>
-                  <TableCell>{getHttpStatusBadge(log.status)}</TableCell>
-                  <TableCell>{log.responseTime}</TableCell>
-                  <TableCell className="font-mono text-sm">{log.timestamp}</TableCell>
+          {/* Mobile Card View */}
+          <div className="block md:hidden space-y-3">
+            {apiLogs.map((log) => (
+              <Card key={log.id} className="p-3">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="font-mono text-sm truncate">{log.endpoint}</div>
+                    {getHttpStatusBadge(log.status)}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">{log.method}</Badge>
+                    <span className="text-xs text-gray-500">{log.responseTime}</span>
+                  </div>
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <div>IP: {log.ipAddress}</div>
+                    <div className="font-mono">{log.timestamp}</div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Endpoint</TableHead>
+                  <TableHead>Method</TableHead>
+                  <TableHead>IP Address</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Response Time</TableHead>
+                  <TableHead>Timestamp</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {apiLogs.map((log) => (
+                  <TableRow key={log.id}>
+                    <TableCell className="font-mono text-sm">{log.endpoint}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{log.method}</Badge>
+                    </TableCell>
+                    <TableCell className="font-mono">{log.ipAddress}</TableCell>
+                    <TableCell>{getHttpStatusBadge(log.status)}</TableCell>
+                    <TableCell>{log.responseTime}</TableCell>
+                    <TableCell className="font-mono text-sm">{log.timestamp}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>
