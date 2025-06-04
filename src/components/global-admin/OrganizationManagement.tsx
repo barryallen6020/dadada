@@ -1,37 +1,62 @@
-
 import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { Plus } from 'lucide-react';
 import OrganizationFilters from './OrganizationFilters';
 import OrganizationTable from './OrganizationTable';
 import AddOrganizationModal from './AddOrganizationModal';
 import OrganizationDetailsModal from './OrganizationDetailsModal';
 
+interface Organization {
+  id: number;
+  name: string;
+  type: string;
+  status: string;
+  users: number;
+  created: string;
+  verified: boolean;
+  email?: string;
+  phone?: string;
+  address?: string;
+  description?: string;
+  subscription?: string;
+  lastActivity?: string;
+}
+
+interface NewOrganization {
+  name: string;
+  type: string;
+  description: string;
+}
+
 const OrganizationManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [selectedOrganization, setSelectedOrganization] = useState(null);
-  const [newOrg, setNewOrg] = useState({ name: '', type: 'private', description: '' });
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedOrganization, setSelectedOrganization] = useState<Organization | null>(null);
+  const [newOrg, setNewOrg] = useState<NewOrganization>({
+    name: '',
+    type: '',
+    description: ''
+  });
 
-  // Mock data with extended information for details modal
-  const organizations = [
+  // Mock data
+  const organizations: Organization[] = [
     { 
       id: 1, 
       name: 'TechCorp Inc', 
-      type: 'Enterprise', 
+      type: 'Private', 
       status: 'Active', 
-      users: 150, 
+      users: 245, 
       created: '2024-01-15', 
       verified: true,
       email: 'admin@techcorp.com',
-      phone: '+234 901 234 5678',
-      address: '123 Victoria Island, Lagos, Nigeria',
-      description: 'Leading technology corporation in Nigeria',
-      subscription: 'Enterprise Plan',
-      lastActivity: '2 hours ago'
+      phone: '+234 801 234 5678',
+      address: 'Victoria Island, Lagos',
+      description: 'Leading technology company specializing in software development',
+      subscription: 'Enterprise',
+      lastActivity: '2024-06-01'
     },
     { 
       id: 2, 
@@ -95,50 +120,46 @@ const OrganizationManagement = () => {
     },
   ];
 
-  const filteredOrgs = organizations.filter(org => {
+  const filteredOrganizations = organizations.filter(org => {
     const matchesSearch = org.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || org.status.toLowerCase() === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
+  const handleViewDetails = (org: Organization) => {
+    setSelectedOrganization(org);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleImpersonate = (org: Organization) => {
+    console.log('Impersonating organization:', org);
+  };
+
+  const handleDeactivate = (org: Organization) => {
+    console.log('Deactivating organization:', org);
+  };
+
   const handleAddOrganization = () => {
     console.log('Adding organization:', newOrg);
     setIsAddModalOpen(false);
-    setNewOrg({ name: '', type: 'private', description: '' });
-  };
-
-  const handleViewDetails = (org) => {
-    setSelectedOrganization(org);
-    setIsDetailsModalOpen(true);
-  };
-
-  const handleImpersonate = (org) => {
-    console.log('Impersonating organization:', org.name);
-    // Implement impersonation logic here
-  };
-
-  const handleDeactivate = (org) => {
-    console.log('Deactivating organization:', org.name);
-    // Implement deactivation logic here
+    setNewOrg({ name: '', type: '', description: '' });
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header and Controls */}
-      <div className="flex justify-between items-center">
+    <div className="space-y-4 md:space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold">Organization Management</h2>
-          <p className="text-gray-600">Manage all organizations on the platform</p>
+          <h2 className="text-xl md:text-2xl font-bold">Organization Management</h2>
+          <p className="text-sm md:text-base text-gray-600">Manage all organizations on the platform</p>
         </div>
-        
-        <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Organization
-            </Button>
-          </DialogTrigger>
-        </Dialog>
+        <Button 
+          onClick={() => setIsAddModalOpen(true)} 
+          className="w-full md:w-auto"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Organization
+        </Button>
       </div>
 
       {/* Filters */}
@@ -150,12 +171,19 @@ const OrganizationManagement = () => {
       />
 
       {/* Organizations Table */}
-      <OrganizationTable
-        organizations={filteredOrgs}
-        onViewDetails={handleViewDetails}
-        onImpersonate={handleImpersonate}
-        onDeactivate={handleDeactivate}
-      />
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg md:text-xl">Organizations ({filteredOrganizations.length})</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <OrganizationTable
+            organizations={filteredOrganizations}
+            onViewDetails={handleViewDetails}
+            onImpersonate={handleImpersonate}
+            onDeactivate={handleDeactivate}
+          />
+        </CardContent>
+      </Card>
 
       {/* Add Organization Modal */}
       <AddOrganizationModal
@@ -168,8 +196,8 @@ const OrganizationManagement = () => {
 
       {/* Organization Details Modal */}
       <OrganizationDetailsModal
-        isOpen={isDetailsModalOpen}
-        onClose={() => setIsDetailsModalOpen(false)}
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
         organization={selectedOrganization}
       />
     </div>

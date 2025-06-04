@@ -20,8 +20,8 @@ const OrganizationFilters: React.FC<OrganizationFiltersProps> = ({
 }) => {
   return (
     <Card>
-      <CardContent className="pt-6">
-        <div className="flex gap-4">
+      <CardContent className="pt-4 md:pt-6">
+        <div className="flex flex-col md:flex-row gap-3 md:gap-4">
           <div className="flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -34,7 +34,7 @@ const OrganizationFilters: React.FC<OrganizationFiltersProps> = ({
             </div>
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-full md:w-48">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>

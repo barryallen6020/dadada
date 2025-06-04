@@ -43,78 +43,85 @@ const GlobalAdminDashboard = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-        <Card>
+    <div className="space-y-4 md:space-y-6">
+      {/* KPI Cards - Responsive Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6">
+        <Card className="col-span-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Organizations</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs md:text-sm font-medium">Organizations</CardTitle>
+            <Building2 className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{kpiData.totalOrganizations}</div>
+            <div className="text-lg md:text-2xl font-bold">{kpiData.totalOrganizations}</div>
             <p className="text-xs text-muted-foreground">+12% from last month</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="col-span-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs md:text-sm font-medium">Total Users</CardTitle>
+            <Users className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{kpiData.totalUsers.toLocaleString()}</div>
+            <div className="text-lg md:text-2xl font-bold">{kpiData.totalUsers.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">+18% from last month</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="col-span-2 md:col-span-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Bookings</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs md:text-sm font-medium">Bookings</CardTitle>
+            <Calendar className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{kpiData.totalBookings.toLocaleString()}</div>
+            <div className="text-lg md:text-2xl font-bold">{kpiData.totalBookings.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">+8% from last month</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="col-span-1 md:col-span-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs md:text-sm font-medium">Monthly Revenue</CardTitle>
+            <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₦{kpiData.monthlyRevenue.toLocaleString()}</div>
+            <div className="text-lg md:text-2xl font-bold">₦{kpiData.monthlyRevenue.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">+15% from last month</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="col-span-1 md:col-span-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">System Health</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-500" />
+            <CardTitle className="text-xs md:text-sm font-medium">System Health</CardTitle>
+            <CheckCircle className="h-3 w-3 md:h-4 md:w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{kpiData.systemHealth}%</div>
+            <div className="text-lg md:text-2xl font-bold">{kpiData.systemHealth}%</div>
             <p className="text-xs text-green-600">Excellent</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Charts - Responsive Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Booking Trends</CardTitle>
-            <CardDescription>Monthly booking volume over time</CardDescription>
+            <CardTitle className="text-lg md:text-xl">Booking Trends</CardTitle>
+            <CardDescription className="text-sm">Monthly booking volume over time</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <LineChart data={usageData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
+                <XAxis 
+                  dataKey="month" 
+                  fontSize={12}
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis 
+                  fontSize={12}
+                  tick={{ fontSize: 12 }}
+                />
                 <Tooltip />
                 <Line type="monotone" dataKey="bookings" stroke="#8884d8" strokeWidth={2} />
               </LineChart>
@@ -124,15 +131,22 @@ const GlobalAdminDashboard = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Revenue Trends</CardTitle>
-            <CardDescription>Monthly revenue growth</CardDescription>
+            <CardTitle className="text-lg md:text-xl">Revenue Trends</CardTitle>
+            <CardDescription className="text-sm">Monthly revenue growth</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <AreaChart data={usageData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
+                <XAxis 
+                  dataKey="month" 
+                  fontSize={12}
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis 
+                  fontSize={12}
+                  tick={{ fontSize: 12 }}
+                />
                 <Tooltip formatter={(value) => [`₦${value.toLocaleString()}`, 'Revenue']} />
                 <Area type="monotone" dataKey="revenue" stroke="#82ca9d" fill="#82ca9d" fillOpacity={0.3} />
               </AreaChart>
@@ -141,22 +155,25 @@ const GlobalAdminDashboard = () => {
         </Card>
       </div>
 
-      {/* Alerts */}
+      {/* Alerts - Compact on Mobile */}
       <Card>
         <CardHeader>
-          <CardTitle>System Alerts</CardTitle>
-          <CardDescription>Recent alerts and notifications</CardDescription>
+          <CardTitle className="text-lg md:text-xl">System Alerts</CardTitle>
+          <CardDescription className="text-sm">Recent alerts and notifications</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             {alerts.map((alert, index) => (
-              <Alert key={index}>
+              <Alert key={index} className="p-3 md:p-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
                     {getAlertIcon(alert.type)}
-                    <AlertDescription>{alert.message}</AlertDescription>
+                    <AlertDescription className="text-sm truncate pr-2">{alert.message}</AlertDescription>
                   </div>
-                  <Badge variant={alert.type === 'error' ? 'destructive' : alert.type === 'warning' ? 'secondary' : 'default'}>
+                  <Badge 
+                    variant={alert.type === 'error' ? 'destructive' : alert.type === 'warning' ? 'secondary' : 'default'}
+                    className="flex-shrink-0"
+                  >
                     {alert.count}
                   </Badge>
                 </div>
