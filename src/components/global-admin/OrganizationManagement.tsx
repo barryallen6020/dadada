@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,20 +9,93 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Plus, Eye, UserCheck, Ban, MoreHorizontal } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import OrganizationDetailsModal from './OrganizationDetailsModal';
 
 const OrganizationManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedOrganization, setSelectedOrganization] = useState(null);
   const [newOrg, setNewOrg] = useState({ name: '', type: 'private', description: '' });
 
-  // Mock data
+  // Mock data with extended information for details modal
   const organizations = [
-    { id: 1, name: 'TechCorp Inc', type: 'Enterprise', status: 'Active', users: 150, created: '2024-01-15', verified: true },
-    { id: 2, name: 'StartupHub', type: 'Startup', status: 'Active', users: 45, created: '2024-02-20', verified: true },
-    { id: 3, name: 'DesignStudio', type: 'Creative', status: 'Pending', users: 12, created: '2024-03-10', verified: false },
-    { id: 4, name: 'ConsultFirm', type: 'Professional', status: 'Inactive', users: 78, created: '2024-01-05', verified: true },
-    { id: 5, name: 'EduTech', type: 'Education', status: 'Active', users: 200, created: '2024-02-01', verified: true },
+    { 
+      id: 1, 
+      name: 'TechCorp Inc', 
+      type: 'Enterprise', 
+      status: 'Active', 
+      users: 150, 
+      created: '2024-01-15', 
+      verified: true,
+      email: 'admin@techcorp.com',
+      phone: '+234 901 234 5678',
+      address: '123 Victoria Island, Lagos, Nigeria',
+      description: 'Leading technology corporation in Nigeria',
+      subscription: 'Enterprise Plan',
+      lastActivity: '2 hours ago'
+    },
+    { 
+      id: 2, 
+      name: 'StartupHub', 
+      type: 'Startup', 
+      status: 'Active', 
+      users: 45, 
+      created: '2024-02-20', 
+      verified: true,
+      email: 'contact@startuphub.ng',
+      phone: '+234 802 345 6789',
+      address: '45 Ikoyi Road, Lagos, Nigeria',
+      description: 'Innovation hub for Nigerian startups',
+      subscription: 'Pro Plan',
+      lastActivity: '1 day ago'
+    },
+    { 
+      id: 3, 
+      name: 'DesignStudio', 
+      type: 'Creative', 
+      status: 'Pending', 
+      users: 12, 
+      created: '2024-03-10', 
+      verified: false,
+      email: 'hello@designstudio.ng',
+      phone: '+234 703 456 7890',
+      address: '78 Allen Avenue, Ikeja, Lagos',
+      description: 'Creative design agency',
+      subscription: 'Basic Plan',
+      lastActivity: '3 days ago'
+    },
+    { 
+      id: 4, 
+      name: 'ConsultFirm', 
+      type: 'Professional', 
+      status: 'Inactive', 
+      users: 78, 
+      created: '2024-01-05', 
+      verified: true,
+      email: 'info@consultfirm.ng',
+      phone: '+234 804 567 8901',
+      address: '12 Broad Street, Lagos Island',
+      description: 'Professional consulting services',
+      subscription: 'Pro Plan',
+      lastActivity: '2 weeks ago'
+    },
+    { 
+      id: 5, 
+      name: 'EduTech', 
+      type: 'Education', 
+      status: 'Active', 
+      users: 200, 
+      created: '2024-02-01', 
+      verified: true,
+      email: 'admin@edutech.ng',
+      phone: '+234 905 678 9012',
+      address: '90 University Road, Ibadan',
+      description: 'Educational technology platform',
+      subscription: 'Enterprise Plan',
+      lastActivity: '30 minutes ago'
+    },
   ];
 
   const filteredOrgs = organizations.filter(org => {
@@ -46,6 +118,21 @@ const OrganizationManagement = () => {
       case 'Pending': return <Badge variant="outline">Pending</Badge>;
       default: return <Badge variant="secondary">{status}</Badge>;
     }
+  };
+
+  const handleViewDetails = (org) => {
+    setSelectedOrganization(org);
+    setIsDetailsModalOpen(true);
+  };
+
+  const handleImpersonate = (org) => {
+    console.log('Impersonating organization:', org.name);
+    // Implement impersonation logic here
+  };
+
+  const handleDeactivate = (org) => {
+    console.log('Deactivating organization:', org.name);
+    // Implement deactivation logic here
   };
 
   return (
@@ -180,15 +267,15 @@ const OrganizationManagement = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleViewDetails(org)}>
                           <Eye className="h-4 w-4 mr-2" />
                           View Details
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleImpersonate(org)}>
                           <UserCheck className="h-4 w-4 mr-2" />
                           Impersonate
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
+                        <DropdownMenuItem className="text-red-600" onClick={() => handleDeactivate(org)}>
                           <Ban className="h-4 w-4 mr-2" />
                           Deactivate
                         </DropdownMenuItem>
@@ -201,6 +288,13 @@ const OrganizationManagement = () => {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Organization Details Modal */}
+      <OrganizationDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        organization={selectedOrganization}
+      />
     </div>
   );
 };

@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Shield, LayoutDashboard, Building2, Users, FileText, Settings, Lock, LogOut, Menu, X } from 'lucide-react';
+import { Shield, LayoutDashboard, Building2, Users, FileText, Settings, Lock, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import LogoutConfirmationModal from '@/components/global-admin/LogoutConfirmationModal';
+import LogoFull from '@/components/common/LogoFull';
+
 interface GlobalAdminLayoutProps {
   children: React.ReactNode;
   activeTab: string;
@@ -65,34 +67,54 @@ const GlobalAdminLayout: React.FC<GlobalAdminLayoutProps> = ({
       <div className={`fixed left-0 top-0 h-full bg-white shadow-lg transition-all duration-300 z-40 ${isSidebarOpen ? 'w-64' : 'w-16'}`}>
         <div className="p-6 border-b flex items-center justify-between">
           <div className={`flex items-center gap-3 ${!isSidebarOpen && 'justify-center'}`}>
-            
-            {isSidebarOpen && <div>
-                <h1 className="text-xl font-bold">Global Admin</h1>
-                
-              </div>}
+            {isSidebarOpen && (
+              <LogoFull className="text-lg" />
+            )}
+            {!isSidebarOpen && (
+              <img src="/logo.svg" alt="DeskHive Logo" className="h-8 w-8" />
+            )}
           </div>
-          <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="flex-shrink-0">
-            {isSidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
+            className="flex-shrink-0"
+          >
+            {isSidebarOpen ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </Button>
         </div>
         
-        <nav className="mt-6 flex-1">
-          {menuItems.map(item => {
-          const Icon = item.icon;
-          return <button key={item.id} onClick={() => setActiveTab(item.id)} className={`w-full flex items-center gap-3 px-6 py-3 text-left hover:bg-gray-50 transition-colors ${activeTab === item.id ? 'bg-primary/10 text-primary border-r-2 border-primary' : 'text-gray-700'} ${!isSidebarOpen && 'justify-center px-4'}`} title={!isSidebarOpen ? item.label : undefined}>
-                <Icon className="h-5 w-5 flex-shrink-0" />
-                {isSidebarOpen && <span>{item.label}</span>}
-              </button>;
-        })}
-        </nav>
+        <nav className="mt-6 flex-1 flex flex-col">
+          <div className="flex-1">
+            {menuItems.map(item => {
+              const Icon = item.icon;
+              return (
+                <button 
+                  key={item.id} 
+                  onClick={() => setActiveTab(item.id)} 
+                  className={`w-full flex items-center gap-3 px-6 py-3 text-left hover:bg-gray-50 transition-colors ${activeTab === item.id ? 'bg-primary/10 text-primary border-r-2 border-primary' : 'text-gray-700'} ${!isSidebarOpen && 'justify-center px-4'}`} 
+                  title={!isSidebarOpen ? item.label : undefined}
+                >
+                  <Icon className="h-5 w-5 flex-shrink-0" />
+                  {isSidebarOpen && <span>{item.label}</span>}
+                </button>
+              );
+            })}
+          </div>
 
-        {/* Logout Button at Bottom */}
-        <div className="p-4 border-t">
-          <Button variant="ghost" onClick={() => setShowLogoutModal(true)} className={`w-full flex items-center gap-3 text-red-600 hover:bg-red-50 hover:text-red-700 ${!isSidebarOpen && 'justify-center px-4'}`} title={!isSidebarOpen ? 'Log out' : undefined}>
-            <LogOut className="h-5 w-5 flex-shrink-0" />
-            {isSidebarOpen && <span>Log out</span>}
-          </Button>
-        </div>
+          {/* Logout Button at Bottom */}
+          <div className="p-4 border-t mt-auto">
+            <Button 
+              variant="ghost" 
+              onClick={() => setShowLogoutModal(true)} 
+              className={`w-full flex items-center gap-3 text-red-600 hover:bg-red-50 hover:text-red-700 ${!isSidebarOpen && 'justify-center px-4'}`} 
+              title={!isSidebarOpen ? 'Log out' : undefined}
+            >
+              <LogOut className="h-5 w-5 flex-shrink-0" />
+              {isSidebarOpen && <span>Log out</span>}
+            </Button>
+          </div>
+        </nav>
       </div>
 
       {/* Main Content */}
@@ -135,7 +157,11 @@ const GlobalAdminLayout: React.FC<GlobalAdminLayoutProps> = ({
       </div>
 
       {/* Logout Confirmation Modal */}
-      <LogoutConfirmationModal isOpen={showLogoutModal} onConfirm={confirmLogout} onCancel={() => setShowLogoutModal(false)} />
+      <LogoutConfirmationModal 
+        isOpen={showLogoutModal} 
+        onConfirm={confirmLogout} 
+        onCancel={() => setShowLogoutModal(false)} 
+      />
     </div>;
 };
 export default GlobalAdminLayout;
