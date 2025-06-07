@@ -52,8 +52,13 @@ const GlobalAdminLayout: React.FC<GlobalAdminLayoutProps> = ({
 
   const handleMenuItemClick = (itemId: string) => {
     setActiveTab(itemId);
-    setIsMobileSidebarOpen(false); // Close mobile sidebar on item click
+    setIsMobileSidebarOpen(false);
   };
+
+  // Clone children with sidebar state
+  const childrenWithProps = React.cloneElement(children as React.ReactElement, {
+    isSidebarCollapsed: !isSidebarOpen
+  });
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -158,11 +163,11 @@ const GlobalAdminLayout: React.FC<GlobalAdminLayoutProps> = ({
       </div>
 
       {/* Main Content */}
-      <div className={`flex-1 flex flex-col transition-all duration-300 md:ml-64 ${!isSidebarOpen ? 'md:ml-16' : ''}`}>
+      <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarOpen ? 'md:ml-64' : 'md:ml-16'}`}>
         {/* Header */}
-        <header className="bg-white shadow-sm border-b px-4 md:px-6 py-4 sticky top-0 z-30">
+        <header className="bg-white shadow-sm border-b px-3 md:px-6 py-3 md:py-4 sticky top-0 z-30">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
               <Button 
                 variant="ghost" 
                 size="icon" 
@@ -171,7 +176,7 @@ const GlobalAdminLayout: React.FC<GlobalAdminLayoutProps> = ({
               >
                 <Menu className="h-5 w-5" />
               </Button>
-              <h2 className="text-lg md:text-2xl font-semibold text-gray-900">
+              <h2 className="text-base md:text-lg lg:text-2xl font-semibold text-gray-900 truncate">
                 {menuItems.find(item => item.id === activeTab)?.label || 'Dashboard'}
               </h2>
             </div>
@@ -179,8 +184,8 @@ const GlobalAdminLayout: React.FC<GlobalAdminLayoutProps> = ({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-primary text-primary-foreground">
+                  <Avatar className="h-7 w-7 md:h-8 md:w-8">
+                    <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                       GA
                     </AvatarFallback>
                   </Avatar>
@@ -199,8 +204,8 @@ const GlobalAdminLayout: React.FC<GlobalAdminLayoutProps> = ({
         </header>
 
         {/* Content */}
-        <main className="flex-1 p-4 md:p-6 overflow-y-auto">
-          {children}
+        <main className="flex-1 p-3 md:p-4 lg:p-6 overflow-y-auto">
+          {childrenWithProps}
         </main>
       </div>
 
