@@ -39,9 +39,15 @@ import GlobalAdminLogin from "./pages/GlobalAdminLogin";
 import GlobalAdmin from "./pages/GlobalAdmin";
 
 // Hub manager pages
+import HubManagerLogin from "./pages/HubManagerLogin";
 import HubManagerDashboard from "./pages/hubmanager/HubManagerDashboard";
-import HubManagerActivity from "./pages/hubmanager/HubManagerActivity";
+import HubManagerWorkspaces from "./pages/hubmanager/HubManagerWorkspaces";
+import HubManagerBookings from "./pages/hubmanager/HubManagerBookings";
 import HubManagerCheckIn from "./pages/hubmanager/HubManagerCheckIn";
+import HubManagerMaintenance from "./pages/hubmanager/HubManagerMaintenance";
+import HubManagerUsers from "./pages/hubmanager/HubManagerUsers";
+import HubManagerReports from "./pages/hubmanager/HubManagerReports";
+import HubManagerActivity from "./pages/hubmanager/HubManagerActivity";
 import HubManagerLearners from "./pages/hubmanager/HubManagerLearners";
 import HubManagerProfile from "./pages/hubmanager/HubManagerProfile";
 import HubManagerSettings from "./pages/hubmanager/HubManagerSettings";
@@ -102,13 +108,19 @@ function App() {
           <Route path="/global-admin/login" element={<GlobalAdminLogin />} />
           <Route path="/global-admin" element={<GlobalAdmin />} />
           
-          {/* Hub manager routes */}
-          <Route path="/hub-manager" element={<HubManagerDashboard />} />
-          <Route path="/hub-manager/activity" element={<HubManagerActivity />} />
-          <Route path="/hub-manager/check-in" element={<HubManagerCheckIn />} />
-          <Route path="/hub-manager/learners" element={<HubManagerLearners />} />
-          <Route path="/hub-manager/profile" element={<HubManagerProfile />} />
-          <Route path="/hub-manager/settings" element={<HubManagerSettings />} />
+          {/* Hub Manager routes */}
+          <Route path="/hubmanager/login" element={<HubManagerLogin />} />
+          <Route path="/hubmanager" element={<HubManagerDashboard />} />
+          <Route path="/hubmanager/workspaces" element={<HubManagerWorkspaces />} />
+          <Route path="/hubmanager/bookings" element={<HubManagerBookings />} />
+          <Route path="/hubmanager/check-in" element={<HubManagerCheckIn />} />
+          <Route path="/hubmanager/maintenance" element={<HubManagerMaintenance />} />
+          <Route path="/hubmanager/users" element={<HubManagerUsers />} />
+          <Route path="/hubmanager/reports" element={<HubManagerReports />} />
+          <Route path="/hubmanager/activity" element={<HubManagerActivity />} />
+          <Route path="/hubmanager/learners" element={<HubManagerLearners />} />
+          <Route path="/hubmanager/profile" element={<HubManagerProfile />} />
+          <Route path="/hubmanager/settings" element={<HubManagerSettings />} />
           
           {/* 404 */}
           <Route path="*" element={<NotFound />} />

@@ -12,6 +12,7 @@ import {
   AlertCircle,
   Users,
   QrCode,
+  Activity,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -40,7 +41,7 @@ const HubManagerLayout: React.FC<HubManagerLayoutProps> = ({ children }) => {
   const [isNavOpen, setIsNavOpen] = useState(!isMobile);
   const { currentOrganization } = useOrganization();
   
-  const userStr = localStorage.getItem("user");
+  const userStr = localStorage.getItem("hubManagerUser");
   const defaultUser = {name: "Hub Manager", email: "manager@example.com", role: "hubmanager"};
   const user = userStr ? JSON.parse(userStr) : defaultUser;
   
@@ -57,15 +58,15 @@ const HubManagerLayout: React.FC<HubManagerLayoutProps> = ({ children }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("user");
+    localStorage.removeItem("hubManagerToken");
+    localStorage.removeItem("hubManagerUser");
     
     toast({
       title: "Logged out successfully",
-      description: "You have been logged out of your account.",
+      description: "You have been logged out of Hub Manager.",
     });
     
-    navigate("/");
+    navigate("/hubmanager/login");
   };
 
   const menuItems = [
@@ -75,24 +76,34 @@ const HubManagerLayout: React.FC<HubManagerLayoutProps> = ({ children }) => {
       path: "/hubmanager",
     },
     {
-      title: "Check-In Learners",
+      title: "Workspaces",
+      icon: <Building2 className="h-5 w-5" />,
+      path: "/hubmanager/workspaces",
+    },
+    {
+      title: "Booking Queue",
+      icon: <Calendar className="h-5 w-5" />,
+      path: "/hubmanager/bookings",
+    },
+    {
+      title: "Check-In Operations",
       icon: <QrCode className="h-5 w-5" />,
       path: "/hubmanager/check-in",
     },
     {
-      title: "Hub Activity",
-      icon: <Calendar className="h-5 w-5" />,
-      path: "/hubmanager/activity",
-    },
-    {
-      title: "Manage Learners",
-      icon: <Users className="h-5 w-5" />,
-      path: "/hubmanager/learners",
-    },
-    {
-      title: "Settings",
+      title: "Maintenance",
       icon: <Settings className="h-5 w-5" />,
-      path: "/hubmanager/settings",
+      path: "/hubmanager/maintenance",
+    },
+    {
+      title: "User Management",
+      icon: <Users className="h-5 w-5" />,
+      path: "/hubmanager/users",
+    },
+    {
+      title: "Reports & Analytics",
+      icon: <Activity className="h-5 w-5" />,
+      path: "/hubmanager/reports",
     },
   ];
 
