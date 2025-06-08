@@ -89,10 +89,10 @@ const HubManagerWorkspaces = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'active': return <CheckCircle className="h-4 w-4" />;
-      case 'maintenance': return <AlertTriangle className="h-4 w-4" />;
-      case 'inactive': return <Clock className="h-4 w-4" />;
-      default: return <Activity className="h-4 w-4" />;
+      case 'active': return <CheckCircle className="h-3 w-3 md:h-4 md:w-4" />;
+      case 'maintenance': return <AlertTriangle className="h-3 w-3 md:h-4 md:w-4" />;
+      case 'inactive': return <Clock className="h-3 w-3 md:h-4 md:w-4" />;
+      default: return <Activity className="h-3 w-3 md:h-4 md:w-4" />;
     }
   };
 
@@ -102,113 +102,111 @@ const HubManagerWorkspaces = () => {
 
   return (
     <HubManagerLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6 px-2 sm:px-4">
         {/* Header */}
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 md:gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-deskhive-navy">Workspace Management</h1>
-            <p className="text-deskhive-darkgray">Monitor and control all workspaces in your hub</p>
+            <h1 className="text-xl md:text-2xl font-bold text-deskhive-navy">Workspace Management</h1>
+            <p className="text-xs md:text-sm text-deskhive-darkgray">Monitor and control all workspaces in your hub</p>
           </div>
-          <Button className="bg-deskhive-orange hover:bg-deskhive-orange/90">
-            <Settings className="h-4 w-4 mr-2" />
+          <Button className="bg-deskhive-orange hover:bg-deskhive-orange/90 text-xs md:text-sm" size="sm">
+            <Settings className="h-3 w-3 md:h-4 md:w-4 mr-2" />
             Hub Settings
           </Button>
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           <Card className="glass-nav border-white/20">
-            <CardContent className="p-4">
+            <CardContent className="p-3 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-deskhive-darkgray">Total Workspaces</p>
-                  <p className="text-2xl font-bold text-deskhive-navy">{workspaces.length}</p>
+                  <p className="text-xs md:text-sm text-deskhive-darkgray">Total Workspaces</p>
+                  <p className="text-lg md:text-2xl font-bold text-deskhive-navy">{workspaces.length}</p>
                 </div>
-                <Building2 className="h-8 w-8 text-deskhive-orange" />
+                <Building2 className="h-6 w-6 md:h-8 md:w-8 text-deskhive-orange" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="glass-nav border-white/20">
-            <CardContent className="p-4">
+            <CardContent className="p-3 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-deskhive-darkgray">Total Capacity</p>
-                  <p className="text-2xl font-bold text-deskhive-navy">
+                  <p className="text-xs md:text-sm text-deskhive-darkgray">Total Capacity</p>
+                  <p className="text-lg md:text-2xl font-bold text-deskhive-navy">
                     {workspaces.reduce((sum, w) => sum + w.capacity, 0)}
                   </p>
                 </div>
-                <Users className="h-8 w-8 text-deskhive-orange" />
+                <Users className="h-6 w-6 md:h-8 md:w-8 text-deskhive-orange" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="glass-nav border-white/20">
-            <CardContent className="p-4">
+            <CardContent className="p-3 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-deskhive-darkgray">Current Occupancy</p>
-                  <p className="text-2xl font-bold text-deskhive-navy">
+                  <p className="text-xs md:text-sm text-deskhive-darkgray">Current Occupancy</p>
+                  <p className="text-lg md:text-2xl font-bold text-deskhive-navy">
                     {workspaces.reduce((sum, w) => sum + w.currentOccupancy, 0)}
                   </p>
                 </div>
-                <Activity className="h-8 w-8 text-deskhive-orange" />
+                <Activity className="h-6 w-6 md:h-8 md:w-8 text-deskhive-orange" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="glass-nav border-white/20">
-            <CardContent className="p-4">
+            <CardContent className="p-3 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-deskhive-darkgray">Today's Bookings</p>
-                  <p className="text-2xl font-bold text-deskhive-navy">
+                  <p className="text-xs md:text-sm text-deskhive-darkgray">Today's Bookings</p>
+                  <p className="text-lg md:text-2xl font-bold text-deskhive-navy">
                     {workspaces.reduce((sum, w) => sum + w.todayBookings, 0)}
                   </p>
                 </div>
-                <Calendar className="h-8 w-8 text-deskhive-orange" />
+                <Calendar className="h-6 w-6 md:h-8 md:w-8 text-deskhive-orange" />
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Workspace List */}
-        <Tabs defaultValue="grid" className="space-y-4">
-          <TabsList className="glass-nav border-white/20">
+        <Tabs defaultValue="grid" className="space-y-3 md:space-y-4">
+          <TabsList className="glass-nav border-white/20 text-xs md:text-sm">
             <TabsTrigger value="grid">Grid View</TabsTrigger>
             <TabsTrigger value="list">List View</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="grid" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <TabsContent value="grid" className="space-y-3 md:space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
               {workspaces.map((workspace) => (
                 <Card key={workspace.id} className="glass-nav border-white/20 hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
+                  <CardHeader className="pb-2 md:pb-3">
                     <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-lg text-deskhive-navy">{workspace.name}</CardTitle>
-                        <div className="flex items-center gap-1 text-sm text-deskhive-darkgray mt-1">
+                      <div className="flex-1">
+                        <CardTitle className="text-base md:text-lg text-deskhive-navy truncate">{workspace.name}</CardTitle>
+                        <div className="flex items-center gap-1 text-xs md:text-sm text-deskhive-darkgray mt-1">
                           <MapPin className="h-3 w-3" />
-                          {workspace.location}
+                          <span className="truncate">{workspace.location}</span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={`${getStatusColor(workspace.status)} border-0`}>
-                          {getStatusIcon(workspace.status)}
-                          <span className="ml-1 capitalize">{workspace.status}</span>
-                        </Badge>
-                      </div>
+                      <Badge className={`${getStatusColor(workspace.status)} border-0 text-xs ml-2`}>
+                        {getStatusIcon(workspace.status)}
+                        <span className="ml-1 capitalize hidden sm:inline">{workspace.status}</span>
+                      </Badge>
                     </div>
                   </CardHeader>
                   
-                  <CardContent className="space-y-4">
-                    <div className="flex justify-between text-sm">
+                  <CardContent className="space-y-3 md:space-y-4">
+                    <div className="flex justify-between text-xs md:text-sm">
                       <span className="text-deskhive-darkgray">Type:</span>
                       <span className="font-medium text-deskhive-navy">{workspace.type}</span>
                     </div>
 
                     <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
+                      <div className="flex justify-between text-xs md:text-sm">
                         <span className="text-deskhive-darkgray">Occupancy:</span>
                         <span className="font-medium text-deskhive-navy">
                           {workspace.currentOccupancy}/{workspace.capacity} 
@@ -223,9 +221,9 @@ const HubManagerWorkspaces = () => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="grid grid-cols-2 gap-3 md:gap-4 text-xs md:text-sm">
                       <div>
-                        <span className="text-deskhive-darkgray">Today's Bookings:</span>
+                        <span className="text-deskhive-darkgray">Bookings:</span>
                         <p className="font-medium text-deskhive-navy">{workspace.todayBookings}</p>
                       </div>
                       <div>
@@ -234,20 +232,20 @@ const HubManagerWorkspaces = () => {
                       </div>
                     </div>
 
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-xs md:text-sm">
                       <span className="text-deskhive-darkgray">Monthly Revenue:</span>
                       <span className="font-medium text-deskhive-navy">₦{workspace.revenue.toLocaleString()}</span>
                     </div>
 
                     <div className="flex items-center justify-between pt-2 border-t border-white/20">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-deskhive-darkgray">Available:</span>
+                        <span className="text-xs md:text-sm text-deskhive-darkgray">Available:</span>
                         <Switch 
                           checked={workspace.status === 'active'}
                           onCheckedChange={() => toggleWorkspaceStatus(workspace.id)}
                         />
                       </div>
-                      <Button variant="outline" size="sm" className="border-deskhive-orange text-deskhive-orange hover:bg-deskhive-orange hover:text-white">
+                      <Button variant="outline" size="sm" className="border-deskhive-orange text-deskhive-orange hover:bg-deskhive-orange hover:text-white text-xs">
                         Manage
                       </Button>
                     </div>
@@ -257,28 +255,28 @@ const HubManagerWorkspaces = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="list" className="space-y-4">
+          <TabsContent value="list" className="space-y-3 md:space-y-4">
             <Card className="glass-nav border-white/20">
-              <CardHeader>
-                <CardTitle className="text-deskhive-navy">Workspace Overview</CardTitle>
-                <CardDescription>Detailed list view of all workspaces</CardDescription>
+              <CardHeader className="pb-3 md:pb-4">
+                <CardTitle className="text-deskhive-navy text-base md:text-lg">Workspace Overview</CardTitle>
+                <CardDescription className="text-xs md:text-sm">Detailed list view of all workspaces</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-3 md:space-y-4">
                   {workspaces.map((workspace) => (
-                    <div key={workspace.id} className="flex items-center justify-between p-4 border border-white/20 rounded-lg">
-                      <div className="flex items-center gap-4">
-                        <div>
-                          <h3 className="font-medium text-deskhive-navy">{workspace.name}</h3>
-                          <p className="text-sm text-deskhive-darkgray">{workspace.location} • {workspace.type}</p>
+                    <div key={workspace.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 md:p-4 border border-white/20 rounded-lg gap-3">
+                      <div className="flex items-center gap-3 md:gap-4">
+                        <div className="flex-1">
+                          <h3 className="font-medium text-deskhive-navy text-sm md:text-base">{workspace.name}</h3>
+                          <p className="text-xs md:text-sm text-deskhive-darkgray">{workspace.location} • {workspace.type}</p>
                         </div>
-                        <Badge className={`${getStatusColor(workspace.status)} border-0`}>
+                        <Badge className={`${getStatusColor(workspace.status)} border-0 text-xs`}>
                           {getStatusIcon(workspace.status)}
                           <span className="ml-1 capitalize">{workspace.status}</span>
                         </Badge>
                       </div>
                       
-                      <div className="flex items-center gap-6 text-sm">
+                      <div className="flex items-center justify-between sm:justify-end gap-4 md:gap-6 text-xs md:text-sm">
                         <div className="text-center">
                           <p className="text-deskhive-darkgray">Occupancy</p>
                           <p className="font-medium text-deskhive-navy">
@@ -293,13 +291,15 @@ const HubManagerWorkspaces = () => {
                           <p className="text-deskhive-darkgray">Revenue</p>
                           <p className="font-medium text-deskhive-navy">₦{workspace.revenue.toLocaleString()}</p>
                         </div>
-                        <Switch 
-                          checked={workspace.status === 'active'}
-                          onCheckedChange={() => toggleWorkspaceStatus(workspace.id)}
-                        />
-                        <Button variant="outline" size="sm" className="border-deskhive-orange text-deskhive-orange hover:bg-deskhive-orange hover:text-white">
-                          Manage
-                        </Button>
+                        <div className="flex items-center gap-2 md:gap-3">
+                          <Switch 
+                            checked={workspace.status === 'active'}
+                            onCheckedChange={() => toggleWorkspaceStatus(workspace.id)}
+                          />
+                          <Button variant="outline" size="sm" className="border-deskhive-orange text-deskhive-orange hover:bg-deskhive-orange hover:text-white text-xs">
+                            Manage
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ))}

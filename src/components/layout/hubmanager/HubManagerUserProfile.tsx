@@ -20,7 +20,7 @@ const HubManagerUserProfile = () => {
     : "HM";
 
   return (
-    <>
+    <div className="relative z-[110]">
       <div className="px-4 py-3 border-b border-white/20">
         <div className="flex items-center gap-2">
           <Building2 className="h-4 w-4 text-deskhive-navy" />
@@ -47,7 +47,7 @@ const HubManagerUserProfile = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
