@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Shield, LayoutDashboard, Building2, Users, FileText, Settings, Lock, LogOut, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Shield, LayoutDashboard, Building2, Users, FileText, Settings, Lock, LogOut, ChevronLeft, ChevronRight, X, Mail, UserCheck } from 'lucide-react';
 import LogoFull from '@/components/common/LogoFull';
 
 interface MenuItem {
@@ -33,6 +33,8 @@ const GlobalAdminSidebar: React.FC<GlobalAdminSidebarProps> = ({
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'organizations', label: 'Organizations', icon: Building2 },
     { id: 'users', label: 'User Management', icon: Users },
+    { id: 'waitlist', label: 'Waitlist Management', icon: UserCheck },
+    { id: 'emails', label: 'Email Management', icon: Mail },
     { id: 'audit-logs', label: 'Booking Audit', icon: FileText },
     { id: 'platform-settings', label: 'Platform Settings', icon: Settings },
     { id: 'security', label: 'Security Center', icon: Lock }

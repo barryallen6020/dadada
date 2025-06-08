@@ -8,6 +8,8 @@ import UserManagement from '@/components/global-admin/UserManagement';
 import BookingAuditLogs from '@/components/global-admin/BookingAuditLogs';
 import PlatformSettings from '@/components/global-admin/PlatformSettings';
 import SecurityCenter from '@/components/global-admin/SecurityCenter';
+import WaitlistManagement from '@/components/global-admin/WaitlistManagement';
+import EmailManagement from '@/components/global-admin/EmailManagement';
 
 const GlobalAdmin = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -26,6 +28,10 @@ const GlobalAdmin = () => {
         return <OrganizationManagement />;
       case 'users':
         return <UserManagement />;
+      case 'waitlist':
+        return <WaitlistManagement />;
+      case 'emails':
+        return <EmailManagement />;
       case 'audit-logs':
         return <BookingAuditLogs />;
       case 'platform-settings':

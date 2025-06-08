@@ -27,6 +27,8 @@ const GlobalAdminLayout: React.FC<GlobalAdminLayoutProps> = ({
     { id: 'dashboard', label: 'Dashboard' },
     { id: 'organizations', label: 'Organizations' },
     { id: 'users', label: 'User Management' },
+    { id: 'waitlist', label: 'Waitlist Management' },
+    { id: 'emails', label: 'Email Management' },
     { id: 'audit-logs', label: 'Booking Audit' },
     { id: 'platform-settings', label: 'Platform Settings' },
     { id: 'security', label: 'Security Center' }
