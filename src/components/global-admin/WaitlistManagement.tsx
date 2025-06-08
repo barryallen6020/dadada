@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -26,6 +25,9 @@ import {
 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
+import { useToast } from '@/hooks/use-toast';
+import WaitlistEntryDetailsModal from './waitlist-actions/WaitlistEntryDetailsModal';
+import SendEmailModal from './waitlist-actions/SendEmailModal';
 
 interface WaitlistEntry {
   id: string;
@@ -49,6 +51,10 @@ const WaitlistManagement: React.FC<WaitlistManagementProps> = ({ isSidebarCollap
   const [statusFilter, setStatusFilter] = useState('all');
   const [roleFilter, setRoleFilter] = useState('all');
   const [dateRange, setDateRange] = useState('30');
+  const [selectedEntry, setSelectedEntry] = useState<WaitlistEntry | null>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const { toast } = useToast();
 
   // Mock data for demonstration
   const waitlistStats = {
@@ -92,7 +98,8 @@ const WaitlistManagement: React.FC<WaitlistManagementProps> = ({ isSidebarCollap
       date: '2024-06-01',
       subscriptions: ['newsletter', 'updates'],
       status: 'pending',
-      source: 'Website'
+      source: 'Website',
+      notes: 'Very interested in enterprise features. Has a team of 50+ people.'
     },
     {
       id: '2',
@@ -117,6 +124,41 @@ const WaitlistManagement: React.FC<WaitlistManagementProps> = ({ isSidebarCollap
       source: 'Referral'
     },
   ];
+
+  const handleViewDetails = (entry: WaitlistEntry) => {
+    setSelectedEntry(entry);
+    setShowDetailsModal(true);
+  };
+
+  const handleSendEmail = (entry: WaitlistEntry) => {
+    setSelectedEntry(entry);
+    setShowEmailModal(true);
+  };
+
+  const handleMarkConverted = (entry: WaitlistEntry) => {
+    toast({
+      title: "Entry converted",
+      description: `${entry.name} has been marked as converted.`
+    });
+    console.log('Converting entry:', entry.id);
+  };
+
+  const handleDeleteEntry = (entry: WaitlistEntry) => {
+    toast({
+      title: "Entry deleted",
+      description: `${entry.name} has been removed from the waitlist.`,
+      variant: "destructive"
+    });
+    console.log('Deleting entry:', entry.id);
+  };
+
+  const handleSendEmailFromModal = (emailData: { subject: string; content: string; templateId?: string }) => {
+    toast({
+      title: "Email sent",
+      description: `Email sent successfully to ${selectedEntry?.name}.`
+    });
+    console.log('Sending email:', emailData, 'to:', selectedEntry?.id);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -332,7 +374,7 @@ const WaitlistManagement: React.FC<WaitlistManagementProps> = ({ isSidebarCollap
             </Select>
           </div>
 
-          {/* Entries Table */}
+          {/* Updated Entries Table with action handlers */}
           <Card>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
@@ -387,19 +429,22 @@ const WaitlistManagement: React.FC<WaitlistManagementProps> = ({ isSidebarCollap
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleViewDetails(entry)}>
                                 <Eye className="h-3 w-3 mr-2" />
                                 View Details
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleSendEmail(entry)}>
                                 <Mail className="h-3 w-3 mr-2" />
                                 Send Email
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleMarkConverted(entry)}>
                                 <UserCheck className="h-3 w-3 mr-2" />
                                 Mark Converted
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="text-red-600">
+                              <DropdownMenuItem 
+                                className="text-red-600"
+                                onClick={() => handleDeleteEntry(entry)}
+                              >
                                 <Trash2 className="h-3 w-3 mr-2" />
                                 Delete
                               </DropdownMenuItem>
@@ -471,6 +516,23 @@ const WaitlistManagement: React.FC<WaitlistManagementProps> = ({ isSidebarCollap
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Modals */}
+      <WaitlistEntryDetailsModal
+        entry={selectedEntry}
+        isOpen={showDetailsModal}
+        onClose={() => setShowDetailsModal(false)}
+        onSendEmail={handleSendEmail}
+        onMarkConverted={handleMarkConverted}
+        onDelete={handleDeleteEntry}
+      />
+
+      <SendEmailModal
+        entry={selectedEntry}
+        isOpen={showEmailModal}
+        onClose={() => setShowEmailModal(false)}
+        onSend={handleSendEmailFromModal}
+      />
     </div>
   );
 };

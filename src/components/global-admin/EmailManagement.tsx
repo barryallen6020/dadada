@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -39,6 +38,9 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useToast } from '@/hooks/use-toast';
+import EmailTemplatePreviewModal from './email-actions/EmailTemplatePreviewModal';
+import CampaignReportModal from './email-actions/CampaignReportModal';
 
 interface EmailTemplate {
   id: string;
@@ -72,11 +74,15 @@ interface EmailManagementProps {
 
 const EmailManagement: React.FC<EmailManagementProps> = ({ isSidebarCollapsed = false }) => {
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
+  const [selectedCampaign, setSelectedCampaign] = useState<EmailCampaign | null>(null);
   const [emailContent, setEmailContent] = useState('');
   const [emailSubject, setEmailSubject] = useState('');
   const [recipientType, setRecipientType] = useState('all');
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [showTemplateEditor, setShowTemplateEditor] = useState(false);
+  const [showTemplatePreview, setShowTemplatePreview] = useState(false);
+  const [showCampaignReport, setShowCampaignReport] = useState(false);
+  const { toast } = useToast();
 
   // Mock data
   const emailStats = {
@@ -159,6 +165,57 @@ const EmailManagement: React.FC<EmailManagementProps> = ({ isSidebarCollapsed = 
       createdAt: '2024-06-05'
     }
   ];
+
+  const handlePreviewTemplate = (template: EmailTemplate) => {
+    setSelectedTemplate(template);
+    setShowTemplatePreview(true);
+  };
+
+  const handleEditTemplate = (template: EmailTemplate) => {
+    toast({
+      title: "Edit template",
+      description: `Opening editor for "${template.name}".`
+    });
+    console.log('Editing template:', template.id);
+  };
+
+  const handleDuplicateTemplate = (template: EmailTemplate) => {
+    toast({
+      title: "Template duplicated",
+      description: `"${template.name}" has been duplicated.`
+    });
+    console.log('Duplicating template:', template.id);
+  };
+
+  const handleDeleteTemplate = (template: EmailTemplate) => {
+    toast({
+      title: "Template deleted",
+      description: `"${template.name}" has been deleted.`,
+      variant: "destructive"
+    });
+    console.log('Deleting template:', template.id);
+  };
+
+  const handleViewCampaignReport = (campaign: EmailCampaign) => {
+    setSelectedCampaign(campaign);
+    setShowCampaignReport(true);
+  };
+
+  const handleDuplicateCampaign = (campaign: EmailCampaign) => {
+    toast({
+      title: "Campaign duplicated",
+      description: `"${campaign.name}" has been duplicated.`
+    });
+    console.log('Duplicating campaign:', campaign.id);
+  };
+
+  const handleExportCampaignData = (campaign: EmailCampaign) => {
+    toast({
+      title: "Export started",
+      description: `Exporting data for "${campaign.name}".`
+    });
+    console.log('Exporting campaign data:', campaign.id);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -509,19 +566,22 @@ const EmailManagement: React.FC<EmailManagementProps> = ({ isSidebarCollapsed = 
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handlePreviewTemplate(template)}>
                                 <Eye className="h-3 w-3 mr-2" />
                                 Preview
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleEditTemplate(template)}>
                                 <Edit className="h-3 w-3 mr-2" />
                                 Edit
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleDuplicateTemplate(template)}>
                                 <Copy className="h-3 w-3 mr-2" />
                                 Duplicate
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="text-red-600">
+                              <DropdownMenuItem 
+                                className="text-red-600"
+                                onClick={() => handleDeleteTemplate(template)}
+                              >
                                 <Trash2 className="h-3 w-3 mr-2" />
                                 Delete
                               </DropdownMenuItem>
@@ -590,15 +650,15 @@ const EmailManagement: React.FC<EmailManagementProps> = ({ isSidebarCollapsed = 
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleViewCampaignReport(campaign)}>
                                 <Eye className="h-3 w-3 mr-2" />
                                 View Report
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleDuplicateCampaign(campaign)}>
                                 <Copy className="h-3 w-3 mr-2" />
                                 Duplicate
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleExportCampaignData(campaign)}>
                                 <Download className="h-3 w-3 mr-2" />
                                 Export Data
                               </DropdownMenuItem>
@@ -674,6 +734,21 @@ const EmailManagement: React.FC<EmailManagementProps> = ({ isSidebarCollapsed = 
           </Alert>
         </TabsContent>
       </Tabs>
+
+      {/* Modals */}
+      <EmailTemplatePreviewModal
+        template={selectedTemplate}
+        isOpen={showTemplatePreview}
+        onClose={() => setShowTemplatePreview(false)}
+        onEdit={handleEditTemplate}
+        onDuplicate={handleDuplicateTemplate}
+      />
+
+      <CampaignReportModal
+        campaign={selectedCampaign}
+        isOpen={showCampaignReport}
+        onClose={() => setShowCampaignReport(false)}
+      />
     </div>
   );
 };
