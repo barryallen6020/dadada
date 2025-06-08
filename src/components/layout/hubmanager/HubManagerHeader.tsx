@@ -51,7 +51,7 @@ const HubManagerHeader: React.FC<HubManagerHeaderProps> = ({
   };
 
   return (
-    <header className="glass-nav py-3 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-md">
+    <header className="glass-nav py-3 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-[80] shadow-md">
       <div className="flex items-center">
         <Button
           variant="ghost"
@@ -77,7 +77,7 @@ const HubManagerHeader: React.FC<HubManagerHeaderProps> = ({
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 glass-dropdown">
+          <DropdownMenuContent align="end" className="w-56 glass-dropdown z-[90]">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => navigate("/hubmanager/profile")}>

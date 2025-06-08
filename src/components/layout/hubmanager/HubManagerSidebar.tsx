@@ -23,7 +23,7 @@ const HubManagerSidebar: React.FC<HubManagerSidebarProps> = ({
       <aside
         className={`${
           isNavOpen ? "translate-x-0" : "-translate-x-full"
-        } fixed inset-y-0 left-0 z-50 w-64 glass-nav rounded-tr-xl rounded-br-xl transition-transform duration-300 ease-in-out overflow-hidden shadow-lg`}
+        } fixed inset-y-0 left-0 z-[100] w-64 glass-nav rounded-tr-xl rounded-br-xl transition-transform duration-300 ease-in-out overflow-hidden shadow-lg`}
       >
         <div className="h-full flex flex-col">
           <div className="px-6 py-4 border-b border-white/20">
@@ -54,7 +54,7 @@ const HubManagerSidebar: React.FC<HubManagerSidebarProps> = ({
 
       {isNavOpen && isMobile && (
         <div
-          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 md:hidden"
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[90] md:hidden"
           onClick={onToggleNav}
         ></div>
       )}

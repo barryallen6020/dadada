@@ -25,7 +25,7 @@ const HubManagerLayout: React.FC<HubManagerLayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-deskhive-skyblue flex">
+    <div className="min-h-screen bg-deskhive-skyblue flex w-full">
       <HubManagerSidebar 
         isNavOpen={isNavOpen}
         onToggleNav={toggleNav}
@@ -38,7 +38,7 @@ const HubManagerLayout: React.FC<HubManagerLayoutProps> = ({ children }) => {
           onToggleNav={toggleNav}
         />
 
-        <main className="flex-1 overflow-x-hidden">
+        <main className="flex-1 overflow-x-hidden relative z-10">
           <div className="max-w-full px-4 md:px-6 py-6">
             {children}
           </div>
