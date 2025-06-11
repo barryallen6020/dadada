@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Mail, Send, User, Template } from 'lucide-react';
+import { Mail, Send, User, FileText } from 'lucide-react';
 
 interface WaitlistEntry {
   id: string;
@@ -115,7 +114,7 @@ const SendEmailModal: React.FC<SendEmailModalProps> = ({
           {/* Template Selection */}
           <div>
             <label className="text-sm font-medium mb-2 flex items-center gap-1">
-              <Template className="h-3 w-3" />
+              <FileText className="h-3 w-3" />
               Email Template (Optional)
             </label>
             <Select value={selectedTemplate} onValueChange={handleTemplateSelect}>
