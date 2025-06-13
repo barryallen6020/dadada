@@ -1,46 +1,20 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { 
-  Mail, 
-  Send, 
-  Eye, 
-  Save, 
-  Copy,
-  Users,
-  Building2,
-  Calendar,
-  TrendingUp,
-  Plus,
-  Edit,
-  Trash2,
-  FileText,
-  Image,
-  Link,
-  Bold,
-  Italic,
-  Underline,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-  List,
-  MoreHorizontal,
-  Download,
-  Upload
-} from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Plus, Send, TrendingUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import EmailTemplatePreviewModal from './email-actions/EmailTemplatePreviewModal';
 import CampaignReportModal from './email-actions/CampaignReportModal';
+import EmailMetrics from './email/EmailMetrics';
+import EmailComposer from './email/EmailComposer';
+import EmailSidebar from './email/EmailSidebar';
+import EmailTemplateTable from './email/EmailTemplateTable';
+import EmailCampaignTable from './email/EmailCampaignTable';
 
 interface EmailTemplate {
   id: string;
@@ -75,10 +49,6 @@ interface EmailManagementProps {
 const EmailManagement: React.FC<EmailManagementProps> = ({ isSidebarCollapsed = false }) => {
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
   const [selectedCampaign, setSelectedCampaign] = useState<EmailCampaign | null>(null);
-  const [emailContent, setEmailContent] = useState('');
-  const [emailSubject, setEmailSubject] = useState('');
-  const [recipientType, setRecipientType] = useState('all');
-  const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [showTemplateEditor, setShowTemplateEditor] = useState(false);
   const [showTemplatePreview, setShowTemplatePreview] = useState(false);
   const [showCampaignReport, setShowCampaignReport] = useState(false);
@@ -217,55 +187,13 @@ const EmailManagement: React.FC<EmailManagementProps> = ({ isSidebarCollapsed = 
     console.log('Exporting campaign data:', campaign.id);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'draft': return 'bg-gray-100 text-gray-800';
-      case 'scheduled': return 'bg-blue-100 text-blue-800';
-      case 'sending': return 'bg-yellow-100 text-yellow-800';
-      case 'sent': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+  const handleSendEmail = (data: { recipientType: string; subject: string; content: string; templateId?: string }) => {
+    toast({
+      title: "Email sent",
+      description: `Email sent to ${data.recipientType} recipients.`
+    });
+    console.log('Sending email:', data);
   };
-
-  const EditorToolbar = () => (
-    <div className="flex flex-wrap items-center gap-1 md:gap-2 p-2 border-b">
-      <div className="flex gap-1">
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-          <Bold className="h-3 w-3" />
-        </Button>
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-          <Italic className="h-3 w-3" />
-        </Button>
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-          <Underline className="h-3 w-3" />
-        </Button>
-      </div>
-      <Separator orientation="vertical" className="h-4" />
-      <div className="flex gap-1">
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-          <AlignLeft className="h-3 w-3" />
-        </Button>
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-          <AlignCenter className="h-3 w-3" />
-        </Button>
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-          <AlignRight className="h-3 w-3" />
-        </Button>
-      </div>
-      <Separator orientation="vertical" className="h-4" />
-      <div className="flex gap-1">
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-          <List className="h-3 w-3" />
-        </Button>
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-          <Link className="h-3 w-3" />
-        </Button>
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-          <Image className="h-3 w-3" />
-        </Button>
-      </div>
-    </div>
-  );
 
   return (
     <div className="space-y-3 md:space-y-4 max-w-full overflow-hidden">
@@ -305,13 +233,7 @@ const EmailManagement: React.FC<EmailManagementProps> = ({ isSidebarCollapsed = 
                 </div>
                 <Input placeholder="Email Subject" />
                 <Textarea placeholder="Template Description" rows={2} />
-                <div className="border rounded-lg">
-                  <EditorToolbar />
-                  <Textarea 
-                    placeholder="Email content..." 
-                    className="min-h-[200px] border-0 resize-none" 
-                  />
-                </div>
+                <Textarea placeholder="Email content..." className="min-h-[200px]" />
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={() => setShowTemplateEditor(false)}>Cancel</Button>
                   <Button onClick={() => setShowTemplateEditor(false)}>Save Template</Button>
@@ -336,396 +258,34 @@ const EmailManagement: React.FC<EmailManagementProps> = ({ isSidebarCollapsed = 
 
         <TabsContent value="compose" className="space-y-3 md:space-y-4">
           <div className="grid gap-3 md:gap-4 grid-cols-1 lg:grid-cols-3">
-            {/* Email Composer */}
             <div className="lg:col-span-2">
-              <Card>
-                <CardHeader className="p-3 md:p-4 pb-2 md:pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm md:text-lg">Compose Email</CardTitle>
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => setIsPreviewMode(!isPreviewMode)}
-                        className="text-xs"
-                      >
-                        <Eye className="h-3 w-3 mr-1" />
-                        {isPreviewMode ? 'Edit' : 'Preview'}
-                      </Button>
-                      <Button variant="outline" size="sm" className="text-xs">
-                        <Save className="h-3 w-3 mr-1" />
-                        Save
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-3 md:p-4 space-y-3 md:space-y-4">
-                  <div className="grid gap-3 md:gap-4">
-                    <div>
-                      <label className="text-xs md:text-sm font-medium">Recipients</label>
-                      <Select value={recipientType} onValueChange={setRecipientType}>
-                        <SelectTrigger className="text-xs md:text-sm">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All Users (5,247)</SelectItem>
-                          <SelectItem value="admins">Admins (45)</SelectItem>
-                          <SelectItem value="hub_managers">Hub Managers (128)</SelectItem>
-                          <SelectItem value="members">Members (5,074)</SelectItem>
-                          <SelectItem value="waitlist">Waitlist (1,247)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <label className="text-xs md:text-sm font-medium">Subject</label>
-                      <Input 
-                        placeholder="Email subject..." 
-                        value={emailSubject}
-                        onChange={(e) => setEmailSubject(e.target.value)}
-                        className="text-xs md:text-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs md:text-sm font-medium">Template</label>
-                      <Select onValueChange={(value) => {
-                        const template = templates.find(t => t.id === value);
-                        if (template) {
-                          setSelectedTemplate(template);
-                          setEmailSubject(template.subject);
-                          setEmailContent(template.content);
-                        }
-                      }}>
-                        <SelectTrigger className="text-xs md:text-sm">
-                          <SelectValue placeholder="Choose template..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {templates.map(template => (
-                            <SelectItem key={template.id} value={template.id}>
-                              {template.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  
-                  {!isPreviewMode ? (
-                    <div className="border rounded-lg">
-                      <EditorToolbar />
-                      <Textarea 
-                        placeholder="Compose your email..."
-                        value={emailContent}
-                        onChange={(e) => setEmailContent(e.target.value)}
-                        className="min-h-[250px] border-0 resize-none text-xs md:text-sm"
-                      />
-                    </div>
-                  ) : (
-                    <div className="border rounded-lg p-4 bg-white min-h-[250px]">
-                      <div className="mb-4 pb-4 border-b">
-                        <h3 className="font-bold text-lg">{emailSubject}</h3>
-                        <p className="text-sm text-muted-foreground">To: {recipientType} recipients</p>
-                      </div>
-                      <div 
-                        className="prose max-w-none text-xs md:text-sm"
-                        dangerouslySetInnerHTML={{ __html: emailContent }}
-                      />
-                    </div>
-                  )}
-
-                  <div className="flex flex-col sm:flex-row gap-2 justify-end">
-                    <Button variant="outline" size="sm" className="text-xs md:text-sm">
-                      <Save className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                      Save Draft
-                    </Button>
-                    <Button variant="outline" size="sm" className="text-xs md:text-sm">
-                      <Calendar className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                      Schedule
-                    </Button>
-                    <Button size="sm" className="text-xs md:text-sm">
-                      <Send className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                      Send Now
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <EmailComposer templates={templates} onSendEmail={handleSendEmail} />
             </div>
-
-            {/* Sidebar */}
-            <div className="space-y-3 md:space-y-4">
-              {/* Email Stats */}
-              <Card>
-                <CardHeader className="p-3 md:p-4 pb-2 md:pb-3">
-                  <CardTitle className="text-sm md:text-lg">Email Performance</CardTitle>
-                </CardHeader>
-                <CardContent className="p-3 md:p-4 space-y-3">
-                  <div className="text-center">
-                    <div className="text-lg md:text-xl font-bold">{emailStats.totalSent.toLocaleString()}</div>
-                    <div className="text-xs text-muted-foreground">Total Emails Sent</div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 text-center">
-                    <div>
-                      <div className="text-sm md:text-base font-semibold text-blue-600">{emailStats.openRate}%</div>
-                      <div className="text-xs text-muted-foreground">Open Rate</div>
-                    </div>
-                    <div>
-                      <div className="text-sm md:text-base font-semibold text-green-600">{emailStats.clickRate}%</div>
-                      <div className="text-xs text-muted-foreground">Click Rate</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Variables Helper */}
-              {selectedTemplate && (
-                <Card>
-                  <CardHeader className="p-3 md:p-4 pb-2 md:pb-3">
-                    <CardTitle className="text-sm md:text-lg">Available Variables</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-3 md:p-4">
-                    <div className="space-y-2">
-                      {selectedTemplate.variables.map((variable, index) => (
-                        <div key={index} className="flex items-center justify-between">
-                          <code className="text-xs bg-gray-100 px-2 py-1 rounded">{variable}</code>
-                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Quick Actions */}
-              <Card>
-                <CardHeader className="p-3 md:p-4 pb-2 md:pb-3">
-                  <CardTitle className="text-sm md:text-lg">Quick Actions</CardTitle>
-                </CardHeader>
-                <CardContent className="p-3 md:p-4 space-y-2">
-                  <Button variant="outline" size="sm" className="w-full text-xs justify-start">
-                    <Download className="h-3 w-3 mr-2" />
-                    Import Recipients
-                  </Button>
-                  <Button variant="outline" size="sm" className="w-full text-xs justify-start">
-                    <Upload className="h-3 w-3 mr-2" />
-                    Upload Images
-                  </Button>
-                  <Button variant="outline" size="sm" className="w-full text-xs justify-start">
-                    <FileText className="h-3 w-3 mr-2" />
-                    View Reports
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+            <EmailSidebar emailStats={emailStats} selectedTemplate={selectedTemplate} />
           </div>
         </TabsContent>
 
         <TabsContent value="templates" className="space-y-3 md:space-y-4">
-          <Card>
-            <CardHeader className="p-3 md:p-4 pb-2 md:pb-3">
-              <CardTitle className="text-sm md:text-lg">Email Templates</CardTitle>
-              <CardDescription className="text-xs md:text-sm">Manage reusable email templates</CardDescription>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="text-xs md:text-sm">
-                      <TableHead>Template</TableHead>
-                      <TableHead className="hidden md:table-cell">Category</TableHead>
-                      <TableHead className="hidden sm:table-cell">Last Used</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="w-[80px]">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {templates.map((template) => (
-                      <TableRow key={template.id} className="text-xs md:text-sm">
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{template.name}</div>
-                            <div className="text-muted-foreground text-xs">{template.subject}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          <Badge variant="outline" className="text-xs capitalize">{template.category}</Badge>
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell">
-                          {template.lastUsed ? new Date(template.lastUsed).toLocaleDateString() : 'Never'}
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={template.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
-                            {template.isActive ? 'Active' : 'Inactive'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                <MoreHorizontal className="h-3 w-3" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handlePreviewTemplate(template)}>
-                                <Eye className="h-3 w-3 mr-2" />
-                                Preview
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleEditTemplate(template)}>
-                                <Edit className="h-3 w-3 mr-2" />
-                                Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleDuplicateTemplate(template)}>
-                                <Copy className="h-3 w-3 mr-2" />
-                                Duplicate
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                className="text-red-600"
-                                onClick={() => handleDeleteTemplate(template)}
-                              >
-                                <Trash2 className="h-3 w-3 mr-2" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
+          <EmailTemplateTable
+            templates={templates}
+            onPreview={handlePreviewTemplate}
+            onEdit={handleEditTemplate}
+            onDuplicate={handleDuplicateTemplate}
+            onDelete={handleDeleteTemplate}
+          />
         </TabsContent>
 
         <TabsContent value="campaigns" className="space-y-3 md:space-y-4">
-          <Card>
-            <CardHeader className="p-3 md:p-4 pb-2 md:pb-3">
-              <CardTitle className="text-sm md:text-lg">Email Campaigns</CardTitle>
-              <CardDescription className="text-xs md:text-sm">Track all email campaigns</CardDescription>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="text-xs md:text-sm">
-                      <TableHead>Campaign</TableHead>
-                      <TableHead className="hidden md:table-cell">Recipients</TableHead>
-                      <TableHead className="hidden sm:table-cell">Sent Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="hidden lg:table-cell">Performance</TableHead>
-                      <TableHead className="w-[80px]">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {campaigns.map((campaign) => (
-                      <TableRow key={campaign.id} className="text-xs md:text-sm">
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{campaign.name}</div>
-                            <div className="text-muted-foreground text-xs">{campaign.subject}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">{campaign.recipients.toLocaleString()}</TableCell>
-                        <TableCell className="hidden sm:table-cell">
-                          {campaign.sentAt ? new Date(campaign.sentAt).toLocaleDateString() : '-'}
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={`text-xs ${getStatusColor(campaign.status)}`}>
-                            {campaign.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="hidden lg:table-cell">
-                          {campaign.openRate && campaign.clickRate ? (
-                            <div className="text-xs">
-                              <div>Open: {campaign.openRate}%</div>
-                              <div>Click: {campaign.clickRate}%</div>
-                            </div>
-                          ) : '-'}
-                        </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                <MoreHorizontal className="h-3 w-3" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleViewCampaignReport(campaign)}>
-                                <Eye className="h-3 w-3 mr-2" />
-                                View Report
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleDuplicateCampaign(campaign)}>
-                                <Copy className="h-3 w-3 mr-2" />
-                                Duplicate
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleExportCampaignData(campaign)}>
-                                <Download className="h-3 w-3 mr-2" />
-                                Export Data
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
+          <EmailCampaignTable
+            campaigns={campaigns}
+            onViewReport={handleViewCampaignReport}
+            onDuplicate={handleDuplicateCampaign}
+            onExportData={handleExportCampaignData}
+          />
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-3 md:space-y-4">
-          {/* Email Analytics Stats */}
-          <div className={`grid gap-2 md:gap-3 ${
-            isSidebarCollapsed 
-              ? 'grid-cols-2 lg:grid-cols-4' 
-              : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
-          }`}>
-            <Card className="p-3 md:p-4">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 p-0">
-                <CardTitle className="text-xs md:text-sm font-medium">Total Sent</CardTitle>
-                <Mail className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent className="p-0 pt-1 md:pt-2">
-                <div className="text-lg md:text-2xl font-bold">{emailStats.totalSent.toLocaleString()}</div>
-                <p className="text-xs text-green-600">+18% from last month</p>
-              </CardContent>
-            </Card>
-
-            <Card className="p-3 md:p-4">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 p-0">
-                <CardTitle className="text-xs md:text-sm font-medium">Open Rate</CardTitle>
-                <Eye className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent className="p-0 pt-1 md:pt-2">
-                <div className="text-lg md:text-2xl font-bold">{emailStats.openRate}%</div>
-                <p className="text-xs text-green-600">+2.1% from last month</p>
-              </CardContent>
-            </Card>
-
-            <Card className="p-3 md:p-4">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 p-0">
-                <CardTitle className="text-xs md:text-sm font-medium">Click Rate</CardTitle>
-                <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent className="p-0 pt-1 md:pt-2">
-                <div className="text-lg md:text-2xl font-bold">{emailStats.clickRate}%</div>
-                <p className="text-xs text-red-600">-0.3% from last month</p>
-              </CardContent>
-            </Card>
-
-            <Card className="p-3 md:p-4">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 p-0">
-                <CardTitle className="text-xs md:text-sm font-medium">Unsubscribe Rate</CardTitle>
-                <Users className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent className="p-0 pt-1 md:pt-2">
-                <div className="text-lg md:text-2xl font-bold">{emailStats.unsubscribeRate}%</div>
-                <p className="text-xs text-green-600">-0.1% from last month</p>
-              </CardContent>
-            </Card>
-          </div>
-
+          <EmailMetrics isSidebarCollapsed={isSidebarCollapsed} stats={emailStats} />
           <Alert>
             <TrendingUp className="h-4 w-4" />
             <AlertDescription>
