@@ -1,11 +1,15 @@
 
 import React, { useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { WorkspaceAdminSidebar } from './WorkspaceAdminSidebar';
 import { WorkspaceAdminHeader } from './WorkspaceAdminHeader';
 import { useWorkspaceAdminAuth } from '@/hooks/useWorkspaceAdminAuth';
 
-const WorkspaceAdminLayout = () => {
+interface WorkspaceAdminLayoutProps {
+  children: React.ReactNode;
+}
+
+const WorkspaceAdminLayout: React.FC<WorkspaceAdminLayoutProps> = ({ children }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const location = useLocation();
   const { user, permissions } = useWorkspaceAdminAuth();
@@ -34,7 +38,7 @@ const WorkspaceAdminLayout = () => {
         />
         
         <main className="flex-1 p-6 overflow-auto">
-          <Outlet />
+          {children}
         </main>
       </div>
     </div>
