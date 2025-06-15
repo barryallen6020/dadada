@@ -139,6 +139,35 @@ const OrganizationManagement = () => {
     // Implementation would generate and download the file
   };
 
+  const handleViewDetails = (organization: Organization) => {
+    console.log('Viewing details for organization:', organization.name);
+    setSelectedOrganization(organization);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleImpersonate = (organization: Organization) => {
+    console.log('Impersonating organization:', organization.name);
+    // Implementation would handle impersonation logic
+    alert(`Impersonating ${organization.name} - This would redirect to their admin view`);
+  };
+
+  const handleDeactivate = (organization: Organization) => {
+    console.log('Deactivating organization:', organization.name);
+    // Implementation would handle deactivation logic
+    const confirmDeactivate = window.confirm(`Are you sure you want to deactivate ${organization.name}?`);
+    if (confirmDeactivate) {
+      alert(`${organization.name} has been deactivated`);
+    }
+  };
+
+  const handleAddOrganization = () => {
+    console.log('Adding new organization:', newOrg);
+    // Implementation would handle adding the organization
+    alert(`Organization "${newOrg.name}" has been added successfully`);
+    setIsAddModalOpen(false);
+    setNewOrg({ name: '', type: '', description: '' });
+  };
+
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Header */}
