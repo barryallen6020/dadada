@@ -4,6 +4,7 @@ import { DrawingTools } from "./DrawingTools";
 import { SeatCategories } from "./SeatCategories";
 import { EditorSettings } from "./EditorSettings";
 import { TutorialDialog } from "./TutorialDialog";
+import { UsageHeatmap } from "./UsageHeatmap";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCanvas } from "./hooks/useCanvas";
 import { useSeatCategories } from "./hooks/useSeatCategories";
@@ -85,9 +86,10 @@ export const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-4 items-center justify-between">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-3 w-full max-w-md">
+          <TabsList className="grid grid-cols-4 w-full max-w-lg">
             <TabsTrigger value="draw">Drawing Tools</TabsTrigger>
             <TabsTrigger value="seats">Seat Categories</TabsTrigger>
+            <TabsTrigger value="analytics">Usage Analytics</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
           
@@ -132,6 +134,10 @@ export const WorkspaceFloorMapEditor: React.FC<WorkspaceFloorMapEditorProps> = (
               addCategory={addCategory}
               deleteCategory={deleteCategory}
             />
+          </TabsContent>
+          
+          <TabsContent value="analytics" className="space-y-4 mt-2">
+            <UsageHeatmap canvasRef={canvasRef} />
           </TabsContent>
           
           <TabsContent value="settings" className="space-y-4 mt-2">

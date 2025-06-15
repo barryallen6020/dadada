@@ -8,6 +8,8 @@ import HubManagement from './admin/HubManagement';
 import OrganizationSettings from './admin/OrganizationSettings';
 import RevenueManagement from './admin/RevenueManagement';
 import AnnouncementCenter from '@/components/admin/announcements/AnnouncementCenter';
+import ApiKeyManagement from '@/components/admin/api/ApiKeyManagement';
+import AuditLogging from '@/components/admin/audit/AuditLogging';
 
 const Admin = () => {
   const [activeSection, setActiveSection] = useState('revenue');
@@ -18,6 +20,10 @@ const Admin = () => {
         return <RevenueManagement />;
       case 'announcements':
         return <AnnouncementCenter />;
+      case 'api-keys':
+        return <ApiKeyManagement />;
+      case 'audit-logs':
+        return <AuditLogging />;
       case 'bookings':
         return <AdminBookings />;
       case 'users':
