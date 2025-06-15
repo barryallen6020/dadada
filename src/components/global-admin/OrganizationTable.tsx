@@ -1,26 +1,10 @@
-
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Building2, Users, CheckCircle, AlertCircle } from 'lucide-react';
 import OrganizationActionsMenu from './OrganizationActionsMenu';
-
-interface Organization {
-  id: number;
-  name: string;
-  type: string;
-  status: string;
-  users: number;
-  created: string;
-  verified: boolean;
-  email?: string;
-  phone?: string;
-  address?: string;
-  description?: string;
-  subscription?: string;
-  lastActivity?: string;
-}
+import { Organization } from '@/hooks/useOrganizationData';
 
 interface OrganizationTableProps {
   organizations: Organization[];

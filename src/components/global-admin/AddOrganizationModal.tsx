@@ -1,16 +1,10 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
-interface NewOrganization {
-  name: string;
-  type: string;
-  description: string;
-}
+import { NewOrganization } from '@/hooks/useOrganizationActions';
 
 interface AddOrganizationModalProps {
   isOpen: boolean;
