@@ -34,18 +34,6 @@ import WorkspaceCreation from "./pages/admin/WorkspaceCreation";
 import HubCheckIn from "./pages/admin/HubCheckIn";
 import OrganizationSettings from "./pages/admin/OrganizationSettings";
 
-// Workspace Admin pages
-import WorkspaceAdmin from "./pages/admin/WorkspaceAdmin";
-import WorkspaceList from "./pages/admin/WorkspaceList";
-import WorkspaceRooms from "./pages/admin/WorkspaceRooms";
-import WorkspaceBookings from "./pages/admin/WorkspaceBookings";
-import WorkspacePricing from "./pages/admin/WorkspacePricing";
-import WorkspaceCommunications from "./pages/admin/WorkspaceCommunications";
-import WorkspaceBilling from "./pages/admin/WorkspaceBilling";
-import WorkspaceAPI from "./pages/admin/WorkspaceAPI";
-import WorkspaceAudit from "./pages/admin/WorkspaceAudit";
-import WorkspaceSettings from "./pages/admin/WorkspaceSettings";
-
 // Global Admin pages
 import GlobalAdminLogin from "./pages/GlobalAdminLogin";
 import GlobalAdmin from "./pages/GlobalAdmin";
@@ -115,18 +103,6 @@ function App() {
           <Route path="/admin/check-in" element={<HubCheckIn />} />
           <Route path="/admin/organization" element={<OrganizationSettings />} />
           <Route path="/admin/workspace/:workspaceId/seat-management" element={<WorkspaceSeatManagement />} />
-          
-          {/* Workspace Admin routes */}
-          <Route path="/admin/workspace" element={<WorkspaceAdmin />} />
-          <Route path="/admin/workspace/list" element={<WorkspaceList />} />
-          <Route path="/admin/workspace/rooms" element={<WorkspaceRooms />} />
-          <Route path="/admin/workspace/bookings" element={<WorkspaceBookings />} />
-          <Route path="/admin/workspace/pricing" element={<WorkspacePricing />} />
-          <Route path="/admin/workspace/communications" element={<WorkspaceCommunications />} />
-          <Route path="/admin/workspace/billing" element={<WorkspaceBilling />} />
-          <Route path="/admin/workspace/api" element={<WorkspaceAPI />} />
-          <Route path="/admin/workspace/audit" element={<WorkspaceAudit />} />
-          <Route path="/admin/workspace/settings" element={<WorkspaceSettings />} />
           
           {/* Global Admin routes */}
           <Route path="/global-admin/login" element={<GlobalAdminLogin />} />
