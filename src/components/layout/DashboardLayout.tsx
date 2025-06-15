@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import AdminSidebar from "./AdminSidebar";
@@ -14,9 +14,11 @@ interface DashboardLayoutProps {
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [isNavOpen, setIsNavOpen] = useState(!isMobile);
+  const [activeAdminSection, setActiveAdminSection] = useState('revenue');
   
   const { currentOrganization } = useOrganization();
 
@@ -42,7 +44,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   }
   
   const isAdmin = user?.role === "admin";
-  const isAdminRoute = window.location.pathname.startsWith("/admin");
+  const isAdminRoute = location.pathname.startsWith("/admin");
   
   useEffect(() => {
     if (isMobile) {
@@ -70,7 +72,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     <div className="min-h-screen bg-deskhive-skyblue flex">
       {/* Render different sidebar based on route */}
       {isAdminRoute ? (
-        <AdminSidebar isOpen={isNavOpen} toggleSidebar={toggleNav} user={user} />
+        <AdminSidebar 
+          isOpen={isNavOpen} 
+          toggleSidebar={toggleNav} 
+          user={user}
+          activeSection={activeAdminSection}
+          setActiveSection={setActiveAdminSection}
+        />
       ) : (
         <Sidebar 
           isOpen={isNavOpen} 
@@ -102,7 +110,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         {/* Page content - make sure it respects the width constraints */}
         <main className="flex-1 overflow-x-hidden">
           <div className="max-w-full px-4 md:px-6 py-6">
-            {children}
+            {isAdminRoute ? (
+              React.cloneElement(children as React.ReactElement, {
+                activeSection: activeAdminSection,
+                setActiveSection: setActiveAdminSection
+              })
+            ) : (
+              children
+            )}
           </div>
         </main>
       </div>

@@ -19,11 +19,17 @@ interface AdminSidebarProps {
   isOpen: boolean;
   toggleSidebar: () => void;
   user: any;
+  activeSection: string;
+  setActiveSection: (section: string) => void;
 }
 
-const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, toggleSidebar, user }) => {
-  const [activeSection, setActiveSection] = React.useState('revenue');
-
+const AdminSidebar: React.FC<AdminSidebarProps> = ({ 
+  isOpen, 
+  toggleSidebar, 
+  user, 
+  activeSection, 
+  setActiveSection 
+}) => {
   const menuItems = [
     { id: 'revenue', label: 'Revenue Management', icon: DollarSign },
     { id: 'announcements', label: 'Announcements', icon: Megaphone },
@@ -38,8 +44,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, toggleSidebar, user
 
   const handleSectionChange = (section: string) => {
     setActiveSection(section);
-    // Navigate to the section - we'll need to implement this properly
-    // For now, we'll just update the state
   };
 
   return (

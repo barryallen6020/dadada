@@ -1,6 +1,5 @@
 
-import React, { useState } from 'react';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import React from 'react';
 import AdminBookings from './admin/AdminBookings';
 import AdminUsers from './admin/AdminUsers';
 import AdminSettings from './admin/AdminSettings';
@@ -11,9 +10,12 @@ import AnnouncementCenter from '@/components/admin/announcements/AnnouncementCen
 import ApiKeyManagement from '@/components/admin/api/ApiKeyManagement';
 import AuditLogging from '@/components/admin/audit/AuditLogging';
 
-const Admin = () => {
-  const [activeSection, setActiveSection] = useState('revenue');
+interface AdminProps {
+  activeSection?: string;
+  setActiveSection?: (section: string) => void;
+}
 
+const Admin: React.FC<AdminProps> = ({ activeSection = 'revenue' }) => {
   const renderContent = () => {
     switch (activeSection) {
       case 'revenue':
@@ -40,11 +42,9 @@ const Admin = () => {
   };
 
   return (
-    <DashboardLayout>
-      <div className="w-full max-w-7xl mx-auto">
-        {renderContent()}
-      </div>
-    </DashboardLayout>
+    <div className="w-full max-w-7xl mx-auto">
+      {renderContent()}
+    </div>
   );
 };
 
