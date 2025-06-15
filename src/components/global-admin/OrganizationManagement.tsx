@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import OrganizationFilters from './OrganizationFilters';
+import { Plus, Download, FileText } from 'lucide-react';
+import OrganizationAdvancedFilters from './OrganizationAdvancedFilters';
 import OrganizationTable from './OrganizationTable';
 import AddOrganizationModal from './AddOrganizationModal';
 import OrganizationDetailsModal from './OrganizationDetailsModal';
@@ -126,23 +127,16 @@ const OrganizationManagement = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const handleViewDetails = (org: Organization) => {
-    setSelectedOrganization(org);
-    setIsDetailModalOpen(true);
+  const handleFiltersChange = (filters: any) => {
+    // Handle advanced filters
+    console.log('Filters changed:', filters);
+    setSearchTerm(filters.search);
+    setStatusFilter(filters.status);
   };
 
-  const handleImpersonate = (org: Organization) => {
-    console.log('Impersonating organization:', org);
-  };
-
-  const handleDeactivate = (org: Organization) => {
-    console.log('Deactivating organization:', org);
-  };
-
-  const handleAddOrganization = () => {
-    console.log('Adding organization:', newOrg);
-    setIsAddModalOpen(false);
-    setNewOrg({ name: '', type: '', description: '' });
+  const handleExportData = (format: string) => {
+    console.log(`Exporting organizations as ${format}`);
+    // Implementation would generate and download the file
   };
 
   return (
@@ -153,21 +147,31 @@ const OrganizationManagement = () => {
           <h2 className="text-xl md:text-2xl font-bold">Organization Management</h2>
           <p className="text-sm md:text-base text-gray-600">Manage all organizations on the platform</p>
         </div>
-        <Button 
-          onClick={() => setIsAddModalOpen(true)} 
-          className="w-full md:w-auto"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add Organization
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => handleExportData('csv')} size="sm">
+            <Download className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline">Export CSV</span>
+            <span className="sm:hidden">CSV</span>
+          </Button>
+          <Button variant="outline" onClick={() => handleExportData('pdf')} size="sm">
+            <FileText className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline">Export PDF</span>
+            <span className="sm:hidden">PDF</span>
+          </Button>
+          <Button 
+            onClick={() => setIsAddModalOpen(true)} 
+            className="w-full md:w-auto"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Organization
+          </Button>
+        </div>
       </div>
 
-      {/* Filters */}
-      <OrganizationFilters
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
+      {/* Advanced Filters */}
+      <OrganizationAdvancedFilters
+        onFiltersChange={handleFiltersChange}
+        organizationCount={filteredOrganizations.length}
       />
 
       {/* Organizations Table */}
