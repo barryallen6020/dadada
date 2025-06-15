@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import AdminSidebar from '@/components/layout/AdminSidebar';
 import AdminBookings from './admin/AdminBookings';
 import AdminUsers from './admin/AdminUsers';
 import AdminSettings from './admin/AdminSettings';
@@ -32,12 +31,11 @@ const Admin = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <AdminSidebar activeSection={activeSection} setActiveSection={setActiveSection} />
-      <div className="flex-1">
+    <DashboardLayout>
+      <div className="w-full max-w-7xl mx-auto">
         {renderContent()}
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
