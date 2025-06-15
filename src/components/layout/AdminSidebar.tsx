@@ -8,7 +8,8 @@ import {
   Building2, 
   Settings, 
   Building,
-  DollarSign 
+  DollarSign,
+  Megaphone 
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -22,6 +23,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, toggleSidebar, user
 
   const menuItems = [
     { id: 'revenue', label: 'Revenue Management', icon: DollarSign },
+    { id: 'announcements', label: 'Announcements', icon: Megaphone },
     { id: 'bookings', label: 'Bookings', icon: Calendar },
     { id: 'users', label: 'User Management', icon: Users },
     { id: 'hubs', label: 'Hub Management', icon: Building2 },

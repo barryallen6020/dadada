@@ -7,6 +7,7 @@ import AdminSettings from './admin/AdminSettings';
 import HubManagement from './admin/HubManagement';
 import OrganizationSettings from './admin/OrganizationSettings';
 import RevenueManagement from './admin/RevenueManagement';
+import AnnouncementCenter from '@/components/admin/announcements/AnnouncementCenter';
 
 const Admin = () => {
   const [activeSection, setActiveSection] = useState('revenue');
@@ -15,6 +16,8 @@ const Admin = () => {
     switch (activeSection) {
       case 'revenue':
         return <RevenueManagement />;
+      case 'announcements':
+        return <AnnouncementCenter />;
       case 'bookings':
         return <AdminBookings />;
       case 'users':
