@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Search, Download, Filter, CalendarIcon, Activity, Shield, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
+import { DateRange } from 'react-day-picker';
 
 interface AuditLog {
   id: string;
@@ -29,7 +29,7 @@ const AuditLogging = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedSeverity, setSelectedSeverity] = useState('all');
-  const [dateRange, setDateRange] = useState<{ from: Date; to: Date } | undefined>();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [showCalendar, setShowCalendar] = useState(false);
 
   const auditLogs: AuditLog[] = [
@@ -140,6 +140,10 @@ const AuditLogging = () => {
     high: auditLogs.filter(log => log.severity === 'high').length,
     medium: auditLogs.filter(log => log.severity === 'medium').length,
     low: auditLogs.filter(log => log.severity === 'low').length,
+  };
+
+  const handleDateRangeSelect = (range: DateRange | undefined) => {
+    setDateRange(range);
   };
 
   return (
@@ -256,7 +260,8 @@ const AuditLogging = () => {
                 <Calendar
                   mode="range"
                   selected={dateRange}
-                  onSelect={setDateRange}
+                  onSelect={handleDateRangeSelect}
+                  className="pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
