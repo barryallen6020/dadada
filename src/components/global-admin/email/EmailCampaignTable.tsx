@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -6,19 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Eye, Copy, Download, MoreHorizontal } from 'lucide-react';
-
-interface EmailCampaign {
-  id: string;
-  name: string;
-  subject: string;
-  template: string;
-  recipients: number;
-  status: 'draft' | 'scheduled' | 'sent' | 'sending';
-  createdAt: string;
-  sentAt?: string;
-  openRate?: number;
-  clickRate?: number;
-}
+import { EmailCampaign } from './types';
 
 interface EmailCampaignTableProps {
   campaigns: EmailCampaign[];

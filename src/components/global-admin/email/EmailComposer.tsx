@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,17 +20,11 @@ import {
   Link,
   Image
 } from 'lucide-react';
-
-interface EmailTemplate {
-  id: string;
-  name: string;
-  subject: string;
-  content: string;
-}
+import { EmailTemplate, EmailData } from './types';
 
 interface EmailComposerProps {
   templates: EmailTemplate[];
-  onSendEmail: (data: { recipientType: string; subject: string; content: string; templateId?: string }) => void;
+  onSendEmail: (data: EmailData) => void;
 }
 
 const EmailComposer: React.FC<EmailComposerProps> = ({ templates, onSendEmail }) => {

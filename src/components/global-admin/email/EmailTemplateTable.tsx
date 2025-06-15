@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -6,19 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Eye, Edit, Copy, Trash2, MoreHorizontal } from 'lucide-react';
-
-interface EmailTemplate {
-  id: string;
-  name: string;
-  subject: string;
-  category: string;
-  description: string;
-  content: string;
-  variables: string[];
-  createdAt: string;
-  lastUsed?: string;
-  isActive: boolean;
-}
+import { EmailTemplate } from './types';
 
 interface EmailTemplateTableProps {
   templates: EmailTemplate[];

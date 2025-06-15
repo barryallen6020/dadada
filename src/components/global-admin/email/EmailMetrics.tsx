@@ -1,16 +1,11 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, Eye, TrendingUp, Users } from 'lucide-react';
+import { EmailStats } from './types';
 
 interface EmailMetricsProps {
   isSidebarCollapsed?: boolean;
-  stats: {
-    totalSent: number;
-    openRate: number;
-    clickRate: number;
-    unsubscribeRate: number;
-  };
+  stats: EmailStats;
 }
 
 const EmailMetrics: React.FC<EmailMetricsProps> = ({
