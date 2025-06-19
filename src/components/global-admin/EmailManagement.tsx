@@ -1,45 +1,61 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Send } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Plus, Send, TrendingUp } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import EmailTemplatePreviewModal from './email-actions/EmailTemplatePreviewModal';
 import CampaignReportModal from './email-actions/CampaignReportModal';
-import TemplateEditorDialog from './email/TemplateEditorDialog';
-import ComposeTab from './email/tabs/ComposeTab';
-import TemplatesTab from './email/tabs/TemplatesTab';
-import CampaignsTab from './email/tabs/CampaignsTab';
-import AnalyticsTab from './email/tabs/AnalyticsTab';
-import { useEmailManagement } from '@/hooks/useEmailManagement';
-import { EmailTemplate, EmailCampaign, EmailStats } from './email/types';
+import EmailMetrics from './email/EmailMetrics';
+import EmailComposer from './email/EmailComposer';
+import EmailSidebar from './email/EmailSidebar';
+import EmailTemplateTable from './email/EmailTemplateTable';
+import EmailCampaignTable from './email/EmailCampaignTable';
+
+interface EmailTemplate {
+  id: string;
+  name: string;
+  subject: string;
+  category: string;
+  description: string;
+  content: string;
+  variables: string[];
+  createdAt: string;
+  lastUsed?: string;
+  isActive: boolean;
+}
+
+interface EmailCampaign {
+  id: string;
+  name: string;
+  subject: string;
+  template: string;
+  recipients: number;
+  status: 'draft' | 'scheduled' | 'sent' | 'sending';
+  createdAt: string;
+  sentAt?: string;
+  openRate?: number;
+  clickRate?: number;
+}
 
 interface EmailManagementProps {
   isSidebarCollapsed?: boolean;
 }
 
 const EmailManagement: React.FC<EmailManagementProps> = ({ isSidebarCollapsed = false }) => {
-  const {
-    selectedTemplate,
-    selectedCampaign,
-    showTemplateEditor,
-    showTemplatePreview,
-    showCampaignReport,
-    setShowTemplateEditor,
-    setShowTemplatePreview,
-    setShowCampaignReport,
-    handlePreviewTemplate,
-    handleEditTemplate,
-    handleDuplicateTemplate,
-    handleDeleteTemplate,
-    handleViewCampaignReport,
-    handleDuplicateCampaign,
-    handleExportCampaignData,
-    handleSendEmail
-  } = useEmailManagement();
+  const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
+  const [selectedCampaign, setSelectedCampaign] = useState<EmailCampaign | null>(null);
+  const [showTemplateEditor, setShowTemplateEditor] = useState(false);
+  const [showTemplatePreview, setShowTemplatePreview] = useState(false);
+  const [showCampaignReport, setShowCampaignReport] = useState(false);
+  const { toast } = useToast();
 
   // Mock data
-  const emailStats: EmailStats = {
+  const emailStats = {
     totalSent: 45678,
     openRate: 24.5,
     clickRate: 3.2,
@@ -120,6 +136,65 @@ const EmailManagement: React.FC<EmailManagementProps> = ({ isSidebarCollapsed = 
     }
   ];
 
+  const handlePreviewTemplate = (template: EmailTemplate) => {
+    setSelectedTemplate(template);
+    setShowTemplatePreview(true);
+  };
+
+  const handleEditTemplate = (template: EmailTemplate) => {
+    toast({
+      title: "Edit template",
+      description: `Opening editor for "${template.name}".`
+    });
+    console.log('Editing template:', template.id);
+  };
+
+  const handleDuplicateTemplate = (template: EmailTemplate) => {
+    toast({
+      title: "Template duplicated",
+      description: `"${template.name}" has been duplicated.`
+    });
+    console.log('Duplicating template:', template.id);
+  };
+
+  const handleDeleteTemplate = (template: EmailTemplate) => {
+    toast({
+      title: "Template deleted",
+      description: `"${template.name}" has been deleted.`,
+      variant: "destructive"
+    });
+    console.log('Deleting template:', template.id);
+  };
+
+  const handleViewCampaignReport = (campaign: EmailCampaign) => {
+    setSelectedCampaign(campaign);
+    setShowCampaignReport(true);
+  };
+
+  const handleDuplicateCampaign = (campaign: EmailCampaign) => {
+    toast({
+      title: "Campaign duplicated",
+      description: `"${campaign.name}" has been duplicated.`
+    });
+    console.log('Duplicating campaign:', campaign.id);
+  };
+
+  const handleExportCampaignData = (campaign: EmailCampaign) => {
+    toast({
+      title: "Export started",
+      description: `Exporting data for "${campaign.name}".`
+    });
+    console.log('Exporting campaign data:', campaign.id);
+  };
+
+  const handleSendEmail = (data: { recipientType: string; subject: string; content: string; templateId?: string }) => {
+    toast({
+      title: "Email sent",
+      description: `Email sent to ${data.recipientType} recipients.`
+    });
+    console.log('Sending email:', data);
+  };
+
   return (
     <div className="space-y-3 md:space-y-4 max-w-full overflow-hidden">
       {/* Header */}
@@ -136,6 +211,35 @@ const EmailManagement: React.FC<EmailManagementProps> = ({ isSidebarCollapsed = 
                 New Template
               </Button>
             </DialogTrigger>
+            <DialogContent className="max-w-4xl">
+              <DialogHeader>
+                <DialogTitle>Create Email Template</DialogTitle>
+                <DialogDescription>Design a reusable email template</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input placeholder="Template Name" />
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="onboarding">Onboarding</SelectItem>
+                      <SelectItem value="product">Product Updates</SelectItem>
+                      <SelectItem value="promotion">Promotions</SelectItem>
+                      <SelectItem value="newsletter">Newsletter</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Input placeholder="Email Subject" />
+                <Textarea placeholder="Template Description" rows={2} />
+                <Textarea placeholder="Email content..." className="min-h-[200px]" />
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setShowTemplateEditor(false)}>Cancel</Button>
+                  <Button onClick={() => setShowTemplateEditor(false)}>Save Template</Button>
+                </div>
+              </div>
+            </DialogContent>
           </Dialog>
           <Button size="sm" className="text-xs md:text-sm">
             <Send className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
@@ -153,16 +257,16 @@ const EmailManagement: React.FC<EmailManagementProps> = ({ isSidebarCollapsed = 
         </TabsList>
 
         <TabsContent value="compose" className="space-y-3 md:space-y-4">
-          <ComposeTab
-            templates={templates}
-            emailStats={emailStats}
-            selectedTemplate={selectedTemplate}
-            onSendEmail={handleSendEmail}
-          />
+          <div className="grid gap-3 md:gap-4 grid-cols-1 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <EmailComposer templates={templates} onSendEmail={handleSendEmail} />
+            </div>
+            <EmailSidebar emailStats={emailStats} selectedTemplate={selectedTemplate} />
+          </div>
         </TabsContent>
 
         <TabsContent value="templates" className="space-y-3 md:space-y-4">
-          <TemplatesTab
+          <EmailTemplateTable
             templates={templates}
             onPreview={handlePreviewTemplate}
             onEdit={handleEditTemplate}
@@ -172,7 +276,7 @@ const EmailManagement: React.FC<EmailManagementProps> = ({ isSidebarCollapsed = 
         </TabsContent>
 
         <TabsContent value="campaigns" className="space-y-3 md:space-y-4">
-          <CampaignsTab
+          <EmailCampaignTable
             campaigns={campaigns}
             onViewReport={handleViewCampaignReport}
             onDuplicate={handleDuplicateCampaign}
@@ -181,16 +285,17 @@ const EmailManagement: React.FC<EmailManagementProps> = ({ isSidebarCollapsed = 
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-3 md:space-y-4">
-          <AnalyticsTab emailStats={emailStats} isSidebarCollapsed={isSidebarCollapsed} />
+          <EmailMetrics isSidebarCollapsed={isSidebarCollapsed} stats={emailStats} />
+          <Alert>
+            <TrendingUp className="h-4 w-4" />
+            <AlertDescription>
+              Email performance is above industry average. Open rates are 24.5% vs industry average of 21.3%.
+            </AlertDescription>
+          </Alert>
         </TabsContent>
       </Tabs>
 
       {/* Modals */}
-      <TemplateEditorDialog
-        isOpen={showTemplateEditor}
-        onClose={() => setShowTemplateEditor(false)}
-      />
-
       <EmailTemplatePreviewModal
         template={selectedTemplate}
         isOpen={showTemplatePreview}

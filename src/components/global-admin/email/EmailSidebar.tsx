@@ -1,11 +1,20 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, Upload, FileText, Copy } from 'lucide-react';
-import { EmailTemplate, EmailStats } from './types';
+
+interface EmailTemplate {
+  id: string;
+  variables: string[];
+}
 
 interface EmailSidebarProps {
-  emailStats: EmailStats;
+  emailStats: {
+    totalSent: number;
+    openRate: number;
+    clickRate: number;
+  };
   selectedTemplate?: EmailTemplate | null;
 }
 
