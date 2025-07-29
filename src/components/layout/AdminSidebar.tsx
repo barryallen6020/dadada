@@ -9,6 +9,7 @@ import {
   X,
   Building2,
   Globe,
+  MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LogoFull from "../common/LogoFull";
@@ -49,6 +50,11 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({
       title: "Bookings",
       icon: <Calendar className="h-5 w-5" />,
       path: "/admin/bookings",
+    },
+    {
+      title: "Messages",
+      icon: <MessageSquare className="h-5 w-5" />,
+      path: "/admin/messages",
     },
     {
       title: "Organization",

@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UserProfile from "./UserProfile";
+import NotificationIcon from "@/components/messaging/NotificationIcon";
 
 interface HeaderProps {
   isNavOpen: boolean;
@@ -43,6 +44,9 @@ const Header: React.FC<HeaderProps> = ({ isNavOpen, toggleNav, user, isAdminRout
       </div>
 
       <div className="flex items-center space-x-4">
+        {!isAdminRoute && user?.role !== 'global_admin' && (
+          <NotificationIcon userRole={user?.role || 'member'} />
+        )}
         <UserProfile user={user} onLogout={onLogout} />
       </div>
     </header>

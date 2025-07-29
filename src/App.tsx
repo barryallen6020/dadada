@@ -51,6 +51,7 @@ import HubManagerActivity from "./pages/hubmanager/HubManagerActivity";
 import HubManagerLearners from "./pages/hubmanager/HubManagerLearners";
 import HubManagerProfile from "./pages/hubmanager/HubManagerProfile";
 import HubManagerSettings from "./pages/hubmanager/HubManagerSettings";
+import HubManagerMessages from "./pages/hubmanager/HubManagerMessages";
 
 // Legal pages
 import TermsOfService from "./pages/legal/TermsOfService";
@@ -58,6 +59,7 @@ import PrivacyPolicy from "./pages/legal/PrivacyPolicy";
 import RefundPolicy from "./pages/legal/RefundPolicy";
 import CookiePolicy from "./pages/legal/CookiePolicy";
 import WorkspaceSeatManagement from "./pages/admin/CreateSeats";
+import Messages from "./pages/admin/Messages";
 
 function App() {
   return (
@@ -101,6 +103,7 @@ function App() {
           <Route path="/admin/hubs" element={<HubManagement />} />
           <Route path="/admin/workspace/create" element={<WorkspaceCreation />} />
           <Route path="/admin/check-in" element={<HubCheckIn />} />
+          <Route path="/admin/messages" element={<Messages />} />
           <Route path="/admin/organization" element={<OrganizationSettings />} />
           <Route path="/admin/workspace/:workspaceId/seat-management" element={<WorkspaceSeatManagement />} />
           
@@ -120,6 +123,7 @@ function App() {
           <Route path="/hubmanager/activity" element={<HubManagerActivity />} />
           <Route path="/hubmanager/learners" element={<HubManagerLearners />} />
           <Route path="/hubmanager/profile" element={<HubManagerProfile />} />
+          <Route path="/hubmanager/messages" element={<HubManagerMessages />} />
           <Route path="/hubmanager/settings" element={<HubManagerSettings />} />
           
           {/* 404 */}

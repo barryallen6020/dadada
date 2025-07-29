@@ -9,6 +9,7 @@ import {
   Users,
   QrCode,
   Activity,
+  MessageSquare,
 } from 'lucide-react';
 
 const HubManagerNavigation = () => {
@@ -44,6 +45,11 @@ const HubManagerNavigation = () => {
       title: "User Management",
       icon: <Users className="h-5 w-5" />,
       path: "/hubmanager/users",
+    },
+    {
+      title: "Messages",
+      icon: <MessageSquare className="h-5 w-5" />,
+      path: "/hubmanager/messages",
     },
     {
       title: "Reports & Analytics",
