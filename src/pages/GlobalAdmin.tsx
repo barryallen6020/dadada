@@ -11,6 +11,8 @@ import SecurityCenter from '@/components/global-admin/SecurityCenter';
 import WaitlistManagement from '@/components/global-admin/WaitlistManagement';
 import EmailManagement from '@/components/global-admin/EmailManagement';
 import MessageComposer from '@/components/messaging/MessageComposer';
+import MessageHistory from '@/components/messaging/MessageHistory';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const GlobalAdmin = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -30,7 +32,24 @@ const GlobalAdmin = () => {
       case 'users':
         return <UserManagement />;
       case 'messages':
-        return <MessageComposer userRole="global_admin" />;
+        return (
+          <div className="space-y-6">
+            <Tabs defaultValue="compose" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="compose">Compose Message</TabsTrigger>
+                <TabsTrigger value="history">Message History</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="compose" className="mt-6">
+                <MessageComposer userRole="global_admin" />
+              </TabsContent>
+              
+              <TabsContent value="history" className="mt-6">
+                <MessageHistory />
+              </TabsContent>
+            </Tabs>
+          </div>
+        );
       case 'waitlist':
         return <WaitlistManagement />;
       case 'emails':

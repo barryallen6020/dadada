@@ -44,7 +44,7 @@ const Header: React.FC<HeaderProps> = ({ isNavOpen, toggleNav, user, isAdminRout
       </div>
 
       <div className="flex items-center space-x-4">
-        {!isAdminRoute && user?.role !== 'global_admin' && (
+        {user?.role !== 'global_admin' && (
           <NotificationIcon userRole={user?.role || 'member'} />
         )}
         <UserProfile user={user} onLogout={onLogout} />
