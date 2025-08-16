@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useOrganization } from '@/contexts/OrganizationContext';
 import { Button } from '@/components/ui/button';
 import { Building2, Check, ChevronsUpDown, Globe, Lock } from 'lucide-react';
@@ -15,26 +15,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import organizationService from '@/services/organizationService';
-
 const OrganizationSwitcher: React.FC = () => {
-  const { currentOrganization, setCurrentOrganization, organizations, setOrganizations } = useOrganization();
+  const { currentOrganization, setCurrentOrganization, organizations } = useOrganization();
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const fetchOrganizations = async () => {
-      try {
-        const response = await organizationService.getAllOrganizations();
-        setOrganizations(response.data);
-      } catch (error) {
-        console.error('Failed to fetch organizations:', error);
-      }
-    };
-
-    fetchOrganizations();
-  }, []);
 
   return (
     <div className="w-full">
