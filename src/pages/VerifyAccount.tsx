@@ -37,7 +37,7 @@ const VerifyAccount = () => {
     alert('Verification code sent to your email!');
   };
   if (isVerified) {
-    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-deskhive-skyblue/20 to-deskhive-orange/20">
+    return <div className="min-h-screen flex items-center justify-center px-4 py-12">
         <Card className="w-full max-w-md glass-nav border-white/20">
           <CardContent className="pt-6">
             <div className="text-center space-y-4">
@@ -55,7 +55,7 @@ const VerifyAccount = () => {
         </Card>
       </div>;
   }
-  return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-deskhive-skyblue/20 to-deskhive-orange/20 p-4 bg-slate-50">
+  return <div className="min-h-screen flex items-center justify-center px-4 py-12">
       <Card className="w-full max-w-md glass-nav border-white/20">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">

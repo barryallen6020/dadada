@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import organizationService from '@/services/organizationService';
+import { organizations } from '@/data/workspaces';
 
 interface Organization {
   id: string;
@@ -31,33 +31,33 @@ const OrganizationContext = createContext<OrganizationContextType>({
 
 export const OrganizationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentOrganization, setCurrentOrganization] = useState<Organization>({
-    id: '',
-    name: '',
+    id: 'org-001', // Default to ALX organization
+    name: 'ALX',
     type: 'public'
   });
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [organizationsList, setOrganizationsList] = useState<Organization[]>(organizations);
 
   useEffect(() => {
-    const fetchMyOrganization = async () => {
-      try {
-        const response = await organizationService.getMyOrganization();
-        if (response.data) {
-          setCurrentOrganization(response.data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch organization:', error);
-      }
-    };
-
-    fetchMyOrganization();
+    // Set default organization to ALX (first organization in demo data)
+    if (organizations.length > 0) {
+      setCurrentOrganization({
+        id: organizations[0].id,
+        name: organizations[0].name,
+        type: organizations[0].type,
+        currency: organizations[0].currency,
+        description: organizations[0].description,
+        logo: organizations[0].logo
+      });
+      setOrganizationsList(organizations);
+    }
   }, []);
 
   return (
     <OrganizationContext.Provider value={{
       currentOrganization,
       setCurrentOrganization,
-      organizations,
-      setOrganizations
+      organizations: organizationsList,
+      setOrganizations: setOrganizationsList
     }}>
       {children}
     </OrganizationContext.Provider>
