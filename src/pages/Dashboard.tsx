@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -7,7 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calendar, SlidersHorizontal, MapPin, Building2, Clock } from "lucide-react"
-import { workspaces } from "@/data/workspaces"
+import { workspaces, organizations } from "@/data/workspaces"
+import { bookings } from "@/data/bookings"
 import FilterModal from "@/components/dashboard/FilterModal"
 import CheckInStatus from "@/components/dashboard/CheckInStatus"
 import { Link, useNavigate } from "react-router-dom"
@@ -15,7 +17,6 @@ import { useOrganization } from "@/contexts/OrganizationContext"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import { getCurrentUser } from "@/services/authService"
-import api from "@/lib/api"
 import { format, parseISO, isAfter } from "date-fns"
 
 const Dashboard = () => {
@@ -26,10 +27,6 @@ const Dashboard = () => {
   const [favorites, setFavorites] = useState<string[]>([])
   const [ratings, setRatings] = useState<Record<string, number>>({})
   const [activeTab, setActiveTab] = useState("all")
-  const [allWorkspaces, setAllWorkspaces] = useState<any[]>([])
-  const [upcomingBookings, setUpcomingBookings] = useState<any[]>([])
-  const [isLoadingBookings, setIsLoadingBookings] = useState(true)
-  const [locations, setLocations] = useState<Record<string, string>>({})
 
   const { currentOrganization } = useOrganization()
 
@@ -52,35 +49,14 @@ const Dashboard = () => {
     }
   }, [])
 
-  // Fetch upcoming bookings
-  useEffect(() => {
-    const fetchUpcomingBookings = async () => {
-      setIsLoadingBookings(true)
-      try {
-        const response = await api.get("/booking/user")
-        if (response.data && response.data.data) {
-          const now = new Date()
-          // Filter to only upcoming bookings with status CONFIRMED or PENDING
-          const upcoming = response.data.data
-            .filter(
-              (booking: any) =>
-                (booking.status === "CONFIRMED" || booking.status === "PENDING") &&
-                isAfter(parseISO(booking.endTime), now),
-            )
-            .sort((a: any, b: any) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
-            .slice(0, 3) // Get only the next 3 upcoming bookings
-
-          setUpcomingBookings(upcoming)
-        }
-      } catch (error) {
-        console.error("Error fetching bookings:", error)
-      } finally {
-        setIsLoadingBookings(false)
-      }
-    }
-
-    fetchUpcomingBookings()
-  }, [])
+  // Get upcoming bookings from demo data
+  const upcomingBookings = bookings
+    .filter(booking => {
+      const bookingDate = new Date(booking.date + ' ' + booking.startTime)
+      return isAfter(bookingDate, new Date()) && booking.status === "confirmed"
+    })
+    .sort((a, b) => new Date(a.date + ' ' + a.startTime).getTime() - new Date(b.date + ' ' + b.startTime).getTime())
+    .slice(0, 3)
 
   const organizationWorkspaces = workspaces
     .filter((workspace) => workspace.enabled !== false && workspace.organizationId === currentOrganization.id)
@@ -130,50 +106,16 @@ const Dashboard = () => {
     console.log("Filters applied:", filters)
   }
 
-  // Fetch workspaces and location data
-  useEffect(() => {
-    const fetchWorkspaces = async () => {
-      try {
-        const response = await api.get("/workspace")
-        // Check the structure of the response and extract workspaces accordingly
-        const workspacesData = response.data.data || response.data || []
-
-        console.log("Workspace API response:", response.data)
-        setAllWorkspaces(workspacesData)
-
-        // Fetch location data for each workspace
-        const locationData: Record<string, string> = {}
-        for (const workspace of workspacesData) {
-          try {
-            // Fetch state data
-            if (workspace.stateId) {
-              const stateResponse = await api.get(`/location/id/${workspace.stateId}`)
-              const stateName = stateResponse.data.data?.name || stateResponse.data?.name
-
-              // Fetch LGA data if available
-              let locationName = stateName
-              if (workspace.lgaId) {
-                const lgaResponse = await api.get(`/location/lga/${workspace.lgaId}`)
-                const lgaName = lgaResponse.data.data?.name || lgaResponse.data?.name
-                locationName = `${lgaName}, ${stateName}`
-              }
-
-              locationData[workspace.id] = locationName
-            }
-          } catch (error) {
-            console.error(`Error fetching location for workspace ${workspace.id}:`, error)
-            locationData[workspace.id] = workspace.address || "Location unavailable"
-          }
-        }
-
-        setLocations(locationData)
-      } catch (error) {
-        console.error("Error fetching workspaces:", error)
-      }
+  const handleBookWorkspace = (workspace: any) => {
+    // Route based on workspace type
+    if (workspace.type === "Hot Desk") {
+      // For shared workspaces, show seat selection
+      navigate(`/book/${workspace.id}?type=seat`)
+    } else {
+      // For rooms (Conference, Training, Private Office), show room booking
+      navigate(`/book/${workspace.id}?type=room`)
     }
-
-    fetchWorkspaces()
-  }, [])
+  }
 
   return (
     <DashboardLayout>
@@ -199,22 +141,18 @@ const Dashboard = () => {
               <CardDescription>Your scheduled workspaces</CardDescription>
             </CardHeader>
             <CardContent>
-              {isLoadingBookings ? (
-                <div className="p-4 text-center">
-                  <p className="text-deskhive-darkgray">Loading your bookings...</p>
-                </div>
-              ) : upcomingBookings.length > 0 ? (
+              {upcomingBookings.length > 0 ? (
                 <div className="space-y-2">
                   {upcomingBookings.map((booking) => (
                     <div key={booking.id} className="p-2 border rounded-md">
                       <p className="font-medium">{booking.workspace?.name}</p>
                       <div className="flex items-center text-xs text-deskhive-darkgray/70 mt-1">
                         <Clock className="h-3 w-3 mr-1" />
-                        {format(parseISO(booking.startTime), "MMM d, yyyy • h:mm a")}
+                        {format(new Date(booking.date + ' ' + booking.startTime), "MMM d, yyyy • h:mm a")}
                       </div>
                       <div className="flex items-center text-xs text-deskhive-darkgray/70 mt-1">
                         <MapPin className="h-3 w-3 mr-1" />
-                        {booking.seat?.label} ({booking.seat?.seatType.replace("_", " ")})
+                        {booking.workspace?.location}
                       </div>
                     </div>
                   ))}
@@ -241,30 +179,26 @@ const Dashboard = () => {
               <CardDescription>Popular workspaces in {currentOrganization.name}</CardDescription>
             </CardHeader>
             <CardContent>
-              {allWorkspaces.length === 0 ? (
-                <div className="p-4 text-center">
-                  <p className="text-deskhive-darkgray">Loading featured hubs...</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {allWorkspaces.slice(0, 2).map((workspace) => (
-                    <div key={workspace.id} className="p-2 border rounded-md flex justify-between items-center">
-                      <div>
-                        <p className="font-medium">{workspace.name}</p>
-                        <div className="flex items-center text-xs text-deskhive-darkgray/70">
-                          <MapPin className="h-3 w-3 mr-1" />
-                          {locations[workspace.id] || workspace.address || "Location unavailable"}
-                        </div>
+              <div className="space-y-2">
+                {organizationWorkspaces.slice(0, 2).map((workspace) => (
+                  <div key={workspace.id} className="p-2 border rounded-md flex justify-between items-center">
+                    <div>
+                      <p className="font-medium">{workspace.name}</p>
+                      <div className="flex items-center text-xs text-deskhive-darkgray/70">
+                        <MapPin className="h-3 w-3 mr-1" />
+                        {workspace.location}
                       </div>
-                      <Link to={`/book/${workspace.id}`}>
-                        <Button size="sm" className="bg-deskhive-navy">
-                          Book
-                        </Button>
-                      </Link>
                     </div>
-                  ))}
-                </div>
-              )}
+                    <Button 
+                      size="sm" 
+                      className="bg-deskhive-navy"
+                      onClick={() => handleBookWorkspace(workspace)}
+                    >
+                      Book
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -296,24 +230,15 @@ const Dashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {allWorkspaces.length === 0 ? (
-            <div className="col-span-3 text-center py-12">
-              <p className="text-deskhive-darkgray">Loading workspaces...</p>
-            </div>
-          ) : (
-            (activeTab === "all" ? allWorkspaces : favoriteWorkspaces).map((workspace) => (
-              <WorkspaceCard
-                key={workspace.id}
-                workspace={{
-                  ...workspace,
-                  location: locations[workspace.id] || workspace.address || "Location unavailable",
-                }}
-                onBook={() => navigate(`/book/${workspace.id}`)}
-                onToggleFavorite={handleToggleFavorite}
-                onRate={handleRate}
-              />
-            ))
-          )}
+          {(activeTab === "all" ? filteredWorkspaces : favoriteWorkspaces).map((workspace) => (
+            <WorkspaceCard
+              key={workspace.id}
+              workspace={workspace}
+              onBook={() => handleBookWorkspace(workspace)}
+              onToggleFavorite={handleToggleFavorite}
+              onRate={handleRate}
+            />
+          ))}
         </div>
 
         <FilterModal
