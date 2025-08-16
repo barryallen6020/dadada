@@ -40,6 +40,55 @@ const BookingPage = () => {
     setIsBookingModalOpen(true);
   };
 
+  // Generate demo seat data for shared workspaces
+  const generateSeatData = (workspaceId: string) => {
+    const seats = [];
+    
+    // Generate desks
+    for (let i = 1; i <= 16; i++) {
+      seats.push({
+        id: `${workspaceId}-desk-${i}`,
+        name: `Desk ${i}`,
+        type: 'Desk',
+        available: Math.random() > 0.3 // 70% availability
+      });
+    }
+    
+    // Generate phone booths
+    for (let i = 1; i <= 4; i++) {
+      seats.push({
+        id: `${workspaceId}-booth-${i}`,
+        name: `Booth ${i}`,
+        type: 'Phone Booth',
+        available: Math.random() > 0.4 // 60% availability
+      });
+    }
+    
+    // Generate meeting rooms
+    for (let i = 1; i <= 4; i++) {
+      seats.push({
+        id: `${workspaceId}-meeting-${i}`,
+        name: `Meeting ${i}`,
+        type: 'Meeting Room',
+        available: Math.random() > 0.5 // 50% availability
+      });
+    }
+    
+    // Generate conference rooms
+    for (let i = 1; i <= 2; i++) {
+      seats.push({
+        id: `${workspaceId}-conf-${i}`,
+        name: `Conference ${i}`,
+        type: 'Conference Room',
+        available: Math.random() > 0.6 // 40% availability
+      });
+    }
+    
+    return seats;
+  };
+
+  const seatData = workspace ? generateSeatData(workspace.id) : [];
+
   const handleSeatSelection = (seat: any) => {
     setSelectedSeat(seat);
   };
@@ -138,8 +187,8 @@ const BookingPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
               <SeatMap 
-                workspaceId={workspace.id}
-                onSeatSelect={handleSeatSelection}
+                seats={seatData}
+                onSelectSeat={handleSeatSelection}
                 selectedSeat={selectedSeat}
               />
             </div>
