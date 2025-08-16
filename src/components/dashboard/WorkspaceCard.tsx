@@ -41,9 +41,9 @@ const WorkspaceCard: React.FC<any> = ({
   
   const currencySymbol = organization?.currency || "₦";
   
-  const imageUrl = workspace.images[0]
+  const imageUrl = workspace.image
   
-  const [formattedLocation, setFormatedLocation] = useState('')
+  const [formattedLocation, setFormatedLocation] = useState(workspace.location || '')
   
   const renderStars = () => {
     return (
@@ -113,7 +113,7 @@ const WorkspaceCard: React.FC<any> = ({
               </div>
               <div className="flex items-center">
                 <Users className="mr-2 h-4 w-4" />
-                {workspace?.seatingCapacity} {workspace?.seatingCapacity === 1 ? "person" : "people"}
+                {workspace?.capacity} {workspace?.capacity === 1 ? "person" : "people"}
               </div>
               {organization && (
                 <div className="flex items-center">
@@ -133,7 +133,7 @@ const WorkspaceCard: React.FC<any> = ({
         </p>
         
         <div className="flex flex-wrap gap-2 mb-4">
-          {workspace?.amenities.map((feature, index) => (
+          {workspace?.features?.map((feature, index) => (
             <Badge 
               key={index} 
               variant="outline" 
@@ -147,7 +147,7 @@ const WorkspaceCard: React.FC<any> = ({
         <div className="flex items-center justify-between mt-4">
           <div>
             <div className="text-deskhive-navy font-semibold">
-              {currencySymbol}{workspace?.pricePerBooking.toLocaleString()} / hour
+              {currencySymbol}{workspace?.pricePerHour?.toLocaleString()} / hour
             </div>
             {renderStars()}
           </div>
