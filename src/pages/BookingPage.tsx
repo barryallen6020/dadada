@@ -100,43 +100,43 @@ const BookingPage = () => {
   };
 
   const renderRoomBooking = () => (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <Card className="glass-nav border-white/20">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-2xl text-deskhive-navy">{workspace.name}</CardTitle>
-              <CardDescription className="text-lg">{workspace.description}</CardDescription>
+        <CardHeader className="pb-3 md:pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-lg md:text-xl lg:text-2xl text-deskhive-navy truncate">{workspace.name}</CardTitle>
+              <CardDescription className="text-sm md:text-base line-clamp-2">{workspace.description}</CardDescription>
             </div>
-            <Badge variant="outline" className="bg-deskhive-skyblue/50 text-deskhive-navy">
+            <Badge variant="outline" className="bg-deskhive-skyblue/50 text-deskhive-navy self-start">
               {workspace.type}
             </Badge>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="flex items-center text-deskhive-darkgray">
-                <MapPin className="h-5 w-5 mr-2 text-deskhive-orange" />
-                <span>{workspace.location}</span>
+        <CardContent className="pt-0">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+            <div className="space-y-3 md:space-y-4">
+              <div className="flex items-center text-deskhive-darkgray text-sm">
+                <MapPin className="h-4 w-4 mr-2 text-deskhive-orange flex-shrink-0" />
+                <span className="truncate">{workspace.location}</span>
               </div>
-              <div className="flex items-center text-deskhive-darkgray">
-                <Users className="h-5 w-5 mr-2 text-deskhive-orange" />
+              <div className="flex items-center text-deskhive-darkgray text-sm">
+                <Users className="h-4 w-4 mr-2 text-deskhive-orange flex-shrink-0" />
                 <span>Capacity: {workspace.seatingCapacity} people</span>
               </div>
-              <div className="flex items-center text-deskhive-darkgray">
-                <Clock className="h-5 w-5 mr-2 text-deskhive-orange" />
+              <div className="flex items-center text-deskhive-darkgray text-sm">
+                <Clock className="h-4 w-4 mr-2 text-deskhive-orange flex-shrink-0" />
                 <span>{workspace.openingTime} - {workspace.closingTime}</span>
               </div>
               
               <div className="space-y-2">
-                <h4 className="font-medium text-deskhive-navy">Amenities</h4>
-                <div className="flex flex-wrap gap-2">
+                <h4 className="font-medium text-deskhive-navy text-sm">Amenities</h4>
+                <div className="flex flex-wrap gap-1 md:gap-2">
                   {workspace.amenities.map((amenity, index) => (
                     <Badge 
                       key={index} 
                       variant="outline" 
-                      className="bg-deskhive-skyblue/30 border-none text-deskhive-darkgray/90"
+                      className="bg-deskhive-skyblue/30 border-none text-deskhive-darkgray/90 text-xs"
                     >
                       {amenity}
                     </Badge>
@@ -145,17 +145,17 @@ const BookingPage = () => {
               </div>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               <div 
-                className="h-48 bg-cover bg-center rounded-lg"
+                className="h-32 md:h-48 bg-cover bg-center rounded-lg"
                 style={{ backgroundImage: `url(${workspace.image})` }}
               />
               <div className="text-center">
-                <div className="text-2xl font-bold text-deskhive-navy mb-2">
+                <div className="text-lg md:text-2xl font-bold text-deskhive-navy mb-2">
                   ₦{workspace.pricePerBooking.toLocaleString()}/hour
                 </div>
                 <Button 
-                  className="bg-deskhive-orange hover:bg-deskhive-orange/90 w-full"
+                  className="bg-deskhive-orange hover:bg-deskhive-orange/90 w-full text-sm"
                   onClick={handleBookRoom}
                 >
                   <CalendarIcon className="h-4 w-4 mr-2" />
@@ -170,22 +170,22 @@ const BookingPage = () => {
   );
 
   const renderSeatBooking = () => (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <Card className="glass-nav border-white/20">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-2xl text-deskhive-navy">{workspace.name}</CardTitle>
-              <CardDescription>Select your seat from the floor plan</CardDescription>
+        <CardHeader className="pb-3 md:pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-lg md:text-xl lg:text-2xl text-deskhive-navy truncate">{workspace.name}</CardTitle>
+              <CardDescription className="text-sm">Select your seat from the floor plan</CardDescription>
             </div>
-            <Badge variant="outline" className="bg-deskhive-skyblue/50 text-deskhive-navy">
+            <Badge variant="outline" className="bg-deskhive-skyblue/50 text-deskhive-navy self-start">
               Shared Workspace
             </Badge>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
+        <CardContent className="pt-0">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+            <div className="lg:col-span-2 order-2 lg:order-1">
               <SeatMap 
                 seats={seatData}
                 onSelectSeat={handleSeatSelection}
@@ -193,34 +193,34 @@ const BookingPage = () => {
               />
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4 order-1 lg:order-2">
               <div className="space-y-2">
-                <h4 className="font-medium text-deskhive-navy">Workspace Details</h4>
-                <div className="flex items-center text-deskhive-darkgray text-sm">
-                  <MapPin className="h-4 w-4 mr-2 text-deskhive-orange" />
-                  <span>{workspace.location}</span>
+                <h4 className="font-medium text-deskhive-navy text-sm">Workspace Details</h4>
+                <div className="flex items-center text-deskhive-darkgray text-xs">
+                  <MapPin className="h-3 w-3 mr-2 text-deskhive-orange flex-shrink-0" />
+                  <span className="truncate">{workspace.location}</span>
                 </div>
-                <div className="flex items-center text-deskhive-darkgray text-sm">
-                  <Clock className="h-4 w-4 mr-2 text-deskhive-orange" />
+                <div className="flex items-center text-deskhive-darkgray text-xs">
+                  <Clock className="h-3 w-3 mr-2 text-deskhive-orange flex-shrink-0" />
                   <span>{workspace.openingTime} - {workspace.closingTime}</span>
                 </div>
               </div>
 
               {selectedSeat && (
                 <Card className="border-deskhive-orange/20 bg-deskhive-orange/5">
-                  <CardContent className="p-4">
-                    <h4 className="font-medium text-deskhive-navy mb-2">Selected Seat</h4>
-                    <p className="text-sm text-deskhive-darkgray mb-1">
+                  <CardContent className="p-3">
+                    <h4 className="font-medium text-deskhive-navy mb-2 text-sm">Selected Seat</h4>
+                    <p className="text-xs text-deskhive-darkgray mb-1">
                       Seat: {selectedSeat.name}
                     </p>
-                    <p className="text-sm text-deskhive-darkgray mb-3">
+                    <p className="text-xs text-deskhive-darkgray mb-3">
                       Type: {selectedSeat.type}
                     </p>
-                    <div className="text-lg font-bold text-deskhive-navy mb-3">
+                    <div className="text-sm md:text-base font-bold text-deskhive-navy mb-3">
                       ₦{workspace.pricePerBooking.toLocaleString()}/hour
                     </div>
                     <Button 
-                      className="bg-deskhive-orange hover:bg-deskhive-orange/90 w-full"
+                      className="bg-deskhive-orange hover:bg-deskhive-orange/90 w-full text-sm"
                       onClick={handleBookSeat}
                     >
                       <CalendarIcon className="h-4 w-4 mr-2" />
@@ -231,8 +231,8 @@ const BookingPage = () => {
               )}
 
               <div className="space-y-2">
-                <h4 className="font-medium text-deskhive-navy">Amenities</h4>
-                <div className="flex flex-wrap gap-2">
+                <h4 className="font-medium text-deskhive-navy text-sm">Amenities</h4>
+                <div className="flex flex-wrap gap-1">
                   {workspace.amenities.map((amenity, index) => (
                     <Badge 
                       key={index} 
@@ -253,21 +253,21 @@ const BookingPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="w-full max-w-7xl mx-auto">
-        <div className="mb-6 flex items-center">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-4 md:mb-6 flex items-center gap-2 md:gap-4">
           <Button 
             variant="ghost" 
             onClick={() => navigate('/dashboard')}
-            className="mr-4 text-deskhive-darkgray hover:text-deskhive-navy"
+            className="p-2 text-deskhive-darkgray hover:text-deskhive-navy"
+            size="sm"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
+            <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-deskhive-navy">
+            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-deskhive-navy">
               Book Workspace
             </h1>
-            <p className="text-deskhive-darkgray/80">
+            <p className="text-sm text-deskhive-darkgray/80 hidden sm:block">
               {bookingType === 'seat' ? 'Select your seat and book' : 'Reserve this space for your team'}
             </p>
           </div>
